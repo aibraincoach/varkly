@@ -1,6 +1,6 @@
 # Tasks — Varkly
 
-**Last updated:** 2026-03-14 (Milestone 6 in progress)
+**Last updated:** 2026-09-07 (Milestone 6 in progress)
 
 Tasks are organized by milestone. Check off items as they are completed and add the date: `[x] Task description [2026-03-14]`.
 
@@ -19,6 +19,7 @@ Tasks are organized by milestone. Check off items as they are completed and add 
 - [x] Write `cursor.md` [2026-03-14]
 - [x] Write `planning.md` [2026-03-14]
 - [x] Write `tasks.md` [2026-03-14]
+- [x] Establish `AGENTS.md` as the canonical rules file, with pointer-only `cursor.md` and `CLAUDE.md`, and synchronize the memory bank with the repository [2026-09-07]
 
 ---
 
@@ -59,7 +60,7 @@ Tasks are organized by milestone. Check off items as they are completed and add 
 
 ## Milestone 4 — Stateless Refactor (remove email, DB, and analytics)
 
-Remove all code that depends on Supabase, email delivery, or server-side persistence. The app must function with zero network calls.
+Remove all code that depends on Supabase, email delivery, or application-side server persistence. Varkly is stateless with respect to application user data, while the intentional Google Analytics and Cloudflare Web Analytics scripts continue reporting traffic to the owner's accounts.
 
 - [x] Remove email capture modal from `LandingPage.tsx` entirely [2026-03-14]
 - [x] Remove "My results" link from the landing page nav [2026-03-14]
@@ -83,6 +84,7 @@ Remove all code that depends on Supabase, email delivery, or server-side persist
 - [x] Remove reCAPTCHA script loading and all `grecaptcha` references from `LandingPage.tsx` [2026-03-14]
 - [x] Update `cursor.md` tech stack table to reflect removed dependencies [2026-03-14]
 - [x] Update `README.md` to reflect stateless architecture and simplified setup [2026-03-14]
+- [x] Document intentional owner-side Google Analytics (`G-QCPTM267KD`) and Cloudflare Web Analytics alongside the stateless user-data architecture [2026-09-07]
 
 ---
 
@@ -113,7 +115,7 @@ Remove all code that depends on Supabase, email delivery, or server-side persist
 - [ ] Add Vitest + React Testing Library — unit tests for `calculateScores` and `generateAIPrompts`
 - [x] Add proper 404 page for unmatched routes [2026-03-14]
 - [ ] Add `<meta>` Open Graph tags to `index.html` for better social sharing previews on the `/r/:hash` URL
-- [ ] Audit and remove all `console.log` statements from production code
+- [x] Audit and remove all `console.log` statements from production code [2026-09-07]
 - [ ] Add E2E test for the full quiz → results → copy prompt flow with Playwright (good-to-have)
 - [x] Fix dark mode flickering during quiz navigation (unstable useEffect deps) [2026-03-14]
 - [x] Fix scroll jump on answer selection (useEffect re-firing window.scrollTo) [2026-03-14]
@@ -122,3 +124,20 @@ Remove all code that depends on Supabase, email delivery, or server-side persist
 - [x] Fix all-zero scores edge case in ResultsPage (dominantStyles) [2026-03-14]
 - [x] Wrap QuizContext functions in useCallback for stable references [2026-03-14]
 - [x] Create BRANDING.md — full brand style guide for designer handoff [2026-03-14]
+- [ ] Reconcile `README.md` claims that the app makes no network calls with the intentional Google Analytics and Cloudflare Web Analytics requests in `index.html`
+- [ ] Fix current ESLint findings: unused `scenario` in `src/components/quiz/Question.tsx`, unused `_` in `src/components/results/ResultsPage.tsx`, and Fast Refresh export warnings in the three context files
+- [ ] Review and remediate the 22 dependency vulnerabilities reported by `npm ci` (3 low, 4 moderate, 15 high) without applying unreviewed breaking upgrades
+
+---
+
+## Session Log
+
+### 2026-09-07 — Memory-bank synchronization
+
+- Created canonical `AGENTS.md` with the session protocols, task rules, code rules, git rules, package-exact tech stack, analytics protections, and deployment guidance.
+- Replaced `cursor.md` with a pointer to `AGENTS.md` and added the equivalent pointer in `CLAUDE.md`.
+- Audited every unchecked task against the repository. Marked only the production `console.log` audit complete; manual prompt checks, React Testing Library coverage, Open Graph metadata, and Playwright coverage remain unchecked because inspection did not prove them complete.
+- Updated `planning.md` to reflect the current package graph, repository structure, Vercel static-SPA target, and intentional owner-side Google Analytics and Cloudflare Web Analytics.
+- Added a follow-up task for the analytics contradiction in `README.md`; did not edit `README.md`, `BRANDING.md`, `COPY.md`, or `PRD.md`.
+- Verification: `npm test` passed 37/37 tests, `npm run build` completed successfully, and `git diff --check` passed.
+- `npm run lint` reported two errors and three warnings in existing application code; `npm ci` reported 22 dependency vulnerabilities. Both findings were recorded above as follow-up tasks and no application code was changed.
