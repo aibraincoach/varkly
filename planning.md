@@ -1,6 +1,6 @@
 # Planning — Varkly
 
-**Last updated:** 2026-03-14
+**Last updated:** 2026-09-07
 
 ---
 
@@ -8,7 +8,7 @@
 
 Varkly is the fastest, most frictionless way to discover your VARK learning style and immediately apply it to every AI tool you use. The experience is instant, playful, and genuinely useful — not another academic form. Every person who completes the quiz leaves with two copy-ready AI prompts that make every AI tool they use smarter about how they learn.
 
-**Varkly is entirely stateless.** No user data is collected or stored. No accounts. No database. No server. Everything runs in the browser — scoring, prompt generation, and results encoding. The only persistence is the shareable URL, which encodes all scores client-side.
+**Varkly is stateless with respect to application user data.** There are no accounts, application database, or application backend. Quiz state, scoring, prompt generation, and results encoding run in the browser. The intentional Google Analytics and Cloudflare Web Analytics scripts report traffic to the owner's accounts but do not restore the removed Varkly user-data persistence layer.
 
 ---
 
@@ -17,48 +17,112 @@ Varkly is the fastest, most frictionless way to discover your VARK learning styl
 ```
 Browser (React SPA)
     │
-    ├── Quiz state         → sessionStorage (ephemeral, cleared on tab close)
-    ├── Theme preference   → localStorage
-    ├── Score calculation  → in-memory (QuizContext.calculateScores)
+    ├── Quiz state           → sessionStorage (ephemeral, cleared on tab close)
+    ├── Theme preference     → localStorage
+    ├── Score calculation    → in-memory (QuizContext.calculateScores)
     ├── AI prompt generation → in-memory (src/utils/aiPrompts.ts)
-    └── Results sharing    → URL encoding (btoa/atob, no server involved)
+    ├── Results sharing      → URL encoding (btoa/atob, no server involved)
+    ├── Google Analytics     → owner account G-QCPTM267KD
+    └── Cloudflare Analytics → owner account beacon configured in index.html
 ```
 
-There is no backend. There is no database. There are no API calls during the quiz or results flow. The app is a pure client-side SPA deployed as static files on Vercel.
+The application is a client-side SPA with no Varkly API, server, or database. It is deployed as static files on Vercel. The two analytics scripts in `index.html` make intentional third-party network requests; this does not make quiz answers or results server-persisted by the application.
 
 ---
 
-## 3. Tech Stack with Rationale
+## 3. Current Tech Stack
 
-### React 18 + TypeScript
-- React chosen for its component model and the ecosystem of animation/chart libraries.
-- TypeScript for correctness across the scoring, prompt generation, and URL encoding logic.
+These package names and version ranges match `package.json`.
 
-### Vite 5
-- Dramatically faster HMR than Create React App. Native ESM. Smaller build output.
+### Runtime dependencies
 
-### React Router v6
-- Declarative routing. `useParams` used to decode scores from the shareable `/r/:hash` URL pattern.
+| Package | Version | Role |
+|---|---|---|
+| `framer-motion` | `^11.18.2` | UI animation |
+| `lucide-react` | `^0.344.0` | Icons |
+| `react` | `^18.3.1` | UI framework |
+| `react-dom` | `^18.3.1` | Browser rendering |
+| `react-router-dom` | `^6.22.2` | Client-side routing |
+| `recharts` | `^2.12.7` | Results visualization |
 
-### Tailwind CSS v3
-- Utility-first allows rapid UI iteration without naming collisions.
-- `dark:` variants for dark mode support without a second stylesheet.
-- `tailwind.config.js` customises the `card` and button utilities via `@layer components`.
+### Development dependencies
 
-### Framer Motion v11
-- Page/card enter animations (opacity + y translate) used throughout.
-- `whileHover` / `whileTap` on buttons for subtle tactile feedback.
+| Package | Version |
+|---|---|
+| `@eslint/js` | `^9.9.1` |
+| `@types/react` | `^18.3.5` |
+| `@types/react-dom` | `^18.3.0` |
+| `@vitejs/plugin-react` | `^4.3.1` |
+| `autoprefixer` | `^10.4.18` |
+| `eslint` | `^9.9.1` |
+| `eslint-plugin-react-hooks` | `^5.1.0-rc.0` |
+| `eslint-plugin-react-refresh` | `^0.4.11` |
+| `globals` | `^15.9.0` |
+| `postcss` | `^8.4.35` |
+| `tailwindcss` | `^3.4.1` |
+| `typescript` | `^5.5.3` |
+| `typescript-eslint` | `^8.3.0` |
+| `vite` | `^5.4.2` |
+| `vitest` | `^4.1.0` |
 
-### Recharts v2
-- Bar chart for VARK score visualisation in `ResultsChart`.
-- Chosen over Chart.js for its React-native API (no imperative DOM manipulation).
+### External platform services
 
-### Vercel
-- Zero-config static SPA deployment. `vercel.json` adds a catch-all rewrite to `index.html` so React Router deep links (`/r/:hash`) work correctly.
+- **Vercel** hosts the static Vite SPA.
+- **Google Analytics** measurement ID `G-QCPTM267KD` is loaded intentionally from `index.html` and reports to the owner's Google account.
+- **Cloudflare Web Analytics** is loaded intentionally by the beacon in `index.html` and reports to the owner's Cloudflare account.
+
+Neither analytics service is part of the application package dependency graph or a replacement for the removed Supabase persistence layer.
 
 ---
 
-## 4. Shareable Results URL Encoding
+## 4. Current File Structure
+
+```text
+.
+├── AGENTS.md                       Canonical agent rules
+├── CLAUDE.md                       Pointer to AGENTS.md for Claude Code
+├── cursor.md                       Pointer to AGENTS.md for Cursor
+├── PRD.md                          Product requirements
+├── planning.md                     Architecture and technical reality
+├── tasks.md                        Living implementation roadmap and session log
+├── index.html                      SPA shell, metadata, and intentional analytics
+├── package.json                    Scripts and package declarations
+├── package-lock.json               npm lockfile
+├── vercel.json                     Vercel SPA rewrite
+├── vite.config.ts                  Vite configuration
+├── eslint.config.js                ESLint configuration
+├── tailwind.config.js              Tailwind theme and content paths
+├── postcss.config.js               PostCSS configuration
+├── tsconfig*.json                  TypeScript configurations
+├── public/
+│   ├── manifest.json               PWA manifest
+│   ├── varkly-icon.svg             Primary app icon
+│   └── brain-icon.svg              Supporting brand asset
+└── src/
+    ├── App.tsx                     Providers, lazy routes, and app shell
+    ├── main.tsx                    Browser entry point
+    ├── index.css                   Global Tailwind layers and styles
+    ├── components/
+    │   ├── landing/                Landing page
+    │   ├── layout/                 Shared navigation, footer, and layout
+    │   ├── quiz/                   Quiz intro, questions, progress, orchestration
+    │   ├── results/                Results, chart, explanations, and AI prompts
+    │   └── shared/                 Error boundary, 404, theme toggle, and toast
+    ├── constants/app.ts            Branding, routes, and storage keys
+    ├── contexts/                   Quiz, theme, and toast state providers
+    ├── data/questions.ts           Thirteen VARK questions
+    ├── hooks/usePageMeta.ts        Route-level title and description updates
+    ├── types/index.ts              Shared application types
+    └── utils/
+        ├── aiPrompts.ts            Deterministic prompt generation
+        └── __tests__/              Vitest coverage for prompt generation
+```
+
+`BRANDING.md`, `COPY.md`, and `README.md` are supporting documentation but are outside this session's synchronization scope.
+
+---
+
+## 5. Shareable Results URL Encoding
 
 Results are encoded entirely client-side. No server lookup is required to view a shared result.
 
@@ -75,7 +139,7 @@ On load, `ResultsPage` decodes `atob(hash)`, splits on `-`, and validates each v
 
 ---
 
-## 5. AI Prompts — Generation Design
+## 6. AI Prompts — Generation Design
 
 ### Approach
 All prompts are generated entirely client-side from the `VarkScores` object. No API calls. No templates stored server-side. The generation function lives in `src/utils/aiPrompts.ts` and is pure — given the same scores, it always produces the same output.
@@ -140,7 +204,9 @@ const dominantStyles = (['V', 'A', 'R', 'K'] as const).filter(k => scores[k] ===
 
 ---
 
-## 6. Vercel Deployment Config
+## 7. Deployment Target — Vercel
+
+The repository is configured for a static Vite deployment on Vercel. The custom-domain example used by the project is `https://varkly.app`; the Vercel project metadata is not checked into the repository.
 
 `vercel.json`:
 ```json
@@ -149,19 +215,19 @@ const dominantStyles = (['V', 'A', 'R', 'K'] as const).filter(k => scores[k] ===
 }
 ```
 
-Ensures the deep-link route `/r/:hash` is served by the React app rather than returning a 404.
+The catch-all rewrite ensures that client-side routes `/`, `/quiz`, `/results`, `/r/:hash`, and the in-app 404 route are all served through `index.html`.
 
 ### Environment Variables
-No environment variables are required for the core application. The app is fully functional with zero configuration.
+No application environment variables are required. Google Analytics and Cloudflare Web Analytics use identifiers embedded intentionally in `index.html`.
 
 ---
 
-## 7. Known Risks and Open Questions
+## 8. Known Risks and Open Questions
 
 | Risk | Severity | Notes |
 |---|---|---|
 | `btoa`/`atob` not available in very old browsers | **Low** | Target modern browsers only; add polyfill if needed |
 | Shareable URL encodes scores only, not full answer breakdown | **Low** | Accepted tradeoff — scores are sufficient to generate prompts and render results |
-| No analytics — no visibility into quiz completion or prompt copy rates | **Medium** | Success metrics defined in PRD have no current collection mechanism; consider adding privacy-preserving analytics (e.g. Plausible, Fathom) |
-| No test suite | **Low** | Add Vitest for `calculateScores` and `generateAIPrompts` — both are pure functions and easy to test |
-| AI prompt copy rate cannot be measured without some form of event tracking | **Medium** | The primary success metric (prompt copy rate) requires at least minimal client-side event tracking to measure |
+| Analytics coverage is not documented at the event level | **Medium** | Google Analytics and Cloudflare Web Analytics are installed intentionally, but the repository does not prove that prompt-copy and quiz-completion success metrics have dedicated events |
+| Partial unit-test coverage | **Low** | Vitest covers `generateAIPrompts`; `calculateScores` and React components do not yet have the planned React Testing Library coverage |
+| No E2E coverage | **Low** | The complete quiz → results → copy-prompt flow is not covered by Playwright |
