@@ -215,6 +215,7 @@ Review of the shipped panels branch found the branch does not typecheck, the key
 - [x] Add Playwright configuration (Chromium, single worker, built preview on `127.0.0.1:4173`) and ignore its generated report, trace, and test-result directories [2026-09-08]
 - [x] Add E2E coverage for keyboard (K1–K11), quiz continuation (S1–S4), route and empty-profile recovery (R1–R9), and responsive layout (U1) [2026-09-08]
 - [x] Update the start-state unit tests for preserved answers, empty and completed previous states, and input immutability [2026-09-08]
+- [x] Remove the Impeccable `THESIS:`–`FINISH:` HTML comment block from `index.html` (body only; preserve `<head>`, analytics, fonts, and scripts byte-for-byte) [2026-09-08]
 
 ### PR C — `docs/panels-sync`
 
@@ -270,3 +271,8 @@ Review of the shipped panels branch found the branch does not typecheck, the key
 - Added `typecheck`, build-gated `build`, `test:e2e`, strict `tsconfig.e2e.json`, and `@playwright/test` 1.63.0.
 - Verification: `npm run lint` (0 issues), `npm test` (109/109), `npm run typecheck` (pass), `npm run test:e2e` (25/25), `npm run build` (pass), `git diff --check` (pass).
 - Landing transfer weight (gzipped JS/CSS + panel WebPs, fonts excluded): 639,258 bytes (0.61 MB); OG image separate at 862 KB. `dist/` contains no recharts, playwright, or vitest references.
+
+### 2026-09-08 — PR #14 HTML thesis-comment cleanup (Task B)
+
+- Removed the Impeccable `THESIS:`–`FINISH:` body HTML comment from `index.html`; `<head>`, analytics scripts, font links, metadata, and body markup otherwise unchanged.
+- Verification: `<head>` byte-for-byte identical to pre-edit snapshot; `git diff --check` pass; `git diff e9f63e4..HEAD` limited to `index.html` comment removal and `tasks.md` records.
