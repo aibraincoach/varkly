@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useQuiz } from '../../contexts/QuizContext';
-import { useToast } from '../../contexts/ToastContext';
+import { useQuiz } from '../../hooks/useQuiz';
+import { useToast } from '../../hooks/useToast';
 import { questions } from '../../data/questions';
 import { panels } from '../../data/panels';
 import { ROUTES } from '../../constants/app';
