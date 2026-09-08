@@ -283,7 +283,7 @@ Template structures, style instruction banks, and word-count constraints are doc
 
 **Motion:** Restrained `vkFade` keyframes and Framer Motion on 404/error surfaces. `prefers-reduced-motion` respected in `index.css`.
 
-**Assets:** 14 WebP images in `public/panels/`; raw total **492,034 bytes**. Authoritative app/tooling measurement via `npm run measure:assets` at commit **`efea9fddc1ba628f24c693ddc3bc4332d9f70109`**: build-based budget estimate **608,162 bytes** (JS/CSS gzip at level 6: 116,128 + panel WebP raw: 492,034) → strict `< 1,200,000` PASS. The same **608,162** result was observed at merge commit `8712a8b` because documentation commits did not change the asset graph. Task 8 will remeasure at the final integrated HEAD. Excludes fonts, source maps, HTML, icons, and OG from the combined metric. `og-image.png` reported separately at **882,538 bytes** (862 KB). Historical DevTools transfer figures (615–639 KB) are superseded by this tooling.
+**Assets:** 14 WebP images in `public/panels/`; raw total **492,034 bytes**. Authoritative app/tooling measurement via `npm run measure:assets` at integrated commit **`dd57ebcff2169b34ac021e84d63fa410e4b8a7cb`** (Task 8 validation): build-based budget estimate **608,162 bytes** (JS/CSS gzip at level 6: 116,128 + panel WebP raw: 492,034) → strict `< 1,200,000` PASS. Same total at prior tooling commit `efea9fd` and merge `8712a8b` because documentation commits did not change the asset graph. Excludes fonts, source maps, HTML, icons, and OG from the combined metric. `og-image.png` reported separately at **882,538 bytes** (862 KB). Historical DevTools transfer figures (615–639 KB) are superseded by this tooling.
 
 Full design-world documentation: `DESIGN.md` and `.impeccable/design.json`.
 

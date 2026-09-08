@@ -226,7 +226,8 @@ Review of the shipped panels branch found the branch does not typecheck, the key
 - [x] Task 5: Same-document shared-route regression coverage — implemented R10 with History API transitions and flash detection [2026-09-08]
 - [x] Task 6: Reproducible asset measurement tooling and npm command; enforce under 1,200,000-byte build-based budget [2026-09-08]
 - [x] Task 7: Integrate updated `feat/panels-screen` into `docs/panels-sync`; synchronize planning, AGENTS, BRANDING, COPY, README, DESIGN [2026-09-08]
-- [ ] Task 8: Final validation on integrated code (`lint`, `test`, `typecheck`, `test:e2e`, asset measurement, `git diff --check`); PR evidence and PPLX handoff (no merge)
+- [x] Task 8 (validation and evidence preparation): Final validation on integrated code (`lint`, `test`, `typecheck`, `test:e2e`, asset measurement, `git diff --check`); PR description and evidence updates [2026-09-08]
+- [ ] Task 8 (handoff — open): Fresh PPLX on changed PR #14/#15 heads, PM triage of review findings, PR merge/deploy (not authorized)
 
 ### PR C — `docs/panels-sync`
 
@@ -408,3 +409,15 @@ Review of the shipped panels branch found the branch does not typecheck, the key
 - Fixed remote-tip claims: docs sync `d992278`; `5848777` was verified pushed tip before this correction; fix round pushed at `9c6875f` (`origin/docs/panels-sync` matches local HEAD).
 - README `npm test` row, planning file tree (copyFeedback, product invariants, measurement tests, E2E specs), Task 5 checkbox (implemented R10), and chronological reorder of close-review Task 1–6 session entries.
 - Verification: doc path sanity (18 paths OK), `npm test` 143/143, `npm run typecheck` pass, `npm run build` pass, `git diff --check` pass.
+
+### 2026-09-08 — Task 8: final validation and evidence preparation (pre-evidence commit)
+
+- **Source SHA:** `dd57ebcff2169b34ac021e84d63fa410e4b8a7cb` (`docs/panels-sync`; integrates PR #14 head `a84ed58c313e3f0f943fe470fc99addb781511ef`).
+- `npm run lint` — 0 errors, 1 warning (`useCopyFeedback.ts`: `react-hooks/exhaustive-deps` unnecessary `addToast` dependency).
+- `npm test` — 134 Vitest + 9 Node script tests = **143/143** passing.
+- `npm run typecheck` — pass (`tsconfig.app`, `tsconfig.node`, `tsconfig.e2e`).
+- `npm run test:e2e` — **41/41** Chromium (K1–K19, K9 matrix, S1–S4, R1–R10, U1 desktop+mobile, I1–I6, clipboard fallback); includes production build.
+- `npm run measure:assets` — build-based budget estimate **608,162** bytes (JS/CSS gzip 116,128 + panel WebP raw 492,034) → PASS; OG **882,538** excluded; source commit `dd57ebc`.
+- `git diff --check` — clean.
+- `dist/` inspection (`rg -i 'playwright|vitest|@testing-library|jest|mocha|cypress|recharts' dist/`) — no matches; no test-framework or Recharts code in production bundle.
+- PR #14 head unchanged at `a84ed58`; PR #15 head at `dd57ebc` before this evidence-only commit. Fresh PPLX, PM triage, merge/deploy remain open.
