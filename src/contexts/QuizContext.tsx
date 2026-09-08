@@ -62,9 +62,26 @@ export const QuizProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [quizState]);
 
   const startQuiz = useCallback(() => {
-    setQuizState(defaultQuizState);
+    setQuizState((prevState) => ({
+      ...prevState,
+      currentQuestionIndex: 0,
+      isCompleted: false,
+    }));
     navigate('/quiz');
   }, [navigate]);
+
+  const goToQuestion = useCallback(
+    (index: number) => {
+      const clamped = Math.max(0, Math.min(12, index));
+      setQuizState((prevState) => ({
+        ...prevState,
+        currentQuestionIndex: clamped,
+        isCompleted: false,
+      }));
+      navigate('/quiz');
+    },
+    [navigate]
+  );
 
   const resetQuiz = useCallback(() => {
     setQuizState(defaultQuizState);
@@ -122,6 +139,23 @@ export const QuizProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
   }, []);
 
+  const toggleOption = useCallback((questionId: number, optionId: string) => {
+    setQuizState((prevState) => {
+      const currentAnswers = prevState.answers[questionId] || [];
+      const nextAnswers = currentAnswers.includes(optionId)
+        ? currentAnswers.filter((id) => id !== optionId)
+        : [...currentAnswers, optionId];
+
+      return {
+        ...prevState,
+        answers: {
+          ...prevState.answers,
+          [questionId]: nextAnswers,
+        },
+      };
+    });
+  }, []);
+
   const isOptionSelected = useCallback((questionId: number, optionId: string): boolean => {
     const answers = quizState.answers[questionId] || [];
     return answers.includes(optionId);
@@ -146,10 +180,12 @@ export const QuizProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const value: QuizContextType = {
     quizState,
     startQuiz,
+    goToQuestion,
     goToNextQuestion,
     goToPreviousQuestion,
     selectOption,
     unselectOption,
+    toggleOption,
     isOptionSelected,
     skipQuestion,
     calculateScores,

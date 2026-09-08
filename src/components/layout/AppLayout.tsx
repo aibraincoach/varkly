@@ -1,5 +1,4 @@
 import React from 'react';
-import AppNav from './AppNav';
 import AppFooter from './AppFooter';
 
 type AppLayoutProps = {
@@ -15,7 +14,6 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       >
         Skip to content
       </a>
-      <AppNav />
       <main id="main" className="flex-1">
         {children}
       </main>
