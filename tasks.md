@@ -358,3 +358,10 @@ Review of the shipped panels branch found the branch does not typecheck, the key
 - No app/Vite asset metric change; tests/docs only outside `src` graph. Authoritative app measurement remains at tooling commit `efea9fd` (608,162 bytes).
 - Verification: focused Node 9/9; `npm test` 143/143; `npm run typecheck` pass; clean `npm run build`; `npm run measure:assets` unchanged at `efea9fd` output.
 - Baseline: `efea9fd`; branch `feat/panels-screen` pushed, not merged.
+
+### 2026-09-08 — Task 8 fix round 1 (lint: useCopyFeedback exhaustive-deps)
+
+- **RED:** `npm run lint` at `a84ed58` — 0 errors, 1 warning (`useCopyFeedback.ts`: unnecessary `addToast` in `useCopyFeedback` `useCallback` deps; callback uses stable `controllerRef` only).
+- **Fix:** Removed `addToast` from `copyText` dependency array (`[]`); toast behavior unchanged via `createCopyFeedbackController` ref callbacks.
+- **GREEN:** focused `copyFeedback.test.ts` 9/9; `npm test` 143/143; `npm run typecheck` pass; `npm run lint` 0 errors, 0 warnings; `git diff --check` pass.
+- PPLX, PM triage, and merge/deploy remain open (not authorized).
