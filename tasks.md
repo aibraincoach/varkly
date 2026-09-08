@@ -345,6 +345,16 @@ Review of the shipped panels branch found the branch does not typecheck, the key
 
 - Added dependency-free `scripts/measure-assets.mjs` + `scripts/lib/measureAssets.mjs`; `npm run measure:assets` measures a clean `dist` build with git SHA, Node version, sorted JS/CSS raw+gzip (level 6), 14 panel WebP raw total, build-based budget estimate, and separate OG raw size.
 - Excludes fonts, source maps, HTML, icons, and OG from the combined metric; labels output as build-based budget estimate (not observed transfer weight). Strict budget `< 1,200,000` bytes enforced with non-zero exit on FAIL.
-- TDD: 7 Node test cases (`scripts/__tests__/measureAssets.test.mjs`) for gzip level, deterministic sorting/filtering, 14-panel sum, missing-asset errors, budget boundaries, and report labels; wired into `npm test`.
-- Verification: clean `npm run build`; `npm run measure:assets` PASS at **608,162 bytes** (JS/CSS gzip 116,128 + panel WebP raw 492,034); OG image raw 882,538; `npm test` 141/141; `npm run typecheck` pass.
-- Baseline: `35eab197`; branch `feat/panels-screen` pushed, not merged.
+- Initial delivery was implementation-first (7 Node tests added after the library); not strict TDD. See fix round 1 for sensitivity proof.
+- **Authoritative tooling/app measurement at `efea9fddc1ba628f24c693ddc3bc4332d9f70109`:** build-based budget estimate **608,162** bytes (JS/CSS gzip 116,128 + panel WebP raw 492,034) → PASS; OG image raw 882,538 (excluded). Replaces historical unexplained 639,258-byte figure from PR #14 application remediation. Task 8 will remeasure at final integrated SHA.
+- Verification: clean `npm run build`; `npm test` 141/141; `npm run typecheck` pass.
+- Baseline: `35eab197`; tooling commit `efea9fd`; branch `feat/panels-screen` pushed, not merged.
+
+### 2026-09-08 — PR #14 close-review Task 6 fix round 1 (TDD remediation and drift guard)
+
+- Corrected process evidence: original Task 6 was not test-first. Performed delete-implementation RED (8/9 Node tests fail with stubbed `measureAssets.mjs`) → restore GREEN (9/9 pass).
+- Added `GZIP_LEVEL === 6` direct assertion; proved RED with temporary `GZIP_LEVEL = 9` (`9 !== 6`) → GREEN at 6.
+- Added `extractPanelImagePathsFromPanelsSource` + drift test reading `src/data/panels.ts` via focused `image: '/panels/…webp'` regex; allowlist must match paths/order exactly.
+- No app/Vite asset metric change; tests/docs only outside `src` graph. Authoritative app measurement remains at tooling commit `efea9fd` (608,162 bytes).
+- Verification: focused Node 9/9; `npm test` 143/143; `npm run typecheck` pass; clean `npm run build`; `npm run measure:assets` unchanged at `efea9fd` output.
+- Baseline: `efea9fd`; branch `feat/panels-screen` pushed, not merged.

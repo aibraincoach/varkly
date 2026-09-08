@@ -1,13 +1,16 @@
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import { mkdtemp, mkdir, writeFile, rm } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import test from 'node:test';
 import {
   BUDGET_LIMIT_BYTES,
   GZIP_LEVEL,
   PANEL_WEBP_RELATIVE_PATHS,
   calculateBuildBasedBudgetEstimate,
+  extractPanelImagePathsFromPanelsSource,
   formatMeasurementReport,
   gzipByteLength,
   isWithinBudget,
@@ -15,6 +18,20 @@ import {
   measureJsCssAssets,
   measurePanelWebps,
 } from '../lib/measureAssets.mjs';
+
+const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
+
+test('GZIP_LEVEL is fixed at 6', () => {
+  assert.equal(GZIP_LEVEL, 6);
+});
+
+test('PANEL_WEBP_RELATIVE_PATHS matches panels.ts image declarations in order', async () => {
+  const panelsSource = await readFile(path.join(repoRoot, 'src/data/panels.ts'), 'utf8');
+  const fromPanelsTs = extractPanelImagePathsFromPanelsSource(panelsSource);
+
+  assert.equal(fromPanelsTs.length, 14);
+  assert.deepEqual(fromPanelsTs, [...PANEL_WEBP_RELATIVE_PATHS]);
+});
 
 test('gzipByteLength uses the fixed gzip level 6', () => {
   const sample = Buffer.from('repeatable gzip payload for asset measurement');

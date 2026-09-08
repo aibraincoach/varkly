@@ -29,6 +29,20 @@ export const PANEL_WEBP_RELATIVE_PATHS = [
 
 export const OG_IMAGE_RELATIVE_PATH = 'og-image.png';
 
+const PANEL_IMAGE_DECLARATION_RE = /image:\s*'\/panels\/([^']+\.webp)'/g;
+
+/**
+ * @param {string} sourceText
+ * @returns {string[]}
+ */
+export function extractPanelImagePathsFromPanelsSource(sourceText) {
+  const paths = [];
+  for (const match of sourceText.matchAll(PANEL_IMAGE_DECLARATION_RE)) {
+    paths.push(`panels/${match[1]}`);
+  }
+  return paths;
+}
+
 /**
  * @param {Buffer} buffer
  * @param {number} [level]
