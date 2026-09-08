@@ -170,11 +170,11 @@ Visible hint on landing, results, and prompts: `With a button focused, Enter or 
 
 ## Tests
 
-Vitest (134 tests in `src/`) plus Node measurement tests (9 in `scripts/__tests__/`) cover pure utilities: `calculateScores`, `encodeScores`/`decodeScores`, `generateAIPrompts`, `clampQuestionIndex`, `copyToClipboard`, copy-feedback lifecycle, `panelsLogic`, product invariants (13 questions, 14 panels), and quiz start-state transitions. **143 unit tests total** (subject to Task 8 rerun at final integrated SHA).
+Vitest (134 tests in `src/`) plus Node measurement tests (9 in `scripts/__tests__/`) cover pure utilities: `calculateScores`, `encodeScores`/`decodeScores`, `generateAIPrompts`, `clampQuestionIndex`, `copyToClipboard`, copy-feedback lifecycle, `panelsLogic`, product invariants (13 questions, 14 panels), and quiz start-state transitions. **143 unit tests total.**
 
-Playwright E2E (**41 Chromium tests** in `e2e/`, subject to Task 8 rerun) covers keyboard ownership (K1–K19), clipboard K9 matrix, quiz continuation (S1–S4), route guards and same-document shared transitions (R1–R10), responsive empty-layout checks (U1), and panel image hints (I1–I6). Install browsers with `npx playwright install chromium`, then run `npm run test:e2e` after `npm run build`.
+Playwright E2E (**41 Chromium tests** in `e2e/`) covers keyboard ownership (K1–K19), clipboard K9 matrix, quiz continuation (S1–S4), route guards and same-document shared transitions (R1–R10), responsive empty-layout checks (U1), and panel image hints (I1–I6). Install browsers with `npx playwright install chromium`, then run `npm run test:e2e` after `npm run build`.
 
-Production `dist/` contains no Playwright or Vitest references. Asset budget: `npm run measure:assets` — authoritative build-based estimate **608,162 bytes** at integrated commit `dd57ebcff2169b34ac021e84d63fa410e4b8a7cb` (Task 8 validation; same total at tooling commit `efea9fd` and merge `8712a8b`). Gzip level 6; OG **882,538** excluded.
+Production `dist/` contains no Playwright or Vitest references. Asset budget: `npm run measure:assets` — authoritative build-based estimate **608,162 bytes** (JS/CSS gzip 116,128 + panel WebP raw 492,034) → strict `< 1,200,000` PASS. Gzip level 6; OG **882,538** excluded. Measurement provenance updated at final integrated HEAD after Task 8 fix round 1.
 
 ---
 
