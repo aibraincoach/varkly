@@ -37,7 +37,7 @@ There is no theme system. The UI is light-only (slate ground, ink controls).
 | Transition | Effect on state |
 |---|---|
 | `startQuiz()` | Reopens at index 0, **preserves every previous answer**, clears completion |
-| `goToQuestion(i)` | Clamps `i` via `clampQuestionIndex(i, questions.length - 1)`, clears completion |
+| `goToQuestion(i)` | Clamps `i` via `clampQuestionIndex(i, questions.length)` (helper max index is `questions.length - 1`), clears completion |
 | `completeQuiz()` | Keeps answers and index, sets completion, navigates to `/results` |
 | `toggleOption()` | Adds or removes one option id for one question |
 | `resetQuiz()` | Restores the default state and removes the storage key |
@@ -137,12 +137,13 @@ Neither analytics service is part of the application package dependency graph or
 ├── playwright.config.ts            Playwright Chromium E2E configuration
 ├── scripts/
 │   ├── measure-assets.mjs          Reproducible dist asset measurement CLI
-│   └── lib/measureAssets.mjs       Build-based budget estimate library
+│   ├── lib/measureAssets.mjs         Build-based budget estimate library
+│   └── __tests__/measureAssets.test.mjs  Node tests for measurement tooling
 ├── eslint.config.js                ESLint configuration
 ├── tailwind.config.js              Sora/JetBrains, ink/ground tokens, panels breakpoint
 ├── postcss.config.js               PostCSS configuration
 ├── tsconfig*.json                  TypeScript configurations
-├── e2e/                            Playwright keyboard, state, route, and layout specs
+├── e2e/                            Playwright: keyboard, clipboard, state, routes, layout, panel-images
 ├── public/
 │   ├── manifest.json               PWA manifest
 │   ├── og-image.png                Open Graph / Twitter card image (1200×630)
@@ -154,8 +155,10 @@ Neither analytics service is part of the application package dependency graph or
     ├── index.css                   Global foundation + approved panel primitives
     ├── components/
     │   ├── layout/                 AppLayout, AppFooter
-    │   ├── panels/                 PanelsScreen, four views, rail, logic
-    │   │   └── __tests__/          Vitest: panelsLogic
+    │   ├── panels/                 PanelsScreen, four views, rail, logic, copy feedback
+    │   │   ├── copyFeedback.ts       Copy-feedback controller (generation ID, timers)
+    │   │   ├── useCopyFeedback.ts    Hook wiring copyToClipboard + toast feedback
+    │   │   └── __tests__/          Vitest: panelsLogic, copyFeedback
     │   └── shared/                 ErrorBoundary, NotFoundPage, Toast
     ├── constants/app.ts            Branding, routes, storage keys
     ├── contexts/
@@ -166,8 +169,9 @@ Neither analytics service is part of the application package dependency graph or
     │   ├── toast-context.ts        Toast context object
     │   └── toastTypes.ts           Toast types
     ├── data/
-    │   ├── questions.ts            Thirteen VARK questions
-    │   └── panels.ts               Panel index 01–14 titles and image slugs
+    │   ├── questions.ts            Thirteen VARK questions (`QUESTION_COUNT`)
+    │   ├── panels.ts               Panel index 01–14 titles and image slugs
+    │   └── __tests__/              Vitest: productInvariants (13 questions, 14 panels)
     ├── hooks/
     │   ├── usePageMeta.ts          Route-level title and description
     │   ├── useQuiz.ts              Quiz context hook
@@ -176,9 +180,9 @@ Neither analytics service is part of the application package dependency graph or
     └── utils/
         ├── aiPrompts.ts            Deterministic prompt generation
         ├── copyToClipboard.ts      Clipboard API first, execCommand fallback
-        ├── navigation.ts           clampQuestionIndex (dataset-derived bounds)
+        ├── navigation.ts           clampQuestionIndex(index, questionCount) — max index questionCount − 1
         ├── scores.ts               Pure score/share helpers
-        └── __tests__/              Vitest: aiPrompts, scores, navigation, copyToClipboard, copyFeedback
+        └── __tests__/              Vitest: aiPrompts, scores, navigation, copyToClipboard
 ```
 
 Removed in the panels redesign (no longer present): `ThemeContext`, `ThemeToggle`, `LandingPage`, `QuizIntro`, `Question`, `QuizContainer`, `ProgressBar`, `ResultsPage`, `ResultsChart`, `ResultsExplanation`, `AIPromptsCard`, `AppNav`, `public/brain-icon.svg`, and all `dark:` styling.
@@ -279,7 +283,7 @@ Template structures, style instruction banks, and word-count constraints are doc
 
 **Motion:** Restrained `vkFade` keyframes and Framer Motion on 404/error surfaces. `prefers-reduced-motion` respected in `index.css`.
 
-**Assets:** 14 WebP images in `public/panels/`; raw total **492,034 bytes**. Authoritative build-based budget estimate via `npm run measure:assets`: **608,162 bytes** (JS/CSS gzip at level 6: 116,128 + panel WebP raw: 492,034) at integrated SHA `8712a8b` — strict `< 1,200,000` PASS. Excludes fonts, source maps, HTML, icons, and OG from the combined metric. `og-image.png` reported separately at **882,538 bytes** (862 KB). Historical DevTools transfer figures (615–639 KB) are superseded by this tooling.
+**Assets:** 14 WebP images in `public/panels/`; raw total **492,034 bytes**. Authoritative app/tooling measurement via `npm run measure:assets` at commit **`efea9fddc1ba628f24c693ddc3bc4332d9f70109`**: build-based budget estimate **608,162 bytes** (JS/CSS gzip at level 6: 116,128 + panel WebP raw: 492,034) → strict `< 1,200,000` PASS. The same **608,162** result was observed at merge commit `8712a8b` because documentation commits did not change the asset graph. Task 8 will remeasure at the final integrated HEAD. Excludes fonts, source maps, HTML, icons, and OG from the combined metric. `og-image.png` reported separately at **882,538 bytes** (862 KB). Historical DevTools transfer figures (615–639 KB) are superseded by this tooling.
 
 Full design-world documentation: `DESIGN.md` and `.impeccable/design.json`.
 
@@ -318,7 +322,7 @@ No application environment variables are required. Analytics identifiers are emb
 | Clipboard fallback limitations | **Low** | `copyToClipboard` tries Clipboard API first, then offscreen textarea + `execCommand`; both paths can fail in restricted or deprecated contexts (non-secure origins, some embedded frames) |
 | `btoa`/`atob` not available in very old browsers | **Low** | Target modern browsers only; add polyfill if needed |
 | Partial unit-test coverage | **Low** | Vitest (134) + Node measurement tests (9) = 143 unit tests covering pure score, prompt, navigation, clipboard, and panels logic; React components have no React Testing Library coverage and are exercised through Playwright instead |
-| E2E runs Chromium only | **Low** | Playwright (41 tests) covers keyboard ownership (K1–K19), clipboard (K9 matrix), quiz continuation (S1–S4), route guards including R10 same-document transitions (R1–R10), responsive layout (U1), and panel image hints (I1–I6) on a single Chromium worker; WebKit and Firefox regressions deferred |
+| E2E runs Chromium only | **Low** | Playwright (41 tests) covers keyboard ownership (K1–K19), clipboard K9 matrix (`e2e/clipboard.spec.ts`), quiz continuation (S1–S4), route guards including R10 same-document transitions (R1–R10, `e2e/routes.spec.ts`), responsive layout (U1, `e2e/layout.spec.ts`), and panel image hints (I1–I6, `e2e/panel-images.spec.ts`) on a single Chromium worker; WebKit and Firefox regressions deferred |
 | Analytics event coverage | **Medium** | GA and Cloudflare are installed; dedicated prompt-copy / quiz-completion events are not proven in-repo |
 
 ---

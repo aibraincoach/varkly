@@ -223,7 +223,7 @@ Review of the shipped panels branch found the branch does not typecheck, the key
 - [x] Task 2: Clipboard fallback (`copyToClipboard`), feedback lifecycle (generation ID, timer ref, stale invalidation), expand K9 and unit tests [2026-09-08]
 - [x] Task 3: Shared navigation clamp from `questions.length - 1` in `QuizContext` and panels route parsing; fixed 13-question panel invariants [2026-09-08]
 - [x] Task 4: Panel image hints (`decoding`, eager/lazy loading); extend U1 empty-layout coverage at 1440×900 and 390×844 [2026-09-08]
-- [x] Task 5: Same-document shared-route regression coverage — extend R9 with History API transitions and flash detection [2026-09-08]
+- [x] Task 5: Same-document shared-route regression coverage — implemented R10 with History API transitions and flash detection [2026-09-08]
 - [x] Task 6: Reproducible asset measurement tooling and npm command; enforce under 1,200,000-byte build-based budget [2026-09-08]
 - [x] Task 7: Integrate updated `feat/panels-screen` into `docs/panels-sync`; synchronize planning, AGENTS, BRANDING, COPY, README, DESIGN [2026-09-08]
 - [ ] Task 8: Final validation on integrated code (`lint`, `test`, `typecheck`, `test:e2e`, asset measurement, `git diff --check`); PR evidence and PPLX handoff (no merge)
@@ -310,12 +310,39 @@ Review of the shipped panels branch found the branch does not typecheck, the key
 - Verification: `npm run lint` (0 issues), `npm test` (109/109), `npm run typecheck` (pass), `npm run test:e2e` (25/25), `npm run build` (pass), `git diff --check` (pass).
 - Landing transfer weight (gzipped JS/CSS + panel WebPs, fonts excluded): 639,258 bytes (0.61 MB); OG image separate at 862 KB. `dist/` contains no recharts, playwright, or vitest references. Superseded by reproducible `npm run measure:assets` output in Task 6 session log.
 
+### 2026-09-08 — PR #14 HTML thesis-comment cleanup (Task B)
+
+- Removed the Impeccable `THESIS:`–`FINISH:` body HTML comment from `index.html`; `<head>`, analytics scripts, font links, metadata, and body markup otherwise unchanged.
+- Verification: `<head>` byte-for-byte identical to pre-edit snapshot; `git diff --check` pass; `git diff e9f63e4..HEAD` limited to `index.html` comment removal and `tasks.md` records.
+
+### 2026-09-08 — PR #14 close-review Task 1 (keyboard ownership)
+
+- Added explicit key ownership in `PanelsScreen`: stable window listeners via refs, `event.code`/`event.key` tracking, owned-keydown swallowing, keyup `preventDefault`, blur/unmount cleanup, ownership retained across route/view changes.
+- Added Playwright regressions K12–K19 (focused Next/Previous/rail/Q13 held Enter/Space, post-release press, window blur); retained K7 page-focused held-key cases and full K1–K11 suite.
+- Verification: `npm test` 109/109, `npm run test:e2e` 33/33 (K12–K19 RED 6/8 fail pre-fix → GREEN 8/8 post-fix).
+- Baseline: `f9b419b`; branch `feat/panels-screen` pushed, not merged.
+
 ### 2026-09-08 — PR #14 close-review Task 2 (clipboard fallback and feedback lifecycle)
 
 - Added `copyToClipboard` with Clipboard API first, legacy offscreen textarea + `execCommand` fallback, focus/selection/scroll restore, and `useCopyFeedback` generation/timer invalidation on navigation and unmount.
 - Expanded K9 to Enter/Space × all four copy controls; added `e2e/clipboard.spec.ts` for real browser `execCommand` path when API is absent.
 - Added 16 unit tests (`copyToClipboard.test.ts`, `copyFeedback.test.ts`); verification: `npm test` 125/125, `npm run test:e2e` 34/34, `npm run typecheck` pass.
 - Baseline: `ee6698a`; branch `feat/panels-screen` pushed, not merged.
+
+### 2026-09-08 — PR #14 close-review Task 3 (derived navigation bounds and fixed-product invariants)
+
+- Added `clampQuestionIndex(index, questionCount)` in `src/utils/navigation.ts`; `QuizContext.goToQuestion` and `panelsLogic.parseRouteState` (via re-exported `clampQuestionIndex`) derive bounds from `questions.length - 1`.
+- Exported `QUESTION_COUNT` from `questions.ts`; eyebrow copy uses it; product invariant tests assert 13 questions, ordered question panels + Results, and `panels.length === QUESTION_COUNT + 1`.
+- TDD: RED (`Cannot find module '../navigation'`, `QUESTION_COUNT` undefined) → GREEN `npm test` 133/133; `npm run typecheck` pass. No new E2E — product clamp behavior unchanged at 13 questions; existing route/panel suites cover helpers.
+- Baseline: `9e2627b`; branch `feat/panels-screen` pushed, not merged.
+
+### 2026-09-08 — PR #14 close-review Task 4 (panel image hints and empty-layout coverage)
+
+- Added `decoding="async"` and first-or-active `loading` eager/lazy hints on panel `<img>` in `Panel.tsx`; artwork paths, sizing, `object-cover`, and decorative empty `alt` unchanged.
+- Added `e2e/panel-images.spec.ts` (I1–I6): attribute hints, mobile scroll render success, activation artwork, layout visibility; TDD RED 5/6 fail pre-hints → GREEN 6/6.
+- Extended U1 at 1440×900 and 390×844 for completed empty local `/results` and zero-score shared `/r/MC0wLTAtMA`: recovery actions, helper, focus note, Retake, no overflow; screenshots in `.superpowers/sdd/varkly-close-review-findings/artifacts/`.
+- Verification: `npm test` 134/134, `npm run typecheck` pass, `npm run test:e2e` 40/40 (focused I1–I6 + U1 + full suite).
+- Baseline: `6010613`; branch `feat/panels-screen` pushed, not merged.
 
 ### 2026-09-08 — PR #14 close-review Task 4 fix round 1 (U1 keys hints and artifact names)
 
@@ -341,41 +368,6 @@ Review of the shipped panels branch found the branch does not typecheck, the key
 - Verification: focused R10 pass; `npm test` 134/134; `typecheck` pass; `test:e2e` 41/41.
 - Baseline: `bdd399d`; branch `feat/panels-screen` pushed, not merged.
 
-### 2026-09-08 — PR #14 close-review Task 4 (panel image hints and empty-layout coverage)
-
-- Added `decoding="async"` and first-or-active `loading` eager/lazy hints on panel `<img>` in `Panel.tsx`; artwork paths, sizing, `object-cover`, and decorative empty `alt` unchanged.
-- Added `e2e/panel-images.spec.ts` (I1–I6): attribute hints, mobile scroll render success, activation artwork, layout visibility; TDD RED 5/6 fail pre-hints → GREEN 6/6.
-- Extended U1 at 1440×900 and 390×844 for completed empty local `/results` and zero-score shared `/r/MC0wLTAtMA`: recovery actions, helper, focus note, Retake, no overflow; screenshots in `.superpowers/sdd/varkly-close-review-findings/artifacts/`.
-- Verification: `npm test` 134/134, `npm run typecheck` pass, `npm run test:e2e` 40/40 (focused I1–I6 + U1 + full suite).
-- Baseline: `6010613`; branch `feat/panels-screen` pushed, not merged.
-
-### 2026-09-08 — PR #14 close-review Task 3 (derived navigation bounds and fixed-product invariants)
-
-- Added `clampQuestionIndex(index, questionCount)` in `src/utils/navigation.ts`; `QuizContext.goToQuestion` and `panelsLogic.parseRouteState` (via re-exported `clampQuestionIndex`) derive bounds from `questions.length - 1`.
-- Exported `QUESTION_COUNT` from `questions.ts`; eyebrow copy uses it; product invariant tests assert 13 questions, ordered question panels + Results, and `panels.length === QUESTION_COUNT + 1`.
-- TDD: RED (`Cannot find module '../navigation'`, `QUESTION_COUNT` undefined) → GREEN `npm test` 133/133; `npm run typecheck` pass. No new E2E — product clamp behavior unchanged at 13 questions; existing route/panel suites cover helpers.
-- Baseline: `9e2627b`; branch `feat/panels-screen` pushed, not merged.
-
-### 2026-09-08 — PR #14 close-review Task 1 (keyboard ownership)
-
-- Added explicit key ownership in `PanelsScreen`: stable window listeners via refs, `event.code`/`event.key` tracking, owned-keydown swallowing, keyup `preventDefault`, blur/unmount cleanup, ownership retained across route/view changes.
-- Added Playwright regressions K12–K19 (focused Next/Previous/rail/Q13 held Enter/Space, post-release press, window blur); retained K7 page-focused held-key cases and full K1–K11 suite.
-- Verification: `npm test` 109/109, `npm run test:e2e` 33/33 (K12–K19 RED 6/8 fail pre-fix → GREEN 8/8 post-fix).
-- Baseline: `f9b419b`; branch `feat/panels-screen` pushed, not merged.
-
-### 2026-09-08 — PR #14 HTML thesis-comment cleanup (Task B)
-
-- Removed the Impeccable `THESIS:`–`FINISH:` body HTML comment from `index.html`; `<head>`, analytics scripts, font links, metadata, and body markup otherwise unchanged.
-- Verification: `<head>` byte-for-byte identical to pre-edit snapshot; `git diff --check` pass; `git diff e9f63e4..HEAD` limited to `index.html` comment removal and `tasks.md` records.
-
-### 2026-09-08 — Task C: PR #15 documentation synchronization
-
-- Merged `origin/feat/panels-screen` (`f9b419bea5bfe1d36f2409255966936f15724940`) into `docs/panels-sync` at `3acc360` without history rewriting. Conflicts in `planning.md` (share-hash decoding paragraph, known-risks table) and `tasks.md` (session log) resolved by retaining the shipped panels documentation structure and applying the corrected behavior contract from PR #14 remediation.
-- Corrected `AGENTS.md`, `planning.md`, `COPY.md`, `DESIGN.md`, and `README.md`: answer-preserving `startQuiz()` via `getQuizStartState`, `completeQuiz`/`isCompleted`, local empty-results access, zero-score prompt prohibition, redirect matrix, question-view shortcut precedence, native button/link activation, exact keyboard hints, focus note, Playwright install/run commands, and dependency tables matching `package.json`.
-- Marked Milestone 8 PR A, PR B, PR C, and PR C remediation tasks complete. Recorded deferred work (WALL_OF_STUPID review, OG optimization, governance docs, About VARK / expanded results) without duplicating open Milestone 7 items.
-- Verification: `npm run lint` (0 issues), `npm test` (109/109), `npm run typecheck` (pass), `npm run test:e2e` (25/25 Chromium), `npm run build` (pass), `git diff --check` (pass). Landing transfer 639,258 bytes (0.61 MB); OG image 882,538 bytes (862 KB). `dist/` contains no Recharts, Playwright, or Vitest references.
-- Commits: merge `f4552fc`, then `a1114af` and `e82717a`. Verified pushed: `origin/docs/panels-sync` at `e82717aa1a35f0dc9c2ff35e55ea5baf891efcc9` (2026-09-08).
-
 ### 2026-09-08 — PR #14 close-review Task 6 (reproducible asset measurement)
 
 - Added dependency-free `scripts/measure-assets.mjs` + `scripts/lib/measureAssets.mjs`; `npm run measure:assets` measures a clean `dist` build with git SHA, Node version, sorted JS/CSS raw+gzip (level 6), 14 panel WebP raw total, build-based budget estimate, and separate OG raw size.
@@ -394,9 +386,17 @@ Review of the shipped panels branch found the branch does not typecheck, the key
 - Verification: focused Node 9/9; `npm test` 143/143; `npm run typecheck` pass; clean `npm run build`; `npm run measure:assets` unchanged at `efea9fd` output.
 - Baseline: `efea9fd`; branch `feat/panels-screen` pushed at `a84ed58`, not merged.
 
+### 2026-09-08 — Task C: PR #15 documentation synchronization
+
+- Merged `origin/feat/panels-screen` (`f9b419bea5bfe1d36f2409255966936f15724940`) into `docs/panels-sync` at `3acc360` without history rewriting. Conflicts in `planning.md` (share-hash decoding paragraph, known-risks table) and `tasks.md` (session log) resolved by retaining the shipped panels documentation structure and applying the corrected behavior contract from PR #14 remediation.
+- Corrected `AGENTS.md`, `planning.md`, `COPY.md`, `DESIGN.md`, and `README.md`: answer-preserving `startQuiz()` via `getQuizStartState`, `completeQuiz`/`isCompleted`, local empty-results access, zero-score prompt prohibition, redirect matrix, question-view shortcut precedence, native button/link activation, exact keyboard hints, focus note, Playwright install/run commands, and dependency tables matching `package.json`.
+- Marked Milestone 8 PR A, PR B, PR C, and PR C remediation tasks complete. Recorded deferred work (WALL_OF_STUPID review, OG optimization, governance docs, About VARK / expanded results) without duplicating open Milestone 7 items.
+- Verification: `npm run lint` (0 issues), `npm test` (109/109), `npm run typecheck` (pass), `npm run test:e2e` (25/25 Chromium), `npm run build` (pass), `git diff --check` (pass). Landing transfer 639,258 bytes (0.61 MB); OG image 882,538 bytes (862 KB). `dist/` contains no Recharts, Playwright, or Vitest references.
+- Commits: merge `f4552fc`, then `a1114af` and `e82717a`. Verified pushed: `origin/docs/panels-sync` at `e82717aa1a35f0dc9c2ff35e55ea5baf891efcc9` (2026-09-08).
+
 ### 2026-09-08 — Task 7: PR #15 integration and documentation synchronization
 
 - Merged `origin/feat/panels-screen` (`a84ed58`) into `docs/panels-sync` at merge commit `8712a8b` without history rewriting. Conflict in `tasks.md` session log only — retained Task C entry (with corrected push evidence for `e82717a`) plus Task 6 session entries from PR #14 head.
-- Synchronized `planning.md`, `AGENTS.md`, `README.md`, `BRANDING.md`, and `DESIGN.md` for keyboard ownership through `keyup`/blur/unmount, question-vs-native button/link behavior, API-first `copyToClipboard` with `execCommand` fallback limitations, copy-feedback generation/timer lifecycle, `clampQuestionIndex` from dataset length with fixed 13-question/14-panel invariants, panel image `decoding`/`loading` hints, expanded coverage (K1–K19, K9 matrix, R10, U1, I1–I6), `npm run measure:assets` (gzip level 6, build-based 608,162 at `8712a8b`, OG 882,538 excluded), 143 unit + 41 Chromium E2E counts (subject to Task 8 rerun), no test frameworks in production `dist/`, stateless app-data vs intentional analytics, and deferred OG/domain/Firefox-WebKit. `COPY.md` already accurate — not edited. Historic PPLX review input preserved; **fresh PPLX required on new PR #14/#15 heads after Task 8** — not rerun in this session.
+- Synchronized `planning.md`, `AGENTS.md`, `README.md`, `BRANDING.md`, and `DESIGN.md` for keyboard ownership through `keyup`/blur/unmount, question-vs-native button/link behavior, API-first `copyToClipboard` with `execCommand` fallback limitations, copy-feedback generation/timer lifecycle, `clampQuestionIndex(index, questions.length)` with fixed 13-question/14-panel invariants, panel image `decoding`/`loading` hints, expanded coverage (K1–K19, K9 matrix, R10, U1, I1–I6), `npm run measure:assets` (authoritative at `efea9fddc1ba628f24c693ddc3bc4332d9f70109`, same 608,162 at merge `8712a8b`; OG 882,538 excluded; Task 8 remeasure pending), 143 unit + 41 Chromium E2E counts (subject to Task 8 rerun), no test frameworks in production `dist/`, stateless app-data vs intentional analytics, and deferred OG/domain/Firefox-WebKit. `COPY.md` already accurate — not edited. Historic PPLX review input preserved; **fresh PPLX required on new PR #14/#15 heads after Task 8** — not rerun in this session.
 - Verification: `npm test` 143/143, `npm run typecheck` pass, `npm run build` pass, `npm run test:e2e` 41/41 Chromium, `npm run measure:assets` PASS (608,162), `git diff --check` pass; `dist/` contains no Playwright/Vitest references.
-- Commits: merge `8712a8b` (pushed), docs `d992278` (pushed). `origin/docs/panels-sync` at `d992278`.
+- Commits: merge `8712a8b` (pushed); docs sync `d992278` (pushed). Verified pushed tip immediately before fix round 1: `5848777`.
