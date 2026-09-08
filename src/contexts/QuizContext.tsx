@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { questions } from '../data/questions';
 import type { QuizContextType, QuizState, VarkScores } from '../types';
+import { clampQuestionIndex } from '../utils/navigation';
 import { calculateScores as calculateScoresFromAnswers } from '../utils/scores';
 import { QuizContext, defaultQuizState, getQuizStartState, normalizeQuizState } from './quiz-context';
 
@@ -39,7 +41,7 @@ export const QuizProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const goToQuestion = useCallback(
     (index: number) => {
-      const clamped = Math.max(0, Math.min(12, index));
+      const clamped = clampQuestionIndex(index, questions.length);
       setQuizState((prevState) => ({
         ...prevState,
         currentQuestionIndex: clamped,

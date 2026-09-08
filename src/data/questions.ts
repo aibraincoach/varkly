@@ -340,3 +340,5 @@ export const questions: Question[] = [
     ]
   }
 ];
+
+export const QUESTION_COUNT = questions.length;
