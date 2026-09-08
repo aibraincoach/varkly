@@ -9,6 +9,7 @@ import ResultsExplanation from './ResultsExplanation';
 import AIPromptsCard from './AIPromptsCard';
 import ResultsLoadingSkeleton from './ResultsLoadingSkeleton';
 import type { VarkScores } from '../../types';
+import { decodeScores, encodeScores, getDominantStyles } from '../../utils/scores';
 import { usePageMeta } from '../../hooks/usePageMeta';
 import { APP } from '../../constants/app';
 
@@ -30,23 +31,12 @@ const ResultsPage: React.FC = () => {
       let currentScores: VarkScores;
 
       if (hash) {
-        try {
-          const decodedScores = atob(hash);
-          const [V, A, R, K] = decodedScores.split('-').map(Number);
-
-          if (
-            !isNaN(V) && !isNaN(A) && !isNaN(R) && !isNaN(K) &&
-            [V, A, R, K].every(score => score >= 0 && score <= 13)
-          ) {
-            currentScores = { V, A, R, K };
-          } else {
-            navigate('/');
-            return;
-          }
-        } catch {
+        const decoded = decodeScores(hash);
+        if (!decoded) {
           navigate('/');
           return;
         }
+        currentScores = decoded;
       } else {
         currentScores = calculateScores();
         const hasAnswers = Object.keys(quizState.answers).length > 0;
@@ -58,8 +48,7 @@ const ResultsPage: React.FC = () => {
 
       setScores(currentScores);
 
-      const scoresString = `${currentScores.V}-${currentScores.A}-${currentScores.R}-${currentScores.K}`;
-      const newHash = btoa(scoresString).replace(/=/g, '');
+      const newHash = encodeScores(currentScores);
       const url = `${window.location.origin}/r/${newHash}`;
       setResultsUrl(url);
 
@@ -110,10 +99,7 @@ const ResultsPage: React.FC = () => {
     }
   };
 
-  const maxScore = Math.max(scores.V, scores.A, scores.R, scores.K);
-  const dominantStyles = maxScore > 0
-    ? Object.entries(scores).filter(([_, value]) => value === maxScore).map(([key]) => key)
-    : [];
+  const dominantStyles = getDominantStyles(scores);
 
   const getFullStyleName = (code: string): string => {
     switch (code) {

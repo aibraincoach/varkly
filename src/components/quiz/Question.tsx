@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { Question as QuestionType } from '../../types';
 import { useQuiz } from '../../contexts/QuizContext';
 import { Check, ChevronLeft, ChevronRight, SkipForward, HelpCircle } from 'lucide-react';
@@ -19,11 +20,41 @@ const Question: React.FC<QuestionProps> = ({ question }) => {
     isOptionSelected,
     skipQuestion 
   } = useQuiz();
+  const navigate = useNavigate();
 
   const hasSelectedOptions = quizState.answers[question.id] && quizState.answers[question.id].length > 0;
+  const isLastQuestion = quizState.currentQuestionIndex === questions.length - 1;
 
-  const callbackRefs = useRef({ goToNextQuestion, goToPreviousQuestion, selectOption, unselectOption, isOptionSelected, skipQuestion });
-  callbackRefs.current = { goToNextQuestion, goToPreviousQuestion, selectOption, unselectOption, isOptionSelected, skipQuestion };
+  const handleNext = () => {
+    goToNextQuestion();
+    if (isLastQuestion) {
+      navigate('/results');
+    }
+  };
+
+  const handleSkip = () => {
+    skipQuestion();
+    if (isLastQuestion) {
+      navigate('/results');
+    }
+  };
+
+  const callbackRefs = useRef({
+    handleNext,
+    goToPreviousQuestion,
+    selectOption,
+    unselectOption,
+    isOptionSelected,
+    handleSkip,
+  });
+  callbackRefs.current = {
+    handleNext,
+    goToPreviousQuestion,
+    selectOption,
+    unselectOption,
+    isOptionSelected,
+    handleSkip,
+  };
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -36,7 +67,14 @@ const Question: React.FC<QuestionProps> = ({ question }) => {
         return;
       }
       
-      const { goToNextQuestion: next, goToPreviousQuestion: prev, selectOption: select, unselectOption: unselect, isOptionSelected: isSelected, skipQuestion: skip } = callbackRefs.current;
+      const {
+        handleNext: next,
+        goToPreviousQuestion: prev,
+        selectOption: select,
+        unselectOption: unselect,
+        isOptionSelected: isSelected,
+        handleSkip: skip,
+      } = callbackRefs.current;
 
       if (['1', '2', '3', '4'].includes(key)) {
         const index = parseInt(key) - 1;
@@ -71,7 +109,7 @@ const Question: React.FC<QuestionProps> = ({ question }) => {
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, [question.id, question.options]);
 
-  const getSimplifiedExplanation = (scenario: string) => {
+  const getSimplifiedExplanation = () => {
     const explanations: Record<number, string> = {
       1: "We want to know how you prefer to learn when building something new. Do you like watching videos, talking it through, reading instructions, or just trying it yourself?",
       2: "This question helps us understand how you learn new skills in the kitchen. Do you prefer visual guides, verbal instructions, written recipes, or hands-on experience?",
@@ -121,7 +159,7 @@ const Question: React.FC<QuestionProps> = ({ question }) => {
         <div className="bg-violet-50 dark:bg-violet-900/20 p-4 rounded-xl mb-6 border border-violet-100 dark:border-violet-800/50">
           <div className="flex items-start">
             <HelpCircle className="w-5 h-5 text-violet-500 dark:text-violet-400 mt-1 mr-2 flex-shrink-0" strokeWidth={2.5} />
-            <p className="text-violet-900/90 dark:text-violet-200">{getSimplifiedExplanation(question.scenario)}</p>
+            <p className="text-violet-900/90 dark:text-violet-200">{getSimplifiedExplanation()}</p>
           </div>
         </div>
         
@@ -175,7 +213,7 @@ const Question: React.FC<QuestionProps> = ({ question }) => {
           
           <div className="flex space-x-3">
             <motion.button
-              onClick={skipQuestion}
+              onClick={handleSkip}
               className="btn-secondary text-sm px-4 py-2"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -188,7 +226,7 @@ const Question: React.FC<QuestionProps> = ({ question }) => {
             </motion.button>
             
             <motion.button
-              onClick={goToNextQuestion}
+              onClick={handleNext}
               className={`${hasSelectedOptions ? 'btn-primary' : 'btn-secondary'} text-sm px-4 py-2`}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
