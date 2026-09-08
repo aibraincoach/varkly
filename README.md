@@ -22,13 +22,13 @@ All routes render the same `PanelsScreen` container with route-derived view stat
 |---|---|
 | `/` | Landing |
 | `/quiz` | Question (index from session state) |
-| `/results` | Results (requires at least one answer) |
-| `/prompts` | AI prompts (requires at least one answer) |
+| `/results` | Results (requires selections or quiz completion) |
+| `/prompts` | AI prompts (requires at least one selection; zero-score completed profiles redirect to `/results`) |
 | `/r/:hash` | Shared results (scores decoded from hash) |
 | `/r/:hash/prompts` | Shared prompts |
 | `*` | 404 |
 
-Invalid share hashes redirect to `/`. Shared links disable answer review.
+Invalid share hashes redirect to `/`. Shared links disable answer review. A skip-all run (completed with zero selections) can view empty local results but cannot open prompts.
 
 ---
 
@@ -74,7 +74,7 @@ The URL encodes aggregate scores only. Legacy links such as `OS0yLTEtMQ` remain 
 | Styling | Tailwind CSS v3 (light-only tokens) |
 | Animation | Framer Motion v11 |
 | Icons | Lucide React |
-| Tests | Vitest (utility tests) |
+| Tests | Vitest (109 utility tests) + Playwright E2E (Chromium) |
 | Deployment | Vercel (static SPA) |
 
 ---
@@ -114,6 +114,16 @@ npm run dev
 
 No environment variables are required.
 
+### E2E tests (Playwright)
+
+```bash
+npx playwright install chromium
+npm run build
+npm run test:e2e
+```
+
+Playwright runs against the production preview on `127.0.0.1:4173` (single Chromium worker).
+
 ### Build for production
 
 ```bash
@@ -130,28 +140,37 @@ Output is in `dist/`. `vercel.json` rewrites all paths to `index.html` for SPA r
 | Command | Description |
 |---|---|
 | `npm run dev` | Start the local development server |
-| `npm run build` | Build for production |
+| `npm run typecheck` | Run TypeScript (`tsc --noEmit`) on app, node, and e2e configs |
+| `npm run build` | Typecheck, then build for production |
 | `npm run preview` | Preview the production build locally |
 | `npm run lint` | Run ESLint |
-| `npm test` | Run Vitest (utility tests) |
+| `npm test` | Run Vitest (utility tests in `src/`) |
 | `npm run test:watch` | Vitest in watch mode |
+| `npm run test:e2e` | Playwright E2E (requires `npx playwright install chromium` first) |
 
 ---
 
 ## Keyboard Shortcuts
 
+Global shortcuts run at the window level. On question views, recognized shortcuts take precedence over focused buttons and links. On landing, results, and prompts, Enter/Space activate a focused button and Enter follows a focused link.
+
 | Context | Keys |
 |---|---|
 | Landing | Enter — start quiz |
 | Questions | 1–4 — toggle options; Enter/→ — next; ← — previous; Space — skip |
-| Results | ← — review last question (normal flow only); Enter — go to prompts |
-| Prompts | ← — back to results; Enter — copy both prompts |
+| Results (nonempty) | ← — review last question (local only); Enter — go to prompts; Space — retake |
+| Results (empty) | ← — review questions (local only); Enter — answer questions / take quiz; Space — retake |
+| Prompts | ← — back to results; Enter — copy both prompts; Space — retake |
+
+Visible hint on landing, results, and prompts: `With a button focused, Enter or Space activates it. With a link focused, Enter follows it.`
 
 ---
 
 ## Tests
 
-Vitest covers pure utilities: `calculateScores`, `encodeScores`/`decodeScores`, `generateAIPrompts`, `panelsLogic`, and quiz fresh-start state. **No Playwright or E2E tests are committed.**
+Vitest (109 tests) covers pure utilities: `calculateScores`, `encodeScores`/`decodeScores`, `generateAIPrompts`, `panelsLogic`, and quiz start-state transitions.
+
+Playwright E2E (25 Chromium tests in `e2e/`) covers the keyboard contract (K1–K11), quiz continuation (S1–S4), route guards and empty-profile recovery (R1–R9), and responsive layout (U1). Install browsers with `npx playwright install chromium`, then run `npm run test:e2e` after `npm run build`.
 
 ---
 

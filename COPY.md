@@ -47,6 +47,7 @@ Route-specific titles and descriptions are set by `PanelsScreen` through `usePag
 - Helper: `Your brain already knows how it works best. Let's teach your AI the same thing.`
 - Primary action: `Let's begin`
 - Keyboard hint: `enter to start`
+- Focus note: `With a button focused, Enter or Space activates it. With a link focused, Enter follows it.`
 
 ### Question view
 
@@ -77,10 +78,16 @@ Route-specific titles and descriptions are set by `PanelsScreen` through `usePag
 - Score names: `Visual`, `Auditory`, `Read/Write`, `Kinesthetic`
 - Copy-link action: `Copy link` → `Copied`
 - Helper: `Share of all selections, across every answered scenario.`
+- Empty-results helper: `Choose at least one answer to get your AI prompts.`
 - Primary action: `Get my AI prompts`
+- Empty-results primary action (local): `Answer questions`
+- Empty-results primary action (shared): `Take quiz`
 - Secondary action: `Retake`
-- Standard keyboard hint: `← review answers · enter get prompts`
-- Shared keyboard hint: `enter get prompts`
+- Nonempty local keyboard hint: `← review answers · enter get prompts · space retake`
+- Nonempty shared keyboard hint: `enter get prompts · space retake`
+- Empty local keyboard hint: `← review questions · enter answer questions · space retake`
+- Empty shared keyboard hint: `enter take quiz · space retake`
+- Focus note (landing, results, prompts): `With a button focused, Enter or Space activates it. With a link focused, Enter follows it.`
 
 ### Prompts view
 
@@ -93,7 +100,9 @@ Route-specific titles and descriptions are set by `PanelsScreen` through `usePag
 - Primary action: `Copy both prompts` → `Copied both`
 - Secondary action: `Retake`
 - Helper: `Paste into ChatGPT, Claude, Gemini or any other AI tool.`
-- Keyboard hint: `← back to results · enter copy both`
+- Keyboard hint: `← back to results · enter copy both · space retake`
+- Focus note: `With a button focused, Enter or Space activates it. With a link focused, Enter follows it.`
+- Zero-score profiles: prompts view is unreachable; personalized prompts are never generated, rendered, or copied.
 
 ### Notifications, errors, and shared controls
 

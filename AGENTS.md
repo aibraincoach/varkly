@@ -55,8 +55,8 @@ Before ending any session, append a dated summary under the **Session Log** head
 
 ### State, Data, and Analytics
 
-- Quiz state lives in `QuizContext` / `quiz-context.ts` and `sessionStorage` key `quizState`. Fields: `currentQuestionIndex`, `answers`, `isCompleted`. `normalizeQuizState()` tolerates legacy blobs missing removed fields (e.g. `userIntent`). `startQuiz()` always clears answers via `getFreshQuizStartState()`.
-- One route-aware `PanelsScreen` serves `/`, `/quiz`, `/results`, `/prompts`, `/r/:hash`, and `/r/:hash/prompts`. Normal `/results` and `/prompts` redirect to `/` without answers. Shared routes decode aggregate scores from the hash only — shared eyebrows use neutral labels, not `N of 13 answered`.
+- Quiz state lives in `QuizContext` / `quiz-context.ts` and `sessionStorage` key `quizState`. Fields: `currentQuestionIndex`, `answers`, `isCompleted`. `normalizeQuizState()` tolerates legacy blobs missing removed fields (e.g. `userIntent`). `startQuiz()` preserves answers via `getQuizStartState()`; only `resetQuiz()` clears them. `completeQuiz()` sets `isCompleted` and navigates to `/results`.
+- One route-aware `PanelsScreen` serves `/`, `/quiz`, `/results`, `/prompts`, `/r/:hash`, and `/r/:hash/prompts`. Local `/results` requires selections or completion (`canViewLocalResults`); `/prompts` requires selections (zero-score profiles redirect to `/results` when completed, otherwise `/`). Shared routes decode aggregate scores from the hash only — shared eyebrows use neutral labels, not `N of 13 answered`. Personalized prompts are never generated for all-zero profiles.
 - Score calculation (`src/utils/scores.ts`), AI prompt generation (`src/utils/aiPrompts.ts`), and results URL encoding are pure client-side operations with no application backend.
 - Google Analytics (`G-QCPTM267KD`) and the Cloudflare Web Analytics beacon in `index.html` are intentional owner-side analytics. Do not remove or treat them as leftover application persistence.
 
