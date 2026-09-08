@@ -322,19 +322,19 @@ const PanelsScreen: React.FC = () => {
     const ownedKeys = new Set<string>();
 
     const onKeyDown = (event: KeyboardEvent) => {
-      const { surface: currentSurface, active: currentActive, isRedirecting: redirecting, runCommand: execute } =
-        keyboardContextRef.current;
-      if (redirecting) return;
-      if (event.defaultPrevented) return;
-      if (isModifiedOrComposing(event)) return;
-      if (isEditableTarget(event.target)) return;
-
       const keyId = getKeyIdentifier(event);
 
       if (ownedKeys.has(keyId)) {
         event.preventDefault();
         return;
       }
+
+      const { surface: currentSurface, active: currentActive, isRedirecting: redirecting, runCommand: execute } =
+        keyboardContextRef.current;
+      if (redirecting) return;
+      if (event.defaultPrevented) return;
+      if (isModifiedOrComposing(event)) return;
+      if (isEditableTarget(event.target)) return;
 
       if (event.repeat) return;
 

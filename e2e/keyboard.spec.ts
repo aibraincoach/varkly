@@ -285,6 +285,23 @@ test('K10: with the page focused Enter opens prompts and Space retakes, clearing
   });
 });
 
+test('K11: Enter on the focused logo follows the link and nothing else', async ({ page }) => {
+  await seedQuizState(page, ANSWERED, '/results');
+  await expectResultsSurface(page);
+
+  const logo = page.getByRole('link', { name: /Varkly/ });
+  await logo.focus();
+  await expect(logo).toBeFocused();
+
+  await page.keyboard.press('Enter');
+
+  await expect(page).toHaveURL(/127\.0\.0\.1:4173\/$/);
+  await expect(page.getByRole('button', { name: "Let's begin" })).toBeVisible();
+  const state = await readQuizState(page);
+  expect(state?.answers).toEqual(ANSWERED.answers);
+  expect(state?.isCompleted).toBe(true);
+});
+
 test('K12: Next focused on question 1 + held Enter ends on question 2', async ({ page }) => {
   await seedQuizState(page, AT_FIRST_QUESTION, '/quiz');
   await expectQuestion(page, 1);
@@ -446,28 +463,10 @@ test('K19: window blur while a key is owned resets ownership so fresh presses wo
   await expectQuestion(page, 2);
 
   await page.evaluate(() => window.dispatchEvent(new Event('blur')));
-  await page.keyboard.up('Enter');
-  await expectQuestion(page, 2);
 
-  await next.focus();
-  await expect(next).toBeFocused();
-  await page.keyboard.press('Enter');
+  await page.keyboard.down('Enter');
   await expectQuestion(page, 3);
-});
 
-test('K11: Enter on the focused logo follows the link and nothing else', async ({ page }) => {
-  await seedQuizState(page, ANSWERED, '/results');
-  await expectResultsSurface(page);
-
-  const logo = page.getByRole('link', { name: /Varkly/ });
-  await logo.focus();
-  await expect(logo).toBeFocused();
-
-  await page.keyboard.press('Enter');
-
-  await expect(page).toHaveURL(/127\.0\.0\.1:4173\/$/);
-  await expect(page.getByRole('button', { name: "Let's begin" })).toBeVisible();
-  const state = await readQuizState(page);
-  expect(state?.answers).toEqual(ANSWERED.answers);
-  expect(state?.isCompleted).toBe(true);
+  await page.keyboard.up('Enter');
+  await expectQuestion(page, 3);
 });
