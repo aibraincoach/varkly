@@ -4,10 +4,10 @@
 
 @layer base {
   :root {
-    --varkly-gradient-light: linear-gradient(145deg, #f5f0ff 0%, #eef6ff 30%, #ecfdf5 60%, #fefce8 85%, #fdf2f8 100%);
-    --varkly-gradient-dark: linear-gradient(145deg, #1e1b4b 0%, #1e3a5f 35%, #134e4a 65%, #451a03 100%);
-    --varkly-surface: rgba(255, 255, 255, 0.95);
-    --varkly-surface-dark: rgba(30, 27, 75, 0.95);
+    color-scheme: light only;
+    --panel-collapsed-width: 64px;
+    --panel-gap: 10px;
+    --panel-gap-total: calc(var(--panel-gap) * 13);
   }
 
   html {
@@ -28,65 +28,85 @@
   }
 
   body {
-    @apply text-gray-900 font-sans antialiased;
+    @apply bg-ground text-ink font-sans antialiased;
     font-feature-settings: "ss01", "ss02", "cv01", "cv02";
-    background: var(--varkly-gradient-light);
-    background-attachment: fixed;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
-  .dark body {
-    @apply text-gray-100;
-    background: var(--varkly-gradient-dark);
-    background-attachment: fixed;
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-semibold tracking-[-0.02em];
   }
 
-  h1, h2, h3, h4, h5, h6 {
-    @apply font-semibold tracking-[-0.025em];
+  ::selection {
+    @apply bg-ink/15 text-ink;
+  }
+
+  *:focus-visible {
+    @apply outline-none ring-2 ring-ink ring-offset-2 ring-offset-ground;
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #dedee3 #f3f3f5;
+  }
+
+  *::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  *::-webkit-scrollbar-track {
+    @apply bg-ground;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    @apply bg-line rounded-full;
+  }
+
+  *::-webkit-scrollbar-thumb:hover {
+    background-color: #c8c8cf;
+  }
+}
+
+@keyframes vkFade {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
   }
 }
 
 @layer components {
-  .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 px-6 py-3.5 font-semibold text-white rounded-2xl transition-all duration-200 ease-out;
-    @apply bg-gradient-to-r from-violet-500 to-indigo-500 hover:from-violet-600 hover:to-indigo-600 active:scale-[0.98];
-    @apply shadow-lg shadow-violet-500/25 hover:shadow-xl hover:shadow-violet-500/35;
-    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white;
-    @apply dark:from-violet-600 dark:to-indigo-600 dark:hover:from-violet-500 dark:hover:to-indigo-500 dark:shadow-violet-900/40 dark:focus-visible:ring-offset-gray-900;
+  .collapsed-panel {
+    flex: 0 0 max(
+      24px,
+      min(
+        var(--panel-collapsed-width),
+        calc((100% - 300px - var(--panel-gap-total)) / 13)
+      )
+    );
   }
 
-  .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 px-6 py-3.5 font-semibold rounded-2xl transition-all duration-200 ease-out;
-    @apply bg-white/90 text-gray-800 border-2 border-gray-200 hover:bg-white hover:border-violet-300 hover:shadow-md active:scale-[0.98];
-    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white;
-    @apply dark:bg-gray-800/90 dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-violet-500 dark:focus-visible:ring-offset-gray-900;
+  .panel-container {
+    container-type: inline-size;
   }
 
-  .card {
-    @apply rounded-2xl p-6 md:p-8 shadow-xl border backdrop-blur-xl;
-    @apply shadow-gray-200/40 border-gray-100/80;
-    @apply dark:shadow-none dark:border-gray-700/80;
-    background-color: rgb(255 255 255 / 0.92);
-  }
-  .dark .card {
-    background-color: rgb(30 27 75 / 0.9);
+  .panel-vertical-label {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    font-size: clamp(9px, 28cqw, 14px);
   }
 
-  .quiz-option {
-    @apply relative rounded-xl p-4 transition-all duration-200 cursor-pointer bg-white/80 border-2 border-gray-100 hover:border-violet-200 hover:bg-white hover:shadow-md active:scale-[0.995];
-    @apply dark:bg-gray-800/80 dark:border-gray-700 dark:hover:border-violet-500 dark:hover:bg-gray-700;
-  }
-
-  .quiz-option.selected {
-    @apply bg-violet-50 border-violet-400 shadow-md shadow-violet-200/50;
-    @apply dark:bg-violet-900/30 dark:border-violet-500 dark:shadow-violet-900/20;
-  }
-
-  .checkbox-custom {
-    @apply h-5 w-5 rounded border-2 border-[#424245] checked:bg-[#0071e3] checked:border-[#0071e3] focus:ring-[#0071e3] transition-colors duration-200;
-  }
-
-  /* Crisp, sharp icons */
-  svg {
-    shape-rendering: geometricPrecision;
+  .text-pretty {
+    text-wrap: pretty;
   }
 }

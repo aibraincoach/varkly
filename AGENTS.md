@@ -47,9 +47,11 @@ Before ending any session, append a dated summary under the **Session Log** head
 
 ### Styling
 
+- Light-only UI — do not add `darkMode`, `dark:` variants, or theme toggles.
 - Use Tailwind utility classes exclusively — do not add inline styles or new CSS files unless absolutely necessary.
-- Dark mode: always include `dark:` variants for new text, background, or border colors.
-- Follow the existing design tokens: `violet-*` for primary, `indigo-*` for secondary, `emerald-*` for success, `red-*` for error, and `gray-*` for neutral.
+- Follow the panels palette tokens: `ink`, `ground`, `line`, `panel`, `track`, `muted-1` through `muted-4`, and `vark-v` / `vark-a` / `vark-r` / `vark-k` for VARK accents.
+- Typography: `font-sans` (Sora) for UI copy; `font-mono` (JetBrains Mono) for measurement labels, progress keys, and numeric readouts.
+- `src/index.css` may define only global foundation styles plus the narrowly allowed panel primitives: `collapsed-panel`, `panel-container`, `panel-vertical-label`, `text-pretty`, and the `vkFade` keyframes.
 
 ### State, Data, and Analytics
 
