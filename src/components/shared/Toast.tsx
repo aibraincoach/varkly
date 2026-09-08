@@ -16,12 +16,19 @@ const styleMap = {
   info: 'bg-white text-ink border border-line',
 };
 
+const liveRegionMap = {
+  success: { role: 'status' as const, ariaLive: 'polite' as const },
+  error: { role: 'alert' as const, ariaLive: 'assertive' as const },
+  info: { role: 'status' as const, ariaLive: 'polite' as const },
+};
+
 const ToastItemComponent: React.FC<{
   toast: ToastItem;
   onDismiss: (id: string) => void;
 }> = ({ toast, onDismiss }) => {
   const Icon = iconMap[toast.type];
   const style = styleMap[toast.type];
+  const liveRegion = liveRegionMap[toast.type];
 
   return (
     <motion.div
@@ -31,8 +38,8 @@ const ToastItemComponent: React.FC<{
       exit={{ opacity: 0, y: -8, scale: 0.96 }}
       transition={{ type: 'spring', damping: 25, stiffness: 300 }}
       className={`flex items-center gap-3 px-4 py-3 rounded-xl shadow-sm ${style}`}
-      role="status"
-      aria-live="polite"
+      role={liveRegion.role}
+      aria-live={liveRegion.ariaLive}
     >
       <Icon className="w-5 h-5 flex-shrink-0" strokeWidth={2.5} aria-hidden />
       <p className="text-sm font-medium flex-1">{toast.message}</p>

@@ -71,8 +71,8 @@ const Panel: React.FC<PanelProps> = ({
         } ${
           isMobile
             ? 'left-4 top-0 h-14 flex items-center gap-2 text-sm'
-            : `left-0 bottom-[22px] w-full flex justify-center gap-2 ${
-                isLanding ? 'text-sm' : 'panel-vertical-label'
+            : `left-0 bottom-[22px] w-full flex justify-center gap-2 panel-vertical-label${
+                isLanding ? ' panel-vertical-label--landing' : ''
               }`
         }`}
       >

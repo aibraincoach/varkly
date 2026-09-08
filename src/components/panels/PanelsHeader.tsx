@@ -11,10 +11,10 @@ const PanelsHeader: React.FC<PanelsHeaderProps> = ({ progressLabel, active }) =>
   const progressPct = getProgressPct(active);
 
   return (
-    <header className="h-[72px] flex items-center justify-between">
+    <header className="h-[72px] flex items-center justify-between gap-3 min-w-0">
       <Link
         to="/"
-        className="flex items-center gap-2.5 font-bold text-xl tracking-[-0.02em] text-ink hover:text-muted-1"
+        className="flex flex-shrink-0 items-center gap-2.5 font-bold text-xl tracking-[-0.02em] text-ink hover:text-muted-1"
       >
         <img
           src="/varkly-icon.svg"
@@ -25,10 +25,10 @@ const PanelsHeader: React.FC<PanelsHeaderProps> = ({ progressLabel, active }) =>
         />
         Varkly<span className="text-ink">.</span>
       </Link>
-      <div className="flex items-center gap-5 text-[13px] text-muted-2">
-        <span className="font-mono">{progressLabel}</span>
+      <div className="flex min-w-0 flex-shrink items-center gap-2 text-[11px] text-muted-2 sm:gap-5 sm:text-[13px]">
+        <span className="font-mono whitespace-nowrap">{progressLabel}</span>
         <div
-          className="w-[120px] h-[3px] bg-line rounded-sm overflow-hidden"
+          className="h-[3px] w-[72px] flex-shrink-0 bg-line rounded-sm overflow-hidden sm:w-[120px]"
           role="progressbar"
           aria-valuenow={progressPct}
           aria-valuemin={0}

@@ -106,6 +106,10 @@
     font-size: clamp(9px, 28cqw, 14px);
   }
 
+  .panel-vertical-label--landing {
+    font-size: 14px;
+  }
+
   .text-pretty {
     text-wrap: pretty;
   }
