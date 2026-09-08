@@ -220,7 +220,7 @@ Review of the shipped panels branch found the branch does not typecheck, the key
 ### PR B close-review remediation — `feat/panels-screen` (Tasks 1–8)
 
 - [x] Task 1: Keyboard ownership and focused-control regressions — explicit key ownership in `PanelsScreen`, focused Playwright held-key tests, retain page-focused repeat cases [2026-09-08]
-- [ ] Task 2: Clipboard fallback (`copyToClipboard`), feedback lifecycle (generation ID, timer ref, stale invalidation), expand K9 and unit tests
+- [x] Task 2: Clipboard fallback (`copyToClipboard`), feedback lifecycle (generation ID, timer ref, stale invalidation), expand K9 and unit tests [2026-09-08]
 - [ ] Task 3: Shared navigation clamp from `questions.length - 1` in `QuizContext` and panels route parsing; fixed 13-question panel invariants
 - [ ] Task 4: Panel image hints (`decoding`, eager/lazy loading); extend U1 empty-layout coverage at 1440×900 and 390×844
 - [ ] Task 5: Same-document shared-route regression coverage — extend R9 with History API transitions and flash detection
@@ -283,7 +283,13 @@ Review of the shipped panels branch found the branch does not typecheck, the key
 - Verification: `npm run lint` (0 issues), `npm test` (109/109), `npm run typecheck` (pass), `npm run test:e2e` (25/25), `npm run build` (pass), `git diff --check` (pass).
 - Landing transfer weight (gzipped JS/CSS + panel WebPs, fonts excluded): 639,258 bytes (0.61 MB); OG image separate at 862 KB. `dist/` contains no recharts, playwright, or vitest references.
 
-### 2026-09-08 — PR #14 close-review Task 1 (keyboard ownership)
+### 2026-09-08 — PR #14 close-review Task 2 (clipboard fallback and feedback lifecycle)
+
+- Added `copyToClipboard` with Clipboard API first, legacy offscreen textarea + `execCommand` fallback, focus/selection/scroll restore, and `useCopyFeedback` generation/timer invalidation on navigation and unmount.
+- Expanded K9 to Enter/Space × all four copy controls; added `e2e/clipboard.spec.ts` for real browser `execCommand` path when API is absent.
+- Added 16 unit tests (`copyToClipboard.test.ts`, `copyFeedback.test.ts`); verification: `npm test` 125/125, `npm run test:e2e` 34/34, `npm run typecheck` pass.
+- Baseline: `ee6698a`; branch `feat/panels-screen` pushed, not merged.
+
 
 - Added explicit key ownership in `PanelsScreen`: stable window listeners via refs, `event.code`/`event.key` tracking, owned-keydown swallowing, keyup `preventDefault`, blur/unmount cleanup, ownership retained across route/view changes.
 - Added Playwright regressions K12–K19 (focused Next/Previous/rail/Q13 held Enter/Space, post-release press, window blur); retained K7 page-focused held-key cases and full K1–K11 suite.

@@ -16,6 +16,7 @@ import ResultsView from './ResultsView';
 import PromptsView from './PromptsView';
 import ActionRow from './ActionRow';
 import PanelRail from './PanelRail';
+import { useCopyFeedback } from './useCopyFeedback';
 import {
   countAnsweredQuestions,
   focusOwnsKey,
@@ -89,7 +90,10 @@ const PanelsScreen: React.FC = () => {
 
   const [isMobile, setIsMobile] = useState(false);
   const [panelGap, setPanelGap] = useState(10);
-  const [copiedKey, setCopiedKey] = useState('');
+  const { copiedKey, copyText } = useCopyFeedback({
+    addToast,
+    invalidateOnPathname: location.pathname,
+  });
 
   const isLanding = surface === 'landing';
   const isQuestion = surface === 'question';
@@ -159,20 +163,6 @@ const PanelsScreen: React.FC = () => {
       navigate(redirectTarget, { replace: true });
     }
   }, [redirectTarget, navigate]);
-
-  const copyText = useCallback(
-    async (key: string, text: string, successMessage: string) => {
-      try {
-        await navigator.clipboard.writeText(text);
-        setCopiedKey(key);
-        addToast(successMessage);
-        setTimeout(() => setCopiedKey(''), 2000);
-      } catch {
-        addToast('Could not copy. Please try again.', 'error');
-      }
-    },
-    [addToast]
-  );
 
   const handleCopyLink = useCallback(() => {
     const encoded = encodeScores(scores);
