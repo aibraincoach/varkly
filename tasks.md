@@ -224,7 +224,7 @@ Review of the shipped panels branch found the branch does not typecheck, the key
 - [x] Task 3: Shared navigation clamp from `questions.length - 1` in `QuizContext` and panels route parsing; fixed 13-question panel invariants [2026-09-08]
 - [x] Task 4: Panel image hints (`decoding`, eager/lazy loading); extend U1 empty-layout coverage at 1440×900 and 390×844 [2026-09-08]
 - [x] Task 5: Same-document shared-route regression coverage — extend R9 with History API transitions and flash detection [2026-09-08]
-- [ ] Task 6: Reproducible asset measurement tooling and npm command; enforce under 1,200,000-byte build-based budget
+- [x] Task 6: Reproducible asset measurement tooling and npm command; enforce under 1,200,000-byte build-based budget [2026-09-08]
 - [ ] Task 7: Integrate updated `feat/panels-screen` into `docs/panels-sync`; synchronize planning, AGENTS, BRANDING, COPY, README, DESIGN
 - [ ] Task 8: Final validation on integrated code (`lint`, `test`, `typecheck`, `test:e2e`, asset measurement, `git diff --check`); PR evidence and PPLX handoff (no merge)
 
@@ -281,7 +281,7 @@ Review of the shipped panels branch found the branch does not typecheck, the key
 - Added Playwright E2E suite (25 tests: K1–K11, S1–S4, R1–R9, U1) and expanded unit tests (83 → 109).
 - Added `typecheck`, build-gated `build`, `test:e2e`, strict `tsconfig.e2e.json`, and `@playwright/test` 1.63.0.
 - Verification: `npm run lint` (0 issues), `npm test` (109/109), `npm run typecheck` (pass), `npm run test:e2e` (25/25), `npm run build` (pass), `git diff --check` (pass).
-- Landing transfer weight (gzipped JS/CSS + panel WebPs, fonts excluded): 639,258 bytes (0.61 MB); OG image separate at 862 KB. `dist/` contains no recharts, playwright, or vitest references.
+- Landing transfer weight (gzipped JS/CSS + panel WebPs, fonts excluded): 639,258 bytes (0.61 MB); OG image separate at 862 KB. `dist/` contains no recharts, playwright, or vitest references. Superseded by reproducible `npm run measure:assets` output in Task 6 session log.
 
 ### 2026-09-08 — PR #14 close-review Task 2 (clipboard fallback and feedback lifecycle)
 
@@ -340,3 +340,11 @@ Review of the shipped panels branch found the branch does not typecheck, the key
 
 - Removed the Impeccable `THESIS:`–`FINISH:` body HTML comment from `index.html`; `<head>`, analytics scripts, font links, metadata, and body markup otherwise unchanged.
 - Verification: `<head>` byte-for-byte identical to pre-edit snapshot; `git diff --check` pass; `git diff e9f63e4..HEAD` limited to `index.html` comment removal and `tasks.md` records.
+
+### 2026-09-08 — PR #14 close-review Task 6 (reproducible asset measurement)
+
+- Added dependency-free `scripts/measure-assets.mjs` + `scripts/lib/measureAssets.mjs`; `npm run measure:assets` measures a clean `dist` build with git SHA, Node version, sorted JS/CSS raw+gzip (level 6), 14 panel WebP raw total, build-based budget estimate, and separate OG raw size.
+- Excludes fonts, source maps, HTML, icons, and OG from the combined metric; labels output as build-based budget estimate (not observed transfer weight). Strict budget `< 1,200,000` bytes enforced with non-zero exit on FAIL.
+- TDD: 7 Node test cases (`scripts/__tests__/measureAssets.test.mjs`) for gzip level, deterministic sorting/filtering, 14-panel sum, missing-asset errors, budget boundaries, and report labels; wired into `npm test`.
+- Verification: clean `npm run build`; `npm run measure:assets` PASS at **608,162 bytes** (JS/CSS gzip 116,128 + panel WebP raw 492,034); OG image raw 882,538; `npm test` 141/141; `npm run typecheck` pass.
+- Baseline: `35eab197`; branch `feat/panels-screen` pushed, not merged.
