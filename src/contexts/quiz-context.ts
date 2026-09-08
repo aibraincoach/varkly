@@ -7,11 +7,11 @@ export const defaultQuizState: QuizState = {
   isCompleted: false,
 };
 
-export function getFreshQuizStartState(previousState: QuizState): QuizState {
-  void previousState;
+/** Reopening the quiz is a continuation, not a reset — only Retake clears answers. */
+export function getQuizStartState(previousState: QuizState): QuizState {
   return {
     currentQuestionIndex: 0,
-    answers: {},
+    answers: { ...previousState.answers },
     isCompleted: false,
   };
 }

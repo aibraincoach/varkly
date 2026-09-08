@@ -30,6 +30,33 @@ The application is a client-side SPA with no Varkly API, server, or database. It
 
 There is no theme system. The UI is light-only (slate ground, ink controls).
 
+### Quiz state transitions
+
+`QuizContext` owns the only mutable quiz state and mirrors it to `sessionStorage` under `quizState`.
+
+| Transition | Effect on state |
+|---|---|
+| `startQuiz()` | Reopens at index 0, **preserves every previous answer**, clears completion |
+| `goToQuestion(i)` | Clamps `i` to 0–12, clears completion |
+| `completeQuiz()` | Keeps answers and index, sets completion, navigates to `/results` |
+| `toggleOption()` | Adds or removes one option id for one question |
+| `resetQuiz()` | Restores the default state and removes the storage key |
+
+Reaching the landing view — through the logo, a browser back, or a shared link — never mutates state. `completeQuiz()` fires only when Next or Skip leaves question index 12, so a genuine skip-all run is a completed profile with no selections rather than an abandoned one.
+
+### Route guards
+
+`PanelsScreen` decodes `/r/:hash` synchronously from the current URL on every render, so a previously viewed profile can never govern the next route. Two independent predicates drive the guards: `hasAnswers` (the active local or shared profile has selections) and `canViewLocalResults` (local selections exist **or** the quiz was completed).
+
+| Route | Selections | No selections, completed | No selections, not completed |
+|---|---|---|---|
+| `/results` | Normal result | Empty result | Replace `/` |
+| `/prompts` | Normal prompts | Replace `/results` | Replace `/` |
+| `/r/:hash` | Normal result | Empty result (valid all-zero link) | — |
+| `/r/:hash/prompts` | Normal prompts | Replace `/r/:hash` | — |
+
+An invalid share hash replaces to `/`. While a guard is redirecting the screen renders only the spinner, so prompts never flash for an invalid or empty profile. Personalized prompts are nullable and are never generated, rendered, or copied for an all-zero profile.
+
 ---
 
 ## 3. Current Tech Stack
@@ -51,6 +78,7 @@ These package names and version ranges match `package.json`.
 | Package | Version |
 |---|---|
 | `@eslint/js` | `^9.9.1` |
+| `@playwright/test` | `1.63.0` |
 | `@types/react` | `^18.3.5` |
 | `@types/react-dom` | `^18.3.0` |
 | `@vitejs/plugin-react` | `^4.3.1` |
@@ -102,10 +130,12 @@ Neither analytics service is part of the application package dependency graph or
 ├── package-lock.json               npm lockfile
 ├── vercel.json                     Vercel SPA rewrite
 ├── vite.config.ts                  Vite configuration
+├── playwright.config.ts            Playwright Chromium E2E configuration
 ├── eslint.config.js                ESLint configuration
 ├── tailwind.config.js              Sora/JetBrains, ink/ground tokens, panels breakpoint
 ├── postcss.config.js               PostCSS configuration
 ├── tsconfig*.json                  TypeScript configurations
+├── e2e/                            Playwright keyboard, state, route, and layout specs
 ├── public/
 │   ├── manifest.json               PWA manifest
 │   ├── og-image.png                Open Graph / Twitter card image (1200×630)
@@ -152,8 +182,8 @@ Removed in the panels redesign (no longer present): `ThemeContext`, `ThemeToggle
 |---|---|---|---|
 | `/` | `-1` (landing) | landing | — |
 | `/quiz` | `0–12` (from `currentQuestionIndex`) | question | — |
-| `/results` | `13` | results | Redirect to `/` if no answers in session |
-| `/prompts` | `13` | prompts | Redirect to `/` if no answers in session |
+| `/results` | `13` | results | Redirect to `/` if not completed and no selections |
+| `/prompts` | `13` | prompts | Redirect to `/results` if completed with no selections; to `/` if not completed |
 | `/r/:hash` | `13` | results (shared) | Invalid hash → redirect `/`; previous/review disabled |
 | `/r/:hash/prompts` | `13` | prompts (shared) | Invalid hash → redirect `/` |
 | `*` | — | 404 (`NotFoundPage`) | — |
@@ -172,11 +202,11 @@ Shared routes decode scores from the hash only. Question panels are desaturated;
 |---|---|---|
 | `currentQuestionIndex` | `number` | `-1` landing; `0–12` during quiz; `13` implied on results/prompts routes |
 | `answers` | `Record<number, string[]>` | Multi-select option IDs per question |
-| `isCompleted` | `boolean` | Retained in shape; reset on fresh start |
+| `isCompleted` | `boolean` | Set by `completeQuiz()`; cleared by `startQuiz()` and `goToQuestion()` |
 
 **Persistence:** Written on every state change; restored on load via `normalizeQuizState()`.
 
-**Fresh start:** `startQuiz()` calls `getFreshQuizStartState()` — always clears `answers` and sets `currentQuestionIndex` to `0`. Mid-quiz refresh still restores in-progress answers.
+**Fresh start:** `startQuiz()` calls `getQuizStartState()` — preserves every previous answer, sets `currentQuestionIndex` to `0`, and clears `isCompleted`. Only `resetQuiz()` clears answers. Mid-quiz refresh still restores in-progress answers.
 
 **Reset:** `resetQuiz()` clears state to `defaultQuizState`, removes `sessionStorage`, navigates to `/`.
 
@@ -195,7 +225,7 @@ strip padding: "OS0yLTEtMQ"
 final URL:     https://varkly-eight.vercel.app/r/OS0yLTEtMQ
 ```
 
-`decodeScores(hash)` validates four numeric parts in range `0–13`. Invalid hashes redirect to `/`.
+`PanelsScreen` decodes `atob(hash)` during render via `decodeScores()`, splits on `-`, and validates each value is a number between 0 and 13. Decoding is deliberately synchronous and unstored so no shared profile survives into a later route. Invalid hashes replace to `/`.
 
 **Compatibility:** Legacy share links such as `OS0yLTEtMQ` round-trip correctly (verified in `scores.test.ts`).
 
@@ -238,7 +268,7 @@ Template structures, style instruction banks, and word-count constraints are doc
 
 **Motion:** Restrained `vkFade` keyframes and Framer Motion on 404/error surfaces. `prefers-reduced-motion` respected in `index.css`.
 
-**Assets:** 14 WebP images in `public/panels/`; raw total **492,034 bytes**. Production-preview landing transfer measured **615,222 bytes** (under 1.2 MB budget).
+**Assets:** 14 WebP images in `public/panels/`; raw total **492,034 bytes**. Production-preview landing transfer measured **639,258 bytes** (0.61 MB, under 1.2 MB budget). `og-image.png` is separate at **882,538 bytes** (862 KB).
 
 Full design-world documentation: `DESIGN.md` and `.impeccable/design.json`.
 
@@ -270,12 +300,14 @@ No application environment variables are required. Analytics identifiers are emb
 
 | Risk | Severity | Notes |
 |---|---|---|
-| Image bundle weight | **Medium** | 14 WebP assets (492 KB raw) dominate landing transfer (~615 KB total); monitor if more images are added |
+| Image bundle weight | **Medium** | 14 WebP assets (492 KB raw) dominate landing transfer (~639 KB total); monitor if more images are added |
 | sessionStorage schema drift | **Low** | `normalizeQuizState()` tolerates removed fields; future field additions need the same tolerance |
-| Static generic OG previews | **Low** | `/r/:hash` shares use site-wide `og-image.png`, not score-specific cards |
+| Static generic OG previews | **Low** | `/r/:hash` shares use site-wide `og-image.png` (862 KB), not score-specific cards |
 | Aggregate share hashes | **Low** | URL encodes scores only; cannot show "N of 13 answered" on shared routes |
 | Clipboard API fallback absent | **Low** | Copy actions use `navigator.clipboard.writeText` only; no `document.execCommand` fallback |
-| Utility tests only | **Low** | 83 Vitest tests cover pure helpers; no committed Playwright/E2E coverage |
+| `btoa`/`atob` not available in very old browsers | **Low** | Target modern browsers only; add polyfill if needed |
+| Partial unit-test coverage | **Low** | Vitest (109 tests) covers pure score, prompt, and panels logic; React components have no React Testing Library coverage and are exercised through Playwright instead |
+| E2E runs Chromium only | **Low** | Playwright (25 tests) covers the keyboard contract, quiz continuation, route guards, and responsive layout on a single Chromium worker against the built preview; WebKit and Firefox regressions would not be caught |
 | Analytics event coverage | **Medium** | GA and Cloudflare are installed; dedicated prompt-copy / quiz-completion events are not proven in-repo |
 
 ---

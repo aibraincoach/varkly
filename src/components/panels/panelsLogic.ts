@@ -18,6 +18,33 @@ export type KeyboardCommand =
   | 'previous'
   | 'skip';
 
+export type PanelsSurface = 'landing' | 'question' | 'results' | 'prompts';
+
+export type PageSurface = Exclude<PanelsSurface, 'question'>;
+
+export type QuestionAction =
+  | { kind: 'toggle'; optionIndex: number }
+  | { kind: 'next' }
+  | { kind: 'complete' }
+  | { kind: 'previous' }
+  | { kind: 'skip' }
+  | { kind: 'none' };
+
+export type PageAction =
+  | 'start-quiz'
+  | 'open-prompts'
+  | 'open-results'
+  | 'open-first-question'
+  | 'open-last-question'
+  | 'copy-both'
+  | 'retake'
+  | 'none';
+
+export type FocusRole = 'button' | 'link' | 'none';
+
+export const KEYBOARD_FOCUS_NOTE =
+  'With a button focused, Enter or Space activates it. With a link focused, Enter follows it.';
+
 export function countAnsweredQuestions(answers: Record<number, string[]>): number {
   return Object.values(answers).filter((selections) => selections.length > 0).length;
 }
@@ -77,6 +104,102 @@ export function parseKeyboardCommand(key: string, active: number): KeyboardComma
   if (normalizedKey === ' ') return 'skip';
 
   return null;
+}
+
+export function getPanelsSurface(active: number, view: PanelsView): PanelsSurface {
+  if (active === 13) {
+    return view === 'prompts' ? 'prompts' : 'results';
+  }
+  return active < 0 ? 'landing' : 'question';
+}
+
+export function resolveQuestionAction(command: KeyboardCommand, active: number): QuestionAction {
+  switch (command) {
+    case 'toggle-1':
+      return { kind: 'toggle', optionIndex: 0 };
+    case 'toggle-2':
+      return { kind: 'toggle', optionIndex: 1 };
+    case 'toggle-3':
+      return { kind: 'toggle', optionIndex: 2 };
+    case 'toggle-4':
+      return { kind: 'toggle', optionIndex: 3 };
+    case 'next':
+      return active === 12 ? { kind: 'complete' } : { kind: 'next' };
+    case 'skip':
+      return active === 12 ? { kind: 'complete' } : { kind: 'skip' };
+    case 'previous':
+      return active <= 0 ? { kind: 'none' } : { kind: 'previous' };
+  }
+}
+
+export function resolvePageAction(
+  surface: PageSurface,
+  isShared: boolean,
+  hasSelections: boolean,
+  command: KeyboardCommand
+): PageAction {
+  if (command !== 'next' && command !== 'previous' && command !== 'skip') {
+    return 'none';
+  }
+
+  if (surface === 'landing') {
+    return command === 'next' ? 'start-quiz' : 'none';
+  }
+
+  if (surface === 'prompts') {
+    if (command === 'next') return 'copy-both';
+    if (command === 'previous') return 'open-results';
+    return 'retake';
+  }
+
+  if (command === 'skip') {
+    return 'retake';
+  }
+
+  if (command === 'previous') {
+    if (isShared) return 'none';
+    return 'open-last-question';
+  }
+
+  if (hasSelections) {
+    return 'open-prompts';
+  }
+
+  return isShared ? 'start-quiz' : 'open-first-question';
+}
+
+export function focusOwnsKey(role: FocusRole, key: string): boolean {
+  if (role === 'button') return key === 'Enter' || key === ' ';
+  if (role === 'link') return key === 'Enter';
+  return false;
+}
+
+export function getKeysHint(
+  surface: PanelsSurface,
+  isShared: boolean,
+  hasSelections: boolean
+): string {
+  if (surface === 'landing') {
+    return 'enter to start';
+  }
+
+  if (surface === 'question') {
+    return 'keys 1–4 select · enter next · space skip';
+  }
+
+  if (surface === 'prompts') {
+    return '← back to results · enter copy both · space retake';
+  }
+
+  if (hasSelections) {
+    return isShared
+      ? 'enter get prompts · space retake'
+      : '← review answers · enter get prompts · space retake';
+  }
+
+  return isShared
+    ? 'enter take quiz · space retake'
+    : '← review questions · enter answer questions · space retake';
 }
 
 export function getProgressPct(active: number): number {

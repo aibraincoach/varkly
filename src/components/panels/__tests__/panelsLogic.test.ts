@@ -10,6 +10,12 @@ import {
   getResultsEyebrow,
   getPromptsEyebrow,
   scoresHaveSelections,
+  getPanelsSurface,
+  resolveQuestionAction,
+  resolvePageAction,
+  focusOwnsKey,
+  getKeysHint,
+  KEYBOARD_FOCUS_NOTE,
 } from '../panelsLogic';
 
 describe('countAnsweredQuestions', () => {
@@ -180,5 +186,151 @@ describe('getPromptsEyebrow', () => {
 
   it('uses answered count on normal routes', () => {
     expect(getPromptsEyebrow(false, 8)).toBe('Your AI prompts · 8 of 13 answered');
+  });
+});
+
+describe('getPanelsSurface', () => {
+  it('maps the active index and view to a surface', () => {
+    expect(getPanelsSurface(-1, 'quiz')).toBe('landing');
+    expect(getPanelsSurface(0, 'quiz')).toBe('question');
+    expect(getPanelsSurface(12, 'quiz')).toBe('question');
+    expect(getPanelsSurface(13, 'quiz')).toBe('results');
+    expect(getPanelsSurface(13, 'prompts')).toBe('prompts');
+  });
+});
+
+describe('resolveQuestionAction', () => {
+  it('maps each digit to its zero-based option index', () => {
+    expect(resolveQuestionAction('toggle-1', 4)).toEqual({ kind: 'toggle', optionIndex: 0 });
+    expect(resolveQuestionAction('toggle-2', 4)).toEqual({ kind: 'toggle', optionIndex: 1 });
+    expect(resolveQuestionAction('toggle-3', 4)).toEqual({ kind: 'toggle', optionIndex: 2 });
+    expect(resolveQuestionAction('toggle-4', 4)).toEqual({ kind: 'toggle', optionIndex: 3 });
+  });
+
+  it('advances within the quiz and completes from the last question', () => {
+    expect(resolveQuestionAction('next', 0)).toEqual({ kind: 'next' });
+    expect(resolveQuestionAction('next', 11)).toEqual({ kind: 'next' });
+    expect(resolveQuestionAction('next', 12)).toEqual({ kind: 'complete' });
+  });
+
+  it('skips within the quiz and completes from the last question', () => {
+    expect(resolveQuestionAction('skip', 0)).toEqual({ kind: 'skip' });
+    expect(resolveQuestionAction('skip', 12)).toEqual({ kind: 'complete' });
+  });
+
+  it('goes back except at the first question', () => {
+    expect(resolveQuestionAction('previous', 1)).toEqual({ kind: 'previous' });
+    expect(resolveQuestionAction('previous', 12)).toEqual({ kind: 'previous' });
+    expect(resolveQuestionAction('previous', 0)).toEqual({ kind: 'none' });
+  });
+});
+
+describe('resolvePageAction', () => {
+  it('starts the preserved quiz from the landing view and ignores back and skip', () => {
+    expect(resolvePageAction('landing', false, false, 'next')).toBe('start-quiz');
+    expect(resolvePageAction('landing', false, false, 'previous')).toBe('none');
+    expect(resolvePageAction('landing', false, false, 'skip')).toBe('none');
+  });
+
+  it('moves a nonempty local result forward to prompts, back to question 13, and skip to retake', () => {
+    expect(resolvePageAction('results', false, true, 'next')).toBe('open-prompts');
+    expect(resolvePageAction('results', false, true, 'previous')).toBe('open-last-question');
+    expect(resolvePageAction('results', false, true, 'skip')).toBe('retake');
+  });
+
+  it('has no back action on a nonempty shared result', () => {
+    expect(resolvePageAction('results', true, true, 'next')).toBe('open-prompts');
+    expect(resolvePageAction('results', true, true, 'previous')).toBe('none');
+    expect(resolvePageAction('results', true, true, 'skip')).toBe('retake');
+  });
+
+  it('sends an empty local result to question 1 and keeps review of question 13', () => {
+    expect(resolvePageAction('results', false, false, 'next')).toBe('open-first-question');
+    expect(resolvePageAction('results', false, false, 'previous')).toBe('open-last-question');
+    expect(resolvePageAction('results', false, false, 'skip')).toBe('retake');
+  });
+
+  it('starts a local quiz from an empty shared result', () => {
+    expect(resolvePageAction('results', true, false, 'next')).toBe('start-quiz');
+    expect(resolvePageAction('results', true, false, 'previous')).toBe('none');
+    expect(resolvePageAction('results', true, false, 'skip')).toBe('retake');
+  });
+
+  it('copies both prompts and returns to the corresponding results view', () => {
+    expect(resolvePageAction('prompts', false, true, 'next')).toBe('copy-both');
+    expect(resolvePageAction('prompts', false, true, 'previous')).toBe('open-results');
+    expect(resolvePageAction('prompts', false, true, 'skip')).toBe('retake');
+    expect(resolvePageAction('prompts', true, true, 'next')).toBe('copy-both');
+    expect(resolvePageAction('prompts', true, true, 'previous')).toBe('open-results');
+    expect(resolvePageAction('prompts', true, true, 'skip')).toBe('retake');
+  });
+
+  it('ignores digit commands outside the question views', () => {
+    expect(resolvePageAction('results', false, true, 'toggle-1')).toBe('none');
+    expect(resolvePageAction('landing', false, false, 'toggle-4')).toBe('none');
+  });
+});
+
+describe('focusOwnsKey', () => {
+  it('lets a focused button keep Enter and Space', () => {
+    expect(focusOwnsKey('button', 'Enter')).toBe(true);
+    expect(focusOwnsKey('button', ' ')).toBe(true);
+  });
+
+  it('lets a focused link keep Enter only', () => {
+    expect(focusOwnsKey('link', 'Enter')).toBe(true);
+    expect(focusOwnsKey('link', ' ')).toBe(false);
+  });
+
+  it('never claims the arrow keys', () => {
+    expect(focusOwnsKey('button', 'ArrowLeft')).toBe(false);
+    expect(focusOwnsKey('button', 'ArrowRight')).toBe(false);
+    expect(focusOwnsKey('link', 'ArrowRight')).toBe(false);
+  });
+
+  it('claims nothing when no button or link is focused', () => {
+    expect(focusOwnsKey('none', 'Enter')).toBe(false);
+    expect(focusOwnsKey('none', ' ')).toBe(false);
+  });
+});
+
+describe('getKeysHint', () => {
+  it('describes the landing shortcut', () => {
+    expect(getKeysHint('landing', false, false)).toBe('enter to start');
+  });
+
+  it('describes the question shortcuts', () => {
+    expect(getKeysHint('question', false, true)).toBe('keys 1–4 select · enter next · space skip');
+  });
+
+  it('describes both nonempty results surfaces', () => {
+    expect(getKeysHint('results', false, true)).toBe(
+      '← review answers · enter get prompts · space retake'
+    );
+    expect(getKeysHint('results', true, true)).toBe('enter get prompts · space retake');
+  });
+
+  it('describes both empty results surfaces', () => {
+    expect(getKeysHint('results', false, false)).toBe(
+      '← review questions · enter answer questions · space retake'
+    );
+    expect(getKeysHint('results', true, false)).toBe('enter take quiz · space retake');
+  });
+
+  it('describes the prompts shortcuts on local and shared routes', () => {
+    expect(getKeysHint('prompts', false, true)).toBe(
+      '← back to results · enter copy both · space retake'
+    );
+    expect(getKeysHint('prompts', true, true)).toBe(
+      '← back to results · enter copy both · space retake'
+    );
+  });
+});
+
+describe('KEYBOARD_FOCUS_NOTE', () => {
+  it('states the native focus contract verbatim', () => {
+    expect(KEYBOARD_FOCUS_NOTE).toBe(
+      'With a button focused, Enter or Space activates it. With a link focused, Enter follows it.'
+    );
   });
 });

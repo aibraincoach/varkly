@@ -18,14 +18,22 @@ import ActionRow from './ActionRow';
 import PanelRail from './PanelRail';
 import {
   countAnsweredQuestions,
+  focusOwnsKey,
   getCollapsedPanelGap,
+  getKeysHint,
+  getPanelsSurface,
   hasAnyAnswers,
   parseKeyboardCommand,
   parseRouteState,
+  resolvePageAction,
+  resolveQuestionAction,
   scoresHaveSelections,
+  KEYBOARD_FOCUS_NOTE,
 } from './panelsLogic';
+import type { FocusRole, KeyboardCommand, PageAction, QuestionAction } from './panelsLogic';
 
 const COPY_BOTH_DELIMITER = '\n\n---\n\n';
+const ZERO_SCORES: VarkScores = { V: 0, A: 0, R: 0, K: 0 };
 
 function isEditableTarget(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) return false;
@@ -38,39 +46,80 @@ function isEditableTarget(target: EventTarget | null): boolean {
   );
 }
 
+function getFocusRole(target: EventTarget | null): FocusRole {
+  if (!(target instanceof Element)) return 'none';
+  const activation = target.closest('button, a[href]');
+  if (!activation) return 'none';
+  if (activation instanceof HTMLButtonElement && activation.disabled) return 'none';
+  return activation.tagName === 'A' ? 'link' : 'button';
+}
+
+function isModifiedOrComposing(event: KeyboardEvent): boolean {
+  return (
+    event.ctrlKey ||
+    event.metaKey ||
+    event.altKey ||
+    event.shiftKey ||
+    event.isComposing ||
+    event.keyCode === 229
+  );
+}
+
 const PanelsScreen: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { quizState, startQuiz, goToQuestion, toggleOption, isOptionSelected, resetQuiz } =
-    useQuiz();
+  const {
+    quizState,
+    startQuiz,
+    completeQuiz,
+    goToQuestion,
+    toggleOption,
+    isOptionSelected,
+    resetQuiz,
+  } = useQuiz();
   const { addToast } = useToast();
 
   const routeState = parseRouteState(location.pathname, quizState.currentQuestionIndex);
   const { active, view, isShared, hash } = routeState;
+  const surface = getPanelsSurface(active, view);
 
   const [isMobile, setIsMobile] = useState(false);
   const [panelGap, setPanelGap] = useState(10);
   const [copiedKey, setCopiedKey] = useState('');
-  const [sharedScores, setSharedScores] = useState<VarkScores | null>(null);
 
-  const isLanding = active === -1;
-  const isQuestion = active >= 0 && active < 13;
-  const isResults = active === 13 && view === 'quiz';
-  const isPrompts = active === 13 && view === 'prompts';
+  const isLanding = surface === 'landing';
+  const isQuestion = surface === 'question';
+  const isResults = surface === 'results';
+  const isPrompts = surface === 'prompts';
+
+  // Decoded from the current URL every render so a previous hash can never govern this route.
+  const sharedScores = isShared && hash ? decodeScores(hash) : null;
 
   const answeredCount = countAnsweredQuestions(quizState.answers);
-  const anyAnswers = hasAnyAnswers(quizState.answers);
+  const canViewLocalResults = hasAnyAnswers(quizState.answers) || quizState.isCompleted;
 
-  const scores: VarkScores = isShared && sharedScores
-    ? sharedScores
+  const scores: VarkScores = isShared
+    ? sharedScores ?? ZERO_SCORES
     : calculateScores(quizState.answers);
-
-  const hasAnswers = isShared
-    ? scoresHaveSelections(scores)
-    : anyAnswers;
+  const hasAnswers = scoresHaveSelections(scores);
 
   const summary = summarizeScores(scores);
-  const prompts = generateAIPrompts(scores);
+  const prompts = hasAnswers ? generateAIPrompts(scores) : null;
+  const systemPrompt = prompts ? prompts.systemPrompt : null;
+  const conversationPrompt = prompts ? prompts.conversationPrompt : null;
+
+  let redirectTarget: string | null = null;
+  if (isShared) {
+    if (!sharedScores) {
+      redirectTarget = ROUTES.home;
+    } else if (isPrompts && !hasAnswers && hash) {
+      redirectTarget = ROUTES.resultByHash(hash);
+    }
+  } else if (isResults && !canViewLocalResults) {
+    redirectTarget = ROUTES.home;
+  } else if (isPrompts && !hasAnswers) {
+    redirectTarget = canViewLocalResults ? ROUTES.results : ROUTES.home;
+  }
 
   const pageTitle = isLanding
     ? 'VARK Learning Style Quiz'
@@ -102,25 +151,10 @@ const PanelsScreen: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (isShared && hash) {
-      const decoded = decodeScores(hash);
-      if (!decoded) {
-        navigate(ROUTES.home, { replace: true });
-        return;
-      }
-      setSharedScores(decoded);
-    } else {
-      setSharedScores(null);
+    if (redirectTarget) {
+      navigate(redirectTarget, { replace: true });
     }
-  }, [isShared, hash, navigate]);
-
-  useEffect(() => {
-    if (!isShared && (location.pathname === ROUTES.results || location.pathname === ROUTES.prompts)) {
-      if (!anyAnswers) {
-        navigate(ROUTES.home, { replace: true });
-      }
-    }
-  }, [isShared, location.pathname, anyAnswers, navigate]);
+  }, [redirectTarget, navigate]);
 
   const copyText = useCallback(
     async (key: string, text: string, successMessage: string) => {
@@ -143,17 +177,20 @@ const PanelsScreen: React.FC = () => {
   }, [copyText, scores]);
 
   const handleCopySystem = useCallback(() => {
-    copyText('sys', prompts.systemPrompt, 'System prompt copied');
-  }, [copyText, prompts.systemPrompt]);
+    if (!systemPrompt) return;
+    copyText('sys', systemPrompt, 'System prompt copied');
+  }, [copyText, systemPrompt]);
 
   const handleCopyConversation = useCallback(() => {
-    copyText('conv', prompts.conversationPrompt, 'Conversation prompt copied');
-  }, [copyText, prompts.conversationPrompt]);
+    if (!conversationPrompt) return;
+    copyText('conv', conversationPrompt, 'Conversation prompt copied');
+  }, [copyText, conversationPrompt]);
 
   const handleCopyBoth = useCallback(() => {
-    const combined = `${prompts.systemPrompt}${COPY_BOTH_DELIMITER}${prompts.conversationPrompt}`;
+    if (!systemPrompt || !conversationPrompt) return;
+    const combined = `${systemPrompt}${COPY_BOTH_DELIMITER}${conversationPrompt}`;
     copyText('both', combined, 'Both prompts copied');
-  }, [copyText, prompts.systemPrompt, prompts.conversationPrompt]);
+  }, [copyText, systemPrompt, conversationPrompt]);
 
   const goToResults = useCallback(() => {
     if (isShared && hash) {
@@ -171,67 +208,85 @@ const PanelsScreen: React.FC = () => {
     }
   }, [isShared, hash, navigate]);
 
-  const handleNext = useCallback(() => {
-    if (isLanding) {
-      startQuiz();
-      return;
-    }
-    if (isQuestion) {
-      if (active === 12) {
-        goToResults();
-      } else {
-        goToQuestion(active + 1);
-      }
-      return;
-    }
-    if (isResults) {
-      goToPrompts();
-      return;
-    }
-    if (isPrompts) {
-      handleCopyBoth();
-    }
-  }, [
-    isLanding,
-    isQuestion,
-    isResults,
-    isPrompts,
-    active,
-    startQuiz,
-    goToQuestion,
-    goToResults,
-    goToPrompts,
-    handleCopyBoth,
-  ]);
+  const handleToggleOption = useCallback(
+    (optionIndex: number) => {
+      if (!isQuestion) return;
+      const question = questions[active];
+      const option = question.options[optionIndex];
+      if (!option) return;
+      toggleOption(question.id, option.id);
+    },
+    [isQuestion, active, toggleOption]
+  );
 
-  const handlePrevious = useCallback(() => {
-    if (isPrompts) {
-      goToResults();
-      return;
-    }
-    if (isResults && !isShared) {
-      goToQuestion(12);
-      return;
-    }
-    if (isQuestion && active > 0) {
-      goToQuestion(active - 1);
-    }
-  }, [isPrompts, isResults, isShared, isQuestion, active, goToResults, goToQuestion]);
-
-  const handleSkip = useCallback(() => {
-    if (isLanding) return;
-    if (isResults || isPrompts) {
-      resetQuiz();
-      return;
-    }
-    if (isQuestion) {
-      if (active === 12) {
-        goToResults();
-      } else {
-        goToQuestion(active + 1);
+  const runQuestionAction = useCallback(
+    (action: QuestionAction) => {
+      switch (action.kind) {
+        case 'toggle':
+          handleToggleOption(action.optionIndex);
+          return;
+        case 'next':
+        case 'skip':
+          goToQuestion(active + 1);
+          return;
+        case 'previous':
+          goToQuestion(active - 1);
+          return;
+        case 'complete':
+          completeQuiz();
+          return;
+        case 'none':
+          return;
       }
-    }
-  }, [isLanding, isResults, isPrompts, isQuestion, active, resetQuiz, goToResults, goToQuestion]);
+    },
+    [active, completeQuiz, goToQuestion, handleToggleOption]
+  );
+
+  const runPageAction = useCallback(
+    (action: PageAction) => {
+      switch (action) {
+        case 'start-quiz':
+          startQuiz();
+          return;
+        case 'open-prompts':
+          goToPrompts();
+          return;
+        case 'open-results':
+          goToResults();
+          return;
+        case 'open-first-question':
+          goToQuestion(0);
+          return;
+        case 'open-last-question':
+          goToQuestion(12);
+          return;
+        case 'copy-both':
+          handleCopyBoth();
+          return;
+        case 'retake':
+          resetQuiz();
+          return;
+        case 'none':
+          return;
+      }
+    },
+    [goToPrompts, goToQuestion, goToResults, handleCopyBoth, resetQuiz, startQuiz]
+  );
+
+  const runCommand = useCallback(
+    (command: KeyboardCommand) => {
+      if (surface === 'question') {
+        runQuestionAction(resolveQuestionAction(command, active));
+        return;
+      }
+      runPageAction(resolvePageAction(surface, isShared, hasAnswers, command));
+    },
+    [active, hasAnswers, isShared, runPageAction, runQuestionAction, surface]
+  );
+
+  const handleNext = useCallback(() => runCommand('next'), [runCommand]);
+  const handlePrevious = useCallback(() => runCommand('previous'), [runCommand]);
+  const handleSkip = useCallback(() => runCommand('skip'), [runCommand]);
 
   const handlePanelActivate = useCallback(
     (panelIndex: number) => {
@@ -244,69 +299,42 @@ const PanelsScreen: React.FC = () => {
     [goToQuestion, goToResults]
   );
 
-  const handleToggleOption = useCallback(
-    (optionIndex: number) => {
-      if (!isQuestion) return;
-      const question = questions[active];
-      const option = question.options[optionIndex];
-      toggleOption(question.id, option.id);
-    },
-    [isQuestion, active, toggleOption]
-  );
+  const actionHandlersRef = useRef({ runCommand });
+  actionHandlersRef.current = { runCommand };
 
-  const actionHandlersRef = useRef({
-    handleNext,
-    handlePrevious,
-    handleSkip,
-    handleToggleOption,
-  });
-  actionHandlersRef.current = {
-    handleNext,
-    handlePrevious,
-    handleSkip,
-    handleToggleOption,
-  };
+  const isRedirecting = redirectTarget !== null;
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
+      if (isRedirecting) return;
+      if (event.defaultPrevented) return;
+      if (event.repeat) return;
+      if (isModifiedOrComposing(event)) return;
       if (isEditableTarget(event.target)) return;
-      if (event.target instanceof HTMLButtonElement && document.activeElement === event.target) {
-        return;
-      }
 
       const command = parseKeyboardCommand(event.key, active);
       if (!command) return;
 
-      if (command === 'previous' && (active <= 0 || (isResults && isShared))) {
-        event.preventDefault();
+      // On a question every recognized shortcut outranks whatever button or link holds focus.
+      if (surface !== 'question' && focusOwnsKey(getFocusRole(event.target), event.key)) {
         return;
       }
 
-      if (command === 'toggle-1') actionHandlersRef.current.handleToggleOption(0);
-      if (command === 'toggle-2') actionHandlersRef.current.handleToggleOption(1);
-      if (command === 'toggle-3') actionHandlersRef.current.handleToggleOption(2);
-      if (command === 'toggle-4') actionHandlersRef.current.handleToggleOption(3);
-      if (command === 'next') actionHandlersRef.current.handleNext();
-      if (command === 'previous') actionHandlersRef.current.handlePrevious();
-      if (command === 'skip') {
-        event.preventDefault();
-        actionHandlersRef.current.handleSkip();
-        return;
-      }
-      if (event.key === 'ArrowLeft' || event.key === 'ArrowRight' || event.key === ' ') {
-        event.preventDefault();
-      }
+      event.preventDefault();
+      actionHandlersRef.current.runCommand(command);
     };
 
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [active, isResults, isShared]);
+  }, [active, isRedirecting, surface]);
 
   const progressLabel = isLanding
     ? 'Varkly · VARK quiz'
     : active === 13
       ? 'Results'
       : `Question ${String(active + 1).padStart(2, '0')} / 13`;
+
+  const emptyResultsPrimaryLabel = isShared ? 'Take quiz' : 'Answer questions';
 
   const nextLabel = isLanding
     ? "Let's begin"
@@ -315,7 +343,9 @@ const PanelsScreen: React.FC = () => {
         ? 'Copied both'
         : 'Copy both prompts'
       : isResults
-        ? 'Get my AI prompts'
+        ? hasAnswers
+          ? 'Get my AI prompts'
+          : emptyResultsPrimaryLabel
         : active === 12
           ? 'See results'
           : 'Next';
@@ -327,25 +357,22 @@ const PanelsScreen: React.FC = () => {
     : isPrompts
       ? 'Paste into ChatGPT, Claude, Gemini or any other AI tool.'
       : isResults
-        ? 'Share of all selections, across every answered scenario.'
+        ? hasAnswers
+          ? 'Share of all selections, across every answered scenario.'
+          : 'Choose at least one answer to get your AI prompts.'
         : 'Select all that apply, or skip if none do.';
 
-  const keysHint = isLanding
-    ? 'enter to start'
-    : isPrompts
-      ? '← back to results · enter copy both'
-      : isResults
-        ? isShared
-          ? 'enter get prompts'
-          : '← review answers · enter get prompts'
-        : 'keys 1–4 select · enter next · space skip';
+  const keysHint = getKeysHint(surface, isShared, hasAnswers);
 
-  const previousDisabled = active <= 0 || (isResults && isShared);
+  const previousDisabled =
+    surface === 'question'
+      ? resolveQuestionAction('previous', active).kind === 'none'
+      : resolvePageAction(surface, isShared, hasAnswers, 'previous') === 'none';
 
   const currentQuestion = isQuestion ? questions[active] : null;
   const currentPanelTitle = isQuestion ? panels[active].title : '';
 
-  if (isShared && !sharedScores) {
+  if (isRedirecting) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-ground">
         <div className="w-10 h-10 border-2 border-ink border-t-transparent rounded-full animate-spin" />
@@ -384,12 +411,12 @@ const PanelsScreen: React.FC = () => {
               isShared={isShared}
             />
           )}
-          {isPrompts && (
+          {isPrompts && systemPrompt && conversationPrompt && (
             <PromptsView
               answeredCount={answeredCount}
               isShared={isShared}
-              systemPrompt={prompts.systemPrompt}
-              conversationPrompt={prompts.conversationPrompt}
+              systemPrompt={systemPrompt}
+              conversationPrompt={conversationPrompt}
               sysCopyLabel={copiedKey === 'sys' ? 'Copied' : 'Copy'}
               convCopyLabel={copiedKey === 'conv' ? 'Copied' : 'Copy'}
               sysCopied={copiedKey === 'sys'}
@@ -412,6 +439,11 @@ const PanelsScreen: React.FC = () => {
           />
 
           <p className="mt-4 mb-0 font-mono text-[11px] text-muted-4">{keysHint}</p>
+          {!isQuestion && (
+            <p className="mt-1.5 mb-0 max-w-[46ch] font-mono text-[11px] leading-[1.5] text-muted-4">
+              {KEYBOARD_FOCUS_NOTE}
+            </p>
+          )}
         </aside>
 
         <PanelRail
@@ -421,6 +453,7 @@ const PanelsScreen: React.FC = () => {
           panelGap={panelGap}
           answers={quizState.answers}
           hasAnswers={hasAnswers}
+          canOpenResults={isShared || canViewLocalResults}
           isShared={isShared}
           onPanelActivate={handlePanelActivate}
         />

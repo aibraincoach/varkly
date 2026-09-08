@@ -90,6 +90,7 @@ The package lists and version ranges below mirror `package.json` exactly.
 | Package | Version |
 |---|---|
 | `@eslint/js` | `^9.9.1` |
+| `@playwright/test` | `1.63.0` |
 | `@types/react` | `^18.3.5` |
 | `@types/react-dom` | `^18.3.0` |
 | `@vitejs/plugin-react` | `^4.3.1` |
