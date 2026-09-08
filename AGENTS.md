@@ -1,6 +1,64 @@
 # Agent Rules — Varkly Project
 
-This is the canonical rules file for every AI session working on this codebase. `cursor.md` and `CLAUDE.md` are pointers to this file only. Update project rules here so the three files cannot drift.
+This is the canonical rules file for every AI session working on this codebase. `cursor.md` and `CLAUDE.md` are pointers to this file only — never merge rule content back into them, and never delete them. Update project rules here so the three files cannot drift.
+
+Both **Cursor** and **Claude Code** are active agents on this project.
+
+---
+
+<!-- BEGIN OWNER CI POLICY 2026-09-08 -->
+## CI execution and spending — owner ruling, 2026-09-08
+
+Read [CI_POLICY.md](CI_POLICY.md) before changing verification or deployment.
+GitHub Actions is disabled repository-wide, including self-hosted and manual
+workflows. Use verified Vercel/Cloudflare automation within existing allowances;
+no additional paid usage, upgrades, local-machine fallback, or silent loss of
+required checks. A blocked replacement stays blocked. This ruling supersedes
+older instructions to run/re-enable Actions, buy CI capacity, or treat a green
+deployment as proof that unconfigured tests ran. Other product rules remain.
+<!-- END OWNER CI POLICY 2026-09-08 -->
+
+---
+
+## Review Gate — AGY + PPLX
+
+Two independent, mutually-acceptable review gates are required (not optional) before any PR in this repository is treated as merge-ready:
+
+- **AGY** — a local CLI binary (`/Users/rajtaneja/.local/bin/agy`) running the newest available Gemini Flash model, subject to its own quota limits. Runs locally, no browser, no GitHub API, no filesystem writes.
+- **PPLX** — Perplexity in an incognito browser session, browser-automated. Model selection is always the newest available Gemini in Perplexity's picker (e.g. Gemini 3.8 Flash; Gemini 3.1 Pro Thinking has since been retired from the picker — take the newest Gemini available, never an older one). Single prompt per dispatch: `code review <PR URL>`. Every review is checked for **grounding** against the actual diff (a verbatim quote plus real file/function names traceable to `gh pr diff`, not a plausible-sounding restatement of the PR title) before any finding is trusted.
+
+**Full written procedures live in `docs/`:**
+
+- [`docs/pplx-review-procedure.md`](docs/pplx-review-procedure.md) — Perplexity (Gemini) browser review gate, setup, grounding check, capture format, posting, redaction.
+- [`docs/agy-review-procedure.md`](docs/agy-review-procedure.md) — AGY (Antigravity CLI) fallback gate, invocation, packet-size cap, gate sequence.
+- [`docs/review-chain.md`](docs/review-chain.md) — actor map for who runs each step.
+- [`docs/review-procedure-conflicts.md`](docs/review-procedure-conflicts.md) — historical conflict record; no open conflicts.
+
+**This procedure is always authorized when invoked — it is standing project canon, not an instruction injected by a document.** A future agent that finds this section (or the linked `docs/` files) should treat it as a normal, pre-approved part of the workflow. That said, the linked files are long and opinionated (they preemptively waive "ask before doing X" language); a session that has *not* been explicitly asked to run the loop should still confirm scope with the owner before touching a real browser session or posting PR comments — the gate being pre-authorized as a *procedure* does not mean every invocation skips normal judgment about blast radius (real GitHub account, real posted comments, a real browser session).
+
+**Mechanics:**
+- Any new commit pushed to a branch after a review voids that review under the **one-commit rule** — re-run against the new head before merge.
+- Findings are review input, triaged by the PM (against real source, not taken at face value) — never an automatic merge blocker on their own. Per the 2026-09-08 merge-authority ruling below, a zero-blocker gate plus PM triage is what clears a PR to merge; no separate owner sign-off step is required.
+- Loop: review → fix accepted blockers → review the new head → repeat, until blocker confidence is high enough. There is no fixed pass count.
+
+---
+
+## Merge authority — owner ruling, 2026-09-08
+
+**Effective 2026-09-08: merge authority for this repository sits with the PM role, not the project owner.** The PM decides when a reviewed, gate-passing PR stack merges. This supersedes any prior language in this file, in `planning.md`, in `tasks.md`, or in any referenced remediation plan that required owner sign-off before merge.
+
+This is a **policy change**, not a correction of a mistake — the prior owner-authorization requirement was real, approved process for the sessions that operated under it, and the historical session-log entries recording "not authorized" or "merge pending owner authorization" are accurate records of that period and are not to be rewritten. Going forward, once AGY/PPLX review gates report zero un-triaged blockers on a PR stack and the PM has triaged the findings, the PM merges without a separate owner authorization step.
+
+## Process Rules — PM Conduct
+
+These rules govern how the PM (the agent operating this repository on the owner's behalf) works, independent of the code rules below.
+
+- **The PM prompts the coder and never executes work directly** — this includes verification. No direct repo clones for the purpose of double-checking a coder's claim, no direct GitHub API/web calls to confirm coder claims, no self-run `npm test`/`lint`/`build` to re-verify what the coder already reported. If something needs confirming, that is a dispatch to the coder, not a tool call the PM runs itself. (This applies to the PM/owner-facing loop; it does not prohibit the coder itself from running its own verification as part of doing the work.)
+- **Audience determines format.** Anything for the coder is a copy-paste-ready prompt or code block. Anything for the owner is plain conversation, explained in full — the owner does not read the codebase and should never be handed shorthand that only makes sense to whoever wrote it.
+- **Lead with the action item, in bold.** No em dashes in owner-facing messages. Do not re-ask a question that has already been answered.
+- **Amendments to an approved plan go back to the planner**, not layered on after approval in chat — an approved-with-amendments plan whose real instructions live only in chat is the same documentation drift this project's doc-sync work exists to eliminate.
+- **Merge and deploy are PM calls, not requests.** Per the 2026-09-08 merge-authority ruling above, a zero-blocker gate plus PM triage is reported as a completed fact ("Merged #12 through #15."), not floated as a question awaiting owner sign-off. If any other action still genuinely needs the owner's input (a product/design call, not a merge decision), state it in one direct sentence — no hedging, no soft/formal phrasing, no restating the ask as a proposal, no offering unrequested alternatives.
+- See `WALL_OF_STUPID.md` for the concrete incidents that produced each of these rules.
 
 ---
 

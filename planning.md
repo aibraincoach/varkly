@@ -4,6 +4,14 @@
 
 ---
 
+## CI execution decision — 2026-09-08
+
+Actions is disabled. [CI_POLICY.md](CI_POLICY.md) records the owner ruling,
+repository evidence, retained checks and outstanding provider blockers. This
+entry does not mark unverified replacement checks as passed or completed.
+
+---
+
 ## 1. Vision
 
 Varkly is the fastest, most frictionless way to discover your VARK learning style and immediately apply it to every AI tool you use. The experience is instant, playful, and genuinely useful — not another academic form. Every person who completes the quiz leaves with two copy-ready AI prompts that make every AI tool they use smarter about how they learn.
@@ -329,12 +337,15 @@ No application environment variables are required. Analytics identifiers are emb
 
 ## 12. Current Repository and Work State
 
-- GitHub repository: `aibraincoach/varkly`.
-- **PR #12** (`docs/state-sync`) — prerequisite documentation/state sync; remains open and unmerged.
-- **PR #13** (`feat/panels-foundation`) — foundation, assets, score utilities, styling; opened, not merged.
-- **PR #14** (`feat/panels-screen`) — `PanelsScreen`, four views, close-review Tasks 1–8; current exact head `4a6a774ea006d8486c3a218365d5b0f613fccdd7`, pushed, not merged.
-- **PR #15** (`docs/panels-sync`, this branch) — documentation synchronization; includes reintegration merge `087e71f` (integrates PR #14 lint fix). Authoritative live tip SHA is recorded in PR #15 body and the Task 8 handoff report after final validation — not self-referenced in this commit.
-- Stack order preserved: #12 → #13 → #14 → #15. Nothing in the panels stack is deployed to production or merged to `main` as of 2026-09-08.
-- Historic PPLX review comments on earlier PR heads remain valid input; **new PR #14/#15 heads require a fresh PPLX pass after Task 8 final validation** — PPLX has not rerun on the integrated stack.
+**Verified directly against GitHub on 2026-09-08 (`gh pr list --state all`, `gh api .../comments`). This section is the source of truth; where any other document in this repo states an older head or an open review-loop status, this section wins.**
+
+- GitHub repository: `aibraincoach/varkly` (fork of `tanvirahamed2001/ZooTech-Hackathon-2026`, renamed from `ZooTech-Hackathon-2026`). Intentionally kept behind upstream — **never run "sync fork,"** it would pull in unwanted upstream work. Because this is a fork, a PR's base defaults to the upstream repo on creation; **every PR base must be set explicitly to `aibraincoach/varkly`.**
+- **PR #12** (`docs/state-sync` → `main`) — head `e07298ef2acd3706ab2e0d6aba258383557514a1` (moved past the reviewed `ea62429` after the two Wall of Stupid additions below; **not yet re-reviewed at this exact head** — those two commits are `WALL_OF_STUPID.md`-only, no application or other-doc content). Open, unmerged.
+- **PR #13** (`feat/panels-foundation` → `docs/state-sync`) — head `8a4a411b23a155717ec94ac571816ed81f84a234`. Grounded PPLX review posted twice on this same head (17:24 and 23:13 UTC 2026-09-08); no blockers. Open, unmerged.
+- **PR #14** (`feat/panels-screen` → `feat/panels-foundation`) — head `a1497a9831113a4611af092c3effcb7321937d95`. Three review rounds on three different heads (`8bc976f1` → `f9b419be` → `4a6a774`), each fixed forward; a fourth PPLX pass on `4a6a774` found one real, independently-verified accessibility finding (panel-rail keyboard trap, all 14 rail buttons in tab order); fixed in commit `a1497a9` (`tabIndex={isActive || isLanding ? 0 : -1}`); re-reviewed clean at `a1497a9` per the one-commit rule. **Zero un-triaged blockers as of this head.** Open, unmerged.
+- **PR #15** (`docs/panels-sync` → `feat/panels-screen`, this branch) — head `4bffe241c757fb3c4b48d89e800af31bd32cac36`. Grounded PPLX review posted twice on this same head (17:24 and 23:18 UTC 2026-09-08); no blockers. Open, unmerged. **Note:** PR #15's base is `feat/panels-screen`, so PR #14's `a1497a9` fix (pushed after PR #15's head was set) is not yet in PR #15's own diff — it will appear once PR #15 is rebased/merged past it, or automatically once #14 merges into #15's base chain.
+- **PR #16** (`docs/no-actions-2026-09-08` → `main`, unrelated to the panels stack) — **MERGED** 2026-09-08T21:49:23Z. Adds `CI_POLICY.md`; disables GitHub Actions repo-wide per owner ruling (exhausted shared Actions allowance, no additional CI spend authorized); required checks now run on Vercel/Cloudflare only. Owner explicitly authorized this as a standalone cross-repository migration PR, direct-to-`main` — this is not a precedent for merging other open work directly.
+- Stack order preserved: #12 → #13 → #14 → #15. **Nothing in the panels stack is deployed to production or merged to `main`** as of the writing of this section. Zero un-triaged blockers across all four — merge-ready. **Per the 2026-09-08 merge-authority ruling (`AGENTS.md`), merging this stack is the PM's own call, not something pending owner authorization.**
+- All four PRs carry fresh, grounded PPLX reviews at their reviewed heads (see `tasks.md` session log for exact comment IDs and timestamps). AGY has not been run on this stack in the sessions recorded here — PPLX has served as the sole review gate for the panels stack to date.
 - The preserved `voice-UI` branch at `2e97507` remains unmerged by design.
-- Deferred: OG image compression, canonical custom domain, Firefox/WebKit E2E.
+- Deferred, unchanged: OG image compression, canonical custom domain, Firefox/WebKit E2E, dynamic question-count support (explicitly **ruled out**, not merely deferred — the product is fixed at 13 questions).

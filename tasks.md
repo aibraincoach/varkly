@@ -150,6 +150,7 @@ Remove all code that depends on Supabase, email delivery, or application-side se
 ### Product
 
 - [ ] Manually test the System Prompt and Conversation Prompt against ChatGPT, Claude, and Gemini, then update `PRD.md` with final copy.
+- **Discrepancy note (2026-09-08):** an incoming PM handoff narrative described `PRD.md` as "never been written with the owner's actual product vision." That is not accurate as of this repo state — `PRD.md` exists, is versioned (`3.0`, dated 2026-03-14), and contains a full problem statement, product definition, two-prompt generation spec, personas, user stories, and success metrics. It has not been touched by the panels redesign (presentation-only) and remains believed current. The only genuinely open PRD item is the one above: final prompt wording has not been validated against live ChatGPT/Claude/Gemini sessions. Do not rewrite PRD.md from scratch on the assumption it is empty — read it first.
 - [ ] Custom domain on Vercel to replace `varkly-eight.vercel.app`.
 - [ ] Investigate JJ's conversational voice agent work: does it still exist, what state is it in, what is reusable.
 - [ ] Voice conversation rebuild. The `voice-UI` branch is a per-question TTS/STT bridge, not a conversation. Keep the branch, do not merge it. Reusable parts are the question content and the VARK classification logic only.
@@ -227,7 +228,7 @@ Review of the shipped panels branch found the branch does not typecheck, the key
 - [x] Task 6: Reproducible asset measurement tooling and npm command; enforce under 1,200,000-byte build-based budget [2026-09-08]
 - [x] Task 7: Integrate updated `feat/panels-screen` into `docs/panels-sync`; synchronize planning, AGENTS, BRANDING, COPY, README, DESIGN [2026-09-08]
 - [x] Task 8 (validation and evidence preparation): Final validation on integrated code (`lint`, `test`, `typecheck`, `test:e2e`, asset measurement, `git diff --check`); PR description and evidence updates [2026-09-08]
-- [ ] Task 8 (handoff — open): Fresh PPLX on changed PR #14/#15 heads, PM triage of review findings, PR merge/deploy (not authorized)
+- [x] Task 8 (handoff): Fresh PPLX on all four current PR heads (#12–#15), PM triage of review findings, one accepted fix applied and re-reviewed clean (PR #14 keyboard-rail accessibility). Zero un-triaged blockers as of 2026-09-08. Per the 2026-09-08 merge-authority ruling (`AGENTS.md`), merge is now the PM's own call. [2026-09-08]
 
 ### PR C — `docs/panels-sync`
 
@@ -454,3 +455,19 @@ Review of the shipped panels branch found the branch does not typecheck, the key
   - Screenshot calls committed; ignored PNG persistence harness-limited.
   - Task 6 original implementation-first caveat remains explicit.
 - Final validation rerun pending on post-polish HEAD. PPLX, PM triage, merge/deploy remain open.
+
+### 2026-09-08 — Fresh PPLX pass on all four current heads, one fix, PM handoff documentation
+
+- Ran the PPLX gate (Perplexity, Gemini 3.8 Flash — Gemini 3.1 Pro Thinking no longer offered in the model picker — in-app incognito, GitHub connector, `code review <PR URL>` only) against PR #12 (head `ea62429`), #13 (head `8a4a411`), #14 (head `4a6a774`), and #15 (head `4bffe24`). Grounding PASS on all four. Posted as PR comments: #12 `issuecomment-5593131900`, #13 `issuecomment-5593147842`, #14 `issuecomment-5593178213`, #15 `issuecomment-5593198873`.
+- #12, #13, #15: no blockers. #14 raised one real, independently-verified finding: `src/components/panels/Panel.tsx` rendered all 14 rail buttons with default `tabIndex`, so a keyboard user hit 14 tab stops before reaching question controls.
+- Triaged as accept. Fixed in `feat/panels-screen`: added `tabIndex={isActive || isLanding ? 0 : -1}` to `Panel.tsx`. Verified lint clean, typecheck clean, 134 Vitest + 9 Node tests passing, 21/21 Chromium keyboard+layout E2E tests still passing. Committed and pushed as `a1497a9`.
+- Per the one-commit rule, re-ran PPLX against the new PR #14 head (`a1497a9`); grounding PASS. Zero blockers on re-review — remaining notes were non-blocking suggestions (extract keyboard listeners into a hook, debounce resize, verify `aria-hidden` on decorative overlays, deferred cross-browser E2E). Posted as `issuecomment-5593331968`.
+- **Outcome: zero un-triaged blockers remain across the PR stack (#12 → #13 → #14 → #15)** as of head `a1497a9` on `feat/panels-screen`. Not merged in this pass — see the 2026-09-08 merge-authority entry below for the policy that now governs whether a future pass merges on the spot.
+- Separately, PR #16 (`docs/no-actions-2026-09-08` → `main`, unrelated to this stack) merged 2026-09-08T21:49:23Z: GitHub Actions disabled repo-wide per owner ruling (exhausted CI allowance, no additional spend authorized); required checks now run on Vercel/Cloudflare only. See `CI_POLICY.md`.
+- Reconciled this repo's full history against live GitHub (`gh pr list --state all`, `gh api .../issues/{n}/comments`) for a complete PM-handoff documentation pass across `AGENTS.md`, `planning.md`, `tasks.md`, `README.md`, `WALL_OF_STUPID.md`. **Discrepancy found and corrected:** an incoming handoff narrative claimed PR #14/#15 review rounds used head SHAs `8bc976f1`/`f9b419be`/`3acc3602`/`e82717aa` as the *final* state and PRD.md as unwritten; live GitHub and this file's own prior session-log entries show those were intermediate heads later superseded (`4a6a774` then `a1497a9` for #14; `4bffe24` for #15), and `PRD.md` has substantial real content (v3.0, 2026-03-14) — see the discrepancy note under Milestone 7 Product. No other factual conflicts found between the incoming narrative and verified GitHub state; PR numbers, backlog contents, and the round 1/2/3 defect-and-ruling history all check out against actual commits and comments.
+- `BRANDING.md`, `COPY.md`, `DESIGN.md`, `.impeccable/design.json`, `PRODUCT.md`, `README.md` were spot-checked against current source and found already current from the Task 7 sync — not re-edited.
+
+### 2026-09-08 — Merge authority ruling
+
+- **Policy change, effective 2026-09-08, not a correction of prior process:** merge authority for this repository now sits with the PM role, not the project owner. Recorded in `AGENTS.md` ("Merge authority — owner ruling, 2026-09-08"). Every prior session-log entry above stating "not authorized" or "merge/deploy remain open" is an accurate record of the process that was in force at the time and has not been rewritten.
+- Going forward, a PR stack with zero un-triaged blockers from AGY/PPLX plus PM triage is merged by the PM directly; deploys to Vercel (and, where applicable, Cloudflare) follow from that merge without a separate owner sign-off step.
