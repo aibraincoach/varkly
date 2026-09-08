@@ -65,6 +65,10 @@ function isModifiedOrComposing(event: KeyboardEvent): boolean {
   );
 }
 
+function getKeyIdentifier(event: KeyboardEvent): string {
+  return event.code || event.key;
+}
+
 const PanelsScreen: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -299,34 +303,77 @@ const PanelsScreen: React.FC = () => {
     [goToQuestion, goToResults]
   );
 
-  const actionHandlersRef = useRef({ runCommand });
-  actionHandlersRef.current = { runCommand };
-
   const isRedirecting = redirectTarget !== null;
 
+  const keyboardContextRef = useRef({
+    surface,
+    active,
+    isRedirecting,
+    runCommand,
+  });
+  keyboardContextRef.current = {
+    surface,
+    active,
+    isRedirecting,
+    runCommand,
+  };
+
   useEffect(() => {
+    const ownedKeys = new Set<string>();
+
     const onKeyDown = (event: KeyboardEvent) => {
-      if (isRedirecting) return;
+      const { surface: currentSurface, active: currentActive, isRedirecting: redirecting, runCommand: execute } =
+        keyboardContextRef.current;
+      if (redirecting) return;
       if (event.defaultPrevented) return;
-      if (event.repeat) return;
       if (isModifiedOrComposing(event)) return;
       if (isEditableTarget(event.target)) return;
 
-      const command = parseKeyboardCommand(event.key, active);
+      const keyId = getKeyIdentifier(event);
+
+      if (ownedKeys.has(keyId)) {
+        event.preventDefault();
+        return;
+      }
+
+      if (event.repeat) return;
+
+      const command = parseKeyboardCommand(event.key, currentActive);
       if (!command) return;
 
-      // On a question every recognized shortcut outranks whatever button or link holds focus.
-      if (surface !== 'question' && focusOwnsKey(getFocusRole(event.target), event.key)) {
+      if (
+        currentSurface !== 'question' &&
+        focusOwnsKey(getFocusRole(event.target), event.key)
+      ) {
         return;
       }
 
       event.preventDefault();
-      actionHandlersRef.current.runCommand(command);
+      ownedKeys.add(keyId);
+      execute(command);
+    };
+
+    const onKeyUp = (event: KeyboardEvent) => {
+      const keyId = getKeyIdentifier(event);
+      if (!ownedKeys.has(keyId)) return;
+      event.preventDefault();
+      ownedKeys.delete(keyId);
+    };
+
+    const onBlur = () => {
+      ownedKeys.clear();
     };
 
     window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
-  }, [active, isRedirecting, surface]);
+    window.addEventListener('keyup', onKeyUp);
+    window.addEventListener('blur', onBlur);
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener('keyup', onKeyUp);
+      window.removeEventListener('blur', onBlur);
+      ownedKeys.clear();
+    };
+  }, []);
 
   const progressLabel = isLanding
     ? 'Varkly · VARK quiz'

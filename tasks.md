@@ -217,6 +217,17 @@ Review of the shipped panels branch found the branch does not typecheck, the key
 - [x] Update the start-state unit tests for preserved answers, empty and completed previous states, and input immutability [2026-09-08]
 - [x] Remove the Impeccable `THESIS:`–`FINISH:` HTML comment block from `index.html` (body only; preserve `<head>`, analytics, fonts, and scripts byte-for-byte) [2026-09-08]
 
+### PR B close-review remediation — `feat/panels-screen` (Tasks 1–8)
+
+- [x] Task 1: Keyboard ownership and focused-control regressions — explicit key ownership in `PanelsScreen`, focused Playwright held-key tests, retain page-focused repeat cases [2026-09-08]
+- [ ] Task 2: Clipboard fallback (`copyToClipboard`), feedback lifecycle (generation ID, timer ref, stale invalidation), expand K9 and unit tests
+- [ ] Task 3: Shared navigation clamp from `questions.length - 1` in `QuizContext` and panels route parsing; fixed 13-question panel invariants
+- [ ] Task 4: Panel image hints (`decoding`, eager/lazy loading); extend U1 empty-layout coverage at 1440×900 and 390×844
+- [ ] Task 5: Same-document shared-route regression coverage — extend R9 with History API transitions and flash detection
+- [ ] Task 6: Reproducible asset measurement tooling and npm command; enforce under 1,200,000-byte build-based budget
+- [ ] Task 7: Integrate updated `feat/panels-screen` into `docs/panels-sync`; synchronize planning, AGENTS, BRANDING, COPY, README, DESIGN
+- [ ] Task 8: Final validation on integrated code (`lint`, `test`, `typecheck`, `test:e2e`, asset measurement, `git diff --check`); PR evidence and PPLX handoff (no merge)
+
 ### PR C — `docs/panels-sync`
 
 - [ ] Synchronize `planning.md` (single-screen architecture, routes, no theme, file tree, tech stack minus recharts, image-weight risks)
@@ -271,6 +282,13 @@ Review of the shipped panels branch found the branch does not typecheck, the key
 - Added `typecheck`, build-gated `build`, `test:e2e`, strict `tsconfig.e2e.json`, and `@playwright/test` 1.63.0.
 - Verification: `npm run lint` (0 issues), `npm test` (109/109), `npm run typecheck` (pass), `npm run test:e2e` (25/25), `npm run build` (pass), `git diff --check` (pass).
 - Landing transfer weight (gzipped JS/CSS + panel WebPs, fonts excluded): 639,258 bytes (0.61 MB); OG image separate at 862 KB. `dist/` contains no recharts, playwright, or vitest references.
+
+### 2026-09-08 — PR #14 close-review Task 1 (keyboard ownership)
+
+- Added explicit key ownership in `PanelsScreen`: stable window listeners via refs, `event.code`/`event.key` tracking, owned-keydown swallowing, keyup `preventDefault`, blur/unmount cleanup, ownership retained across route/view changes.
+- Added Playwright regressions K12–K19 (focused Next/Previous/rail/Q13 held Enter/Space, post-release press, window blur); retained K7 page-focused held-key cases and full K1–K11 suite.
+- Verification: `npm test` 109/109, `npm run test:e2e` 33/33 (K12–K19 RED 6/8 fail pre-fix → GREEN 8/8 post-fix).
+- Baseline: `f9b419b`; branch `feat/panels-screen` pushed, not merged.
 
 ### 2026-09-08 — PR #14 HTML thesis-comment cleanup (Task B)
 
