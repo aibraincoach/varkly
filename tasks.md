@@ -1,6 +1,6 @@
 # Tasks — Varkly
 
-**Last updated:** 2026-09-07 (Milestone 6 in progress)
+**Last updated:** 2026-09-08 (Milestone 7 backlog captured)
 
 Tasks are organized by milestone. Check off items as they are completed and add the date: `[x] Task description [2026-03-14]`.
 
@@ -141,10 +141,11 @@ Remove all code that depends on Supabase, email delivery, or application-side se
 ### Quality
 
 - [ ] Fix 2 ESLint unused-variable errors and 3 Fast Refresh warnings.
-- [ ] Add Open Graph meta tags to `index.html` for `/r/:hash` sharing.
+- [ ] Add Open Graph and Twitter card meta tags to `index.html` for `/r/:hash` sharing.
 - [ ] Add unit tests for `calculateScores` (`src/contexts/QuizContext.tsx`).
 - [ ] Playwright E2E for quiz to results to copy-prompt flow.
 - [ ] Review 22 npm audit advisories. Low priority, static client app, do not upgrade packages speculatively.
+- [ ] Remove dead `userIntent` state: `setUserIntent` writes to context, nothing reads it, and `aiPrompts.ts` never references it. Delete `setUserIntent`, the `userIntent` field on `QuizState`, and the `UserIntent` type.
 
 ### Product
 
@@ -152,6 +153,9 @@ Remove all code that depends on Supabase, email delivery, or application-side se
 - [ ] Custom domain on Vercel to replace `varkly-eight.vercel.app`.
 - [ ] Investigate JJ's conversational voice agent work: does it still exist, what state is it in, what is reusable.
 - [ ] Voice conversation rebuild. The `voice-UI` branch is a per-question TTS/STT bridge, not a conversation. Keep the branch, do not merge it. Reusable parts are the question content and the VARK classification logic only.
+- [ ] Restore an "About VARK" entry point on the landing view. Deferred pending a designer round and not part of the panels redesign. The design code hides the button, while the design screenshot shows it. On a one-screen app it is the only place the credibility argument can live, and VARK as a taxonomy is contested.
+- [ ] Reinstate a condensed results explanation. Deferred pending a designer round and not part of the panels redesign. The panels redesign reduces each VARK style to a single blurb, so a user who scores Kinesthetic learns little about what that means.
+- [ ] Preserve `ResultsExplanation.tsx` copy in `COPY.md` before the component is deleted in the panels redesign, so reinstating the deferred explanation is copy-paste work rather than git archaeology.
 
 ### Repo hygiene
 
@@ -176,3 +180,11 @@ Remove all code that depends on Supabase, email delivery, or application-side se
 - Added Milestone 7 with the supplied correctness, quality, product, and repository-hygiene backlog.
 - Left every new item unchecked and did not start any implementation work.
 - Changed only `tasks.md`.
+
+### 2026-09-08 — Repository state synchronization and PM handoff
+
+- Recorded that the GitHub repository was renamed from `ZooTech-Hackathon-2026` to `varkly`.
+- Confirmed PR #10 (canonical memory bank) and PR #11 (backlog capture) were merged into `main`.
+- Confirmed nine stale `cursor/*` remote branches were deleted.
+- Confirmed `voice-UI` remains intentionally unmerged at `2e97507`.
+- Recorded that the panels redesign plan was revised and is awaiting approval; no redesign application code was changed in this session.
