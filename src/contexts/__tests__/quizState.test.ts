@@ -14,10 +14,7 @@ describe('getFreshQuizStartState', () => {
       isCompleted: true,
     };
 
-    expect(Object.keys(prior.answers).length).toBeGreaterThan(0);
-    expect(prior.isCompleted).toBe(true);
-
-    expect(getFreshQuizStartState()).toEqual({
+    expect(getFreshQuizStartState(prior)).toEqual({
       currentQuestionIndex: 0,
       answers: {},
       isCompleted: false,

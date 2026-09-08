@@ -7,7 +7,8 @@ export const defaultQuizState: QuizState = {
   isCompleted: false,
 };
 
-export function getFreshQuizStartState(): QuizState {
+export function getFreshQuizStartState(previousState: QuizState): QuizState {
+  void previousState;
   return {
     currentQuestionIndex: 0,
     answers: {},

@@ -28,7 +28,7 @@ export const QuizProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [quizState]);
 
   const startQuiz = useCallback(() => {
-    setQuizState(() => getFreshQuizStartState());
+    setQuizState(getFreshQuizStartState);
     navigate('/quiz');
   }, [navigate]);
 
