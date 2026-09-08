@@ -1,16 +1,27 @@
+import fs from 'node:fs';
 import { test, expect } from '@playwright/test';
 import {
+  E2E_ARTIFACT_DIR,
   expectNoHorizontalOverflow,
   expectQuestion,
   expectResultsSurface,
   KEYBOARD_FOCUS_NOTE,
   LEGACY_SHARED_HASH,
   seedQuizState,
+  ZERO_SHARED_HASH,
 } from './helpers';
 
+const EMPTY_HELPER = 'Choose at least one answer to get your AI prompts.';
+
+const COMPLETED_EMPTY = {
+  currentQuestionIndex: 12,
+  answers: {},
+  isCompleted: true,
+};
+
 const VIEWPORTS = [
-  { label: 'desktop', width: 1440, height: 900 },
-  { label: 'mobile 390px', width: 390, height: 844 },
+  { label: 'desktop', slug: 'desktop', width: 1440, height: 900 },
+  { label: 'mobile 390px', slug: 'mobile-390', width: 390, height: 844 },
 ];
 
 const ANSWERED = {
@@ -67,5 +78,35 @@ for (const viewport of VIEWPORTS) {
     await expect(page.getByText(KEYBOARD_FOCUS_NOTE)).toBeVisible();
     await expect(footer).toBeVisible();
     await expectNoHorizontalOverflow(page);
+
+    await seedQuizState(page, COMPLETED_EMPTY, '/results');
+    await expectResultsSurface(page);
+    await expect(page.getByRole('button', { name: 'Answer questions' })).toBeVisible();
+    await expect(page.getByText(EMPTY_HELPER)).toBeVisible();
+    await expect(
+      page.getByText('← review questions · enter answer questions · space retake')
+    ).toBeVisible();
+    await expect(page.getByText(KEYBOARD_FOCUS_NOTE)).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Retake' })).toBeVisible();
+    await expect(footer).toBeVisible();
+    await expectNoHorizontalOverflow(page);
+    fs.mkdirSync(E2E_ARTIFACT_DIR, { recursive: true });
+    await page.screenshot({
+      path: `${E2E_ARTIFACT_DIR}/u1-empty-local-${viewport.slug}.png`,
+      fullPage: true,
+    });
+
+    await page.goto(`/r/${ZERO_SHARED_HASH}`);
+    await expect(page.getByRole('button', { name: 'Take quiz' })).toBeVisible();
+    await expect(page.getByText(EMPTY_HELPER)).toBeVisible();
+    await expect(page.getByText('enter take quiz · space retake')).toBeVisible();
+    await expect(page.getByText(KEYBOARD_FOCUS_NOTE)).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Retake' })).toBeVisible();
+    await expect(footer).toBeVisible();
+    await expectNoHorizontalOverflow(page);
+    await page.screenshot({
+      path: `${E2E_ARTIFACT_DIR}/u1-empty-shared-${viewport.slug}.png`,
+      fullPage: true,
+    });
   });
 }

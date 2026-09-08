@@ -1,12 +1,18 @@
 import { test, expect } from '@playwright/test';
 import {
+  assertDocumentSentinel,
+  AUDITORY_SHARED_HASH,
   clipboardWrites,
   expectQuestion,
   expectResultsSurface,
+  installDocumentSentinel,
   INVALID_SHARED_HASH,
   LEGACY_SHARED_HASH,
+  navigateSameDocument,
   optionAt,
   readQuizState,
+  readQuizStateBytes,
+  resetSeenText,
   seedQuizState,
   seenText,
   stubClipboard,
@@ -17,6 +23,10 @@ import {
 const EMPTY_HELPER = 'Choose at least one answer to get your AI prompts.';
 const PROMPT_MARKER = 'System prompt';
 const VISUAL_HEADLINE = 'You lean Visual.';
+const AUDITORY_HEADLINE = 'You lean Auditory.';
+const SHARED_PROFILE_LABEL = 'Shared VARK profile';
+const NO_ANSWERS_HEADLINE = 'No answers yet.';
+const LANDING_MARKER = 'See. Hear.';
 
 const COMPLETED_EMPTY = {
   currentQuestionIndex: 12,
@@ -172,7 +182,7 @@ test('R8: the legacy share hash still decodes to V9 A2 R1 K1 with matching promp
 test('R9: an invalid share hash replaces to home without showing any prior profile', async ({
   page,
 }) => {
-  await watchForText(page, [PROMPT_MARKER, VISUAL_HEADLINE, 'Shared VARK profile']);
+  await watchForText(page, [PROMPT_MARKER, VISUAL_HEADLINE, SHARED_PROFILE_LABEL]);
 
   await page.goto(`/r/${LEGACY_SHARED_HASH}`);
   await expect(page.getByRole('heading', { level: 1 })).toContainText(VISUAL_HEADLINE);
@@ -187,4 +197,79 @@ test('R9: an invalid share hash replaces to home without showing any prior profi
   await expect(page).toHaveURL(/127\.0\.0\.1:4173\/$/);
   await expect(page.getByRole('button', { name: "Let's begin" })).toBeVisible();
   expect(await seenText(page)).toEqual([]);
+});
+
+test('R10: same-document shared-route transitions decode synchronously without reload', async ({
+  page,
+}) => {
+  const localAnswers = {
+    currentQuestionIndex: 3,
+    answers: { '1': ['1V'], '2': ['2V'] },
+    isCompleted: false,
+  };
+
+  await watchForText(page, [
+    PROMPT_MARKER,
+    VISUAL_HEADLINE,
+    AUDITORY_HEADLINE,
+    SHARED_PROFILE_LABEL,
+    EMPTY_HELPER,
+    NO_ANSWERS_HEADLINE,
+    LANDING_MARKER,
+  ]);
+
+  await seedQuizState(page, localAnswers, `/r/${LEGACY_SHARED_HASH}`);
+  const seededBytes = await readQuizStateBytes(page);
+  expect(seededBytes).not.toBeNull();
+
+  const sentinelId = await installDocumentSentinel(page);
+
+  await expect(page).toHaveURL(new RegExp(`/r/${LEGACY_SHARED_HASH}$`));
+  await expect(page.getByRole('heading', { level: 1 })).toContainText(VISUAL_HEADLINE);
+  await expect(page.getByText(SHARED_PROFILE_LABEL)).toBeVisible();
+  await assertDocumentSentinel(page, sentinelId);
+  expect(await readQuizStateBytes(page)).toBe(seededBytes);
+
+  await resetSeenText(page);
+  await navigateSameDocument(page, `/r/${AUDITORY_SHARED_HASH}`);
+  await expect(page).toHaveURL(new RegExp(`/r/${AUDITORY_SHARED_HASH}$`));
+  await expect(page.getByRole('heading', { level: 1 })).toContainText(AUDITORY_HEADLINE);
+  await expect(page.getByRole('heading', { level: 1 })).not.toContainText(VISUAL_HEADLINE);
+  await assertDocumentSentinel(page, sentinelId);
+  const afterAuditory = await seenText(page);
+  expect(afterAuditory).toContain(AUDITORY_HEADLINE);
+  expect(afterAuditory).not.toContain(VISUAL_HEADLINE);
+  expect(afterAuditory).not.toContain(PROMPT_MARKER);
+  expect(afterAuditory).not.toContain(EMPTY_HELPER);
+  expect(await readQuizStateBytes(page)).toBe(seededBytes);
+
+  await resetSeenText(page);
+  await navigateSameDocument(page, `/r/${ZERO_SHARED_HASH}/prompts`);
+  await expect(page).toHaveURL(new RegExp(`/r/${ZERO_SHARED_HASH}$`));
+  await expect(page.getByRole('heading', { level: 1 })).toContainText(NO_ANSWERS_HEADLINE);
+  await expect(page.getByText('0 · 0%')).toHaveCount(4);
+  await expect(page.getByRole('button', { name: 'Take quiz' })).toBeVisible();
+  await expect(page.getByText(PROMPT_MARKER)).toHaveCount(0);
+  await assertDocumentSentinel(page, sentinelId);
+  const afterZero = await seenText(page);
+  expect(afterZero).toContain(NO_ANSWERS_HEADLINE);
+  expect(afterZero).not.toContain(VISUAL_HEADLINE);
+  expect(afterZero).not.toContain(AUDITORY_HEADLINE);
+  expect(afterZero).not.toContain(PROMPT_MARKER);
+  expect(await readQuizStateBytes(page)).toBe(seededBytes);
+
+  await resetSeenText(page);
+  await navigateSameDocument(page, `/r/${INVALID_SHARED_HASH}`);
+  await expect(page).toHaveURL(/127\.0\.0\.1:4173\/$/);
+  await expect(page.getByRole('button', { name: "Let's begin" })).toBeVisible();
+  await assertDocumentSentinel(page, sentinelId);
+  const afterInvalid = await seenText(page);
+  expect(afterInvalid).toContain(LANDING_MARKER);
+  expect(afterInvalid).not.toContain(VISUAL_HEADLINE);
+  expect(afterInvalid).not.toContain(AUDITORY_HEADLINE);
+  expect(afterInvalid).not.toContain(PROMPT_MARKER);
+  expect(afterInvalid).not.toContain(SHARED_PROFILE_LABEL);
+  expect(afterInvalid).not.toContain(EMPTY_HELPER);
+  expect(afterInvalid).not.toContain(NO_ANSWERS_HEADLINE);
+  expect(await readQuizStateBytes(page)).toBe(seededBytes);
 });

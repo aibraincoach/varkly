@@ -1,4 +1,6 @@
+import { QUESTION_COUNT, questions } from '../../data/questions';
 import type { VarkScores } from '../../types';
+import { clampQuestionIndex as clampQuestionIndexFromCount } from '../../utils/navigation';
 
 export type PanelsView = 'quiz' | 'prompts';
 
@@ -50,7 +52,7 @@ export function countAnsweredQuestions(answers: Record<number, string[]>): numbe
 }
 
 export function clampQuestionIndex(index: number): number {
-  return Math.max(0, Math.min(12, index));
+  return clampQuestionIndexFromCount(index, questions.length);
 }
 
 export function parseRouteState(pathname: string, questionIndex: number): RouteState {
@@ -246,12 +248,12 @@ export function getResultsEyebrow(isShared: boolean, answeredCount: number): str
   if (isShared) {
     return 'Shared VARK profile';
   }
-  return `Your VARK profile · ${answeredCount} of 13 answered`;
+  return `Your VARK profile · ${answeredCount} of ${QUESTION_COUNT} answered`;
 }
 
 export function getPromptsEyebrow(isShared: boolean, answeredCount: number): string {
   if (isShared) {
     return 'Shared AI prompts';
   }
-  return `Your AI prompts · ${answeredCount} of 13 answered`;
+  return `Your AI prompts · ${answeredCount} of ${QUESTION_COUNT} answered`;
 }

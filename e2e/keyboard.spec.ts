@@ -5,9 +5,12 @@ import {
   expectResultsSurface,
   optionAt,
   readQuizState,
+  resetClipboardWrites,
   seedQuizState,
   stubClipboard,
 } from './helpers';
+import { generateAIPrompts } from '../src/utils/aiPrompts';
+import { calculateScores, encodeScores } from '../src/utils/scores';
 
 const AT_FIRST_QUESTION = {
   currentQuestionIndex: 0,
@@ -236,34 +239,100 @@ test('K8: editable targets and modified shortcuts change neither state nor route
   }
 });
 
+const COPY_BOTH_DELIMITER = '\n\n---\n\n';
+const K9_BASE_URL = 'http://127.0.0.1:4173';
+
 test('K9: activating a focused copy button runs the native action only', async ({ page }) => {
   await stubClipboard(page);
-  await seedQuizState(page, ANSWERED, '/results');
-  await expectResultsSurface(page);
 
-  const copyLink = page.getByRole('button', { name: 'Copy link' });
-  await copyLink.focus();
-  await expect(copyLink).toBeFocused();
-  await page.keyboard.press('Enter');
+  const scores = calculateScores(ANSWERED.answers);
+  const prompts = generateAIPrompts(scores);
+  const exactLinkUrl = `${K9_BASE_URL}/r/${encodeScores(scores)}`;
+  const combined = `${prompts.systemPrompt}${COPY_BOTH_DELIMITER}${prompts.conversationPrompt}`;
 
-  await expect(page.getByRole('button', { name: 'Copied' })).toBeVisible();
-  await expect(page).toHaveURL(/\/results$/);
-  const resultsWrites = await clipboardWrites(page);
-  expect(resultsWrites).toHaveLength(1);
-  expect(resultsWrites[0]).toContain('/r/');
+  const matrix = [
+    {
+      label: 'Copy link + Enter',
+      destination: '/results',
+      button: () => page.getByRole('button', { name: 'Copy link' }),
+      key: 'Enter',
+      payload: exactLinkUrl,
+    },
+    {
+      label: 'Copy link + Space',
+      destination: '/results',
+      button: () => page.getByRole('button', { name: 'Copy link' }),
+      key: ' ',
+      payload: exactLinkUrl,
+    },
+    {
+      label: 'System Copy + Enter',
+      destination: '/prompts',
+      button: () => page.getByRole('button', { name: 'Copy', exact: true }).first(),
+      key: 'Enter',
+      payload: prompts.systemPrompt,
+    },
+    {
+      label: 'System Copy + Space',
+      destination: '/prompts',
+      button: () => page.getByRole('button', { name: 'Copy', exact: true }).first(),
+      key: ' ',
+      payload: prompts.systemPrompt,
+    },
+    {
+      label: 'Conversation Copy + Enter',
+      destination: '/prompts',
+      button: () => page.getByRole('button', { name: 'Copy', exact: true }).nth(1),
+      key: 'Enter',
+      payload: prompts.conversationPrompt,
+    },
+    {
+      label: 'Conversation Copy + Space',
+      destination: '/prompts',
+      button: () => page.getByRole('button', { name: 'Copy', exact: true }).nth(1),
+      key: ' ',
+      payload: prompts.conversationPrompt,
+    },
+    {
+      label: 'Copy both + Enter',
+      destination: '/prompts',
+      button: () => page.getByRole('button', { name: 'Copy both prompts' }),
+      key: 'Enter',
+      payload: combined,
+    },
+    {
+      label: 'Copy both + Space',
+      destination: '/prompts',
+      button: () => page.getByRole('button', { name: 'Copy both prompts' }),
+      key: ' ',
+      payload: combined,
+    },
+  ] as const;
 
-  await seedQuizState(page, ANSWERED, '/prompts');
-  const systemCopy = page.getByRole('button', { name: 'Copy', exact: true }).first();
-  await systemCopy.focus();
-  await expect(systemCopy).toBeFocused();
-  await page.keyboard.press(' ');
+  for (const cell of matrix) {
+    await resetClipboardWrites(page);
+    await seedQuizState(page, ANSWERED, cell.destination);
 
-  await expect(page).toHaveURL(/\/prompts$/);
-  const systemPrompt = await page.locator('pre').first().textContent();
-  const promptWrites = await clipboardWrites(page);
-  expect(promptWrites).toHaveLength(1);
-  expect(promptWrites[0]).toBe(systemPrompt);
-  expect((await readQuizState(page))?.answers).toEqual(ANSWERED.answers);
+    if (cell.destination === '/results') {
+      await expectResultsSurface(page);
+    } else {
+      await expect(page).toHaveURL(/\/prompts$/);
+    }
+
+    const routeBefore = page.url();
+    const answersBefore = await readQuizState(page);
+
+    const button = cell.button();
+    await button.focus();
+    await expect(button).toBeFocused();
+    await page.keyboard.press(cell.key);
+
+    const writes = await clipboardWrites(page);
+    expect(writes, cell.label).toHaveLength(1);
+    expect(writes[0], cell.label).toBe(cell.payload);
+    expect(page.url(), cell.label).toBe(routeBefore);
+    expect(await readQuizState(page), cell.label).toEqual(answersBefore);
+  }
 });
 
 test('K10: with the page focused Enter opens prompts and Space retakes, clearing state', async ({
@@ -300,4 +369,173 @@ test('K11: Enter on the focused logo follows the link and nothing else', async (
   const state = await readQuizState(page);
   expect(state?.answers).toEqual(ANSWERED.answers);
   expect(state?.isCompleted).toBe(true);
+});
+
+test('K12: Next focused on question 1 + held Enter ends on question 2', async ({ page }) => {
+  await seedQuizState(page, AT_FIRST_QUESTION, '/quiz');
+  await expectQuestion(page, 1);
+
+  const next = page.getByRole('button', { name: 'Next' });
+  await next.focus();
+  await expect(next).toBeFocused();
+
+  await page.keyboard.down('Enter');
+  await expectQuestion(page, 2);
+
+  await page.keyboard.down('Enter');
+  await page.keyboard.down('Enter');
+  await expectQuestion(page, 2);
+
+  await page.keyboard.up('Enter');
+  await expectQuestion(page, 2);
+});
+
+test('K13: Previous focused on question 2 + held Enter ends on question 3', async ({ page }) => {
+  await seedQuizState(page, { currentQuestionIndex: 1, answers: {}, isCompleted: false }, '/quiz');
+  await expectQuestion(page, 2);
+
+  const previous = page.getByRole('button', { name: 'Previous' });
+  await previous.focus();
+  await expect(previous).toBeFocused();
+
+  await page.keyboard.down('Enter');
+  await expectQuestion(page, 3);
+
+  await page.keyboard.down('Enter');
+  await page.keyboard.down('Enter');
+  await expectQuestion(page, 3);
+
+  await page.keyboard.up('Enter');
+  await expectQuestion(page, 3);
+});
+
+test('K14: Previous focused on question 2 + held Space ends on question 3 after release', async ({
+  page,
+}) => {
+  await seedQuizState(page, { currentQuestionIndex: 1, answers: {}, isCompleted: false }, '/quiz');
+  await expectQuestion(page, 2);
+
+  const previous = page.getByRole('button', { name: 'Previous' });
+  await previous.focus();
+  await expect(previous).toBeFocused();
+
+  await page.keyboard.down(' ');
+  await expectQuestion(page, 3);
+
+  await page.keyboard.down(' ');
+  await page.keyboard.down(' ');
+  await expectQuestion(page, 3);
+
+  await page.keyboard.up(' ');
+  await expectQuestion(page, 3);
+});
+
+test('K15: focused rail button + held Enter advances one question without opening the rail destination', async ({
+  page,
+}) => {
+  await seedQuizState(page, { currentQuestionIndex: 2, answers: {}, isCompleted: false }, '/quiz');
+  await expectQuestion(page, 3);
+
+  const railPanel = page.getByRole('button', { name: 'Question 08: Trip' });
+  await railPanel.focus();
+  await expect(railPanel).toBeFocused();
+
+  await page.keyboard.down('Enter');
+  await expectQuestion(page, 4);
+
+  await page.keyboard.down('Enter');
+  await page.keyboard.down('Enter');
+  await expectQuestion(page, 4);
+
+  await page.keyboard.up('Enter');
+  await expectQuestion(page, 4);
+});
+
+test('K16: See results focused on question 13 + held Enter ends on results without prompts or copy', async ({
+  page,
+}) => {
+  await seedQuizState(page, AT_LAST_QUESTION, '/quiz');
+  await expectQuestion(page, 13);
+
+  const seeResults = page.getByRole('button', { name: 'See results' });
+  await seeResults.focus();
+  await expect(seeResults).toBeFocused();
+
+  await page.keyboard.down('Enter');
+  await expect(page).toHaveURL(/\/results$/);
+  await expectResultsSurface(page);
+
+  await page.keyboard.down('Enter');
+  await page.keyboard.down('Enter');
+  await expect(page).toHaveURL(/\/results$/);
+  await expect(page.getByRole('button', { name: 'Get my AI prompts' })).toBeVisible();
+
+  await page.keyboard.up('Enter');
+  await expect(page).toHaveURL(/\/results$/);
+  expect((await readQuizState(page))?.isCompleted).toBe(true);
+});
+
+test('K17: Skip focused on question 13 + held Space ends on results without Retake', async ({
+  page,
+}) => {
+  await seedQuizState(page, AT_LAST_QUESTION, '/quiz');
+  await expectQuestion(page, 13);
+
+  const skip = page.getByRole('button', { name: 'Skip' });
+  await skip.focus();
+  await expect(skip).toBeFocused();
+
+  await page.keyboard.down(' ');
+  await expect(page).toHaveURL(/\/results$/);
+  await expectResultsSurface(page);
+
+  await page.keyboard.down(' ');
+  await page.keyboard.down(' ');
+  await expect(page).toHaveURL(/\/results$/);
+  await expect(page).not.toHaveURL(/127\.0\.0\.1:4173\/$/);
+
+  await page.keyboard.up(' ');
+  await expect(page).toHaveURL(/\/results$/);
+  expect((await readQuizState(page))?.isCompleted).toBe(true);
+});
+
+test('K18: after a held shortcut releases, the next press performs its normal action', async ({
+  page,
+}) => {
+  await seedQuizState(page, AT_LAST_QUESTION, '/quiz');
+  await expectQuestion(page, 13);
+
+  const seeResults = page.getByRole('button', { name: 'See results' });
+  await seeResults.focus();
+  await expect(seeResults).toBeFocused();
+
+  await page.keyboard.down('Enter');
+  await expect(page).toHaveURL(/\/results$/);
+  await page.keyboard.up('Enter');
+  await expect(page).toHaveURL(/\/results$/);
+
+  await page.keyboard.press('Enter');
+  await expect(page).toHaveURL(/\/prompts$/);
+});
+
+test('K19: window blur while a key is owned resets ownership so fresh presses work', async ({
+  page,
+}) => {
+  await seedQuizState(page, AT_FIRST_QUESTION, '/quiz');
+  await expectQuestion(page, 1);
+
+  const next = page.getByRole('button', { name: 'Next' });
+  await next.focus();
+  await expect(next).toBeFocused();
+
+  await page.keyboard.down('Enter');
+  await expectQuestion(page, 2);
+
+  await page.evaluate(() => window.dispatchEvent(new Event('blur')));
+
+  await page.keyboard.down('Enter');
+  await expectQuestion(page, 3);
+
+  await page.keyboard.up('Enter');
+  await expectQuestion(page, 3);
 });
