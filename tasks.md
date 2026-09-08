@@ -290,6 +290,14 @@ Review of the shipped panels branch found the branch does not typecheck, the key
 - Added 16 unit tests (`copyToClipboard.test.ts`, `copyFeedback.test.ts`); verification: `npm test` 125/125, `npm run test:e2e` 34/34, `npm run typecheck` pass.
 - Baseline: `ee6698a`; branch `feat/panels-screen` pushed, not merged.
 
+### 2026-09-08 — PR #14 close-review Task 4 fix round 1 (U1 keys hints and artifact names)
+
+- U1 empty local/shared blocks assert production keys-hint strings at both viewports; Retake button checks retained; screenshot slugs `desktop` / `mobile-390` (no spaces).
+- Restored Task 3 session-log heading above clamp/invariant bullets in `tasks.md`.
+- Keys-hint assertions passed immediately (coverage strengthening, not RED). Artifact PNGs verified in `.superpowers/sdd/varkly-close-review-findings/artifacts/` after full E2E.
+- Verification: focused U1 + I1–I6 8/8; `npm test` 134/134; `typecheck` pass; `test:e2e` 40/40.
+- Baseline: `ec421e9`; branch `feat/panels-screen` pushed, not merged.
+
 ### 2026-09-08 — PR #14 close-review Task 4 (panel image hints and empty-layout coverage)
 
 - Added `decoding="async"` and first-or-active `loading` eager/lazy hints on panel `<img>` in `Panel.tsx`; artwork paths, sizing, `object-cover`, and decorative empty `alt` unchanged.
@@ -298,6 +306,7 @@ Review of the shipped panels branch found the branch does not typecheck, the key
 - Verification: `npm test` 134/134, `npm run typecheck` pass, `npm run test:e2e` 40/40 (focused I1–I6 + U1 + full suite).
 - Baseline: `6010613`; branch `feat/panels-screen` pushed, not merged.
 
+### 2026-09-08 — PR #14 close-review Task 3 (derived navigation bounds and fixed-product invariants)
 
 - Added `clampQuestionIndex(index, questionCount)` in `src/utils/navigation.ts`; `QuizContext.goToQuestion` and `panelsLogic.parseRouteState` (via re-exported `clampQuestionIndex`) derive bounds from `questions.length - 1`.
 - Exported `QUESTION_COUNT` from `questions.ts`; eyebrow copy uses it; product invariant tests assert 13 questions, ordered question panels + Results, and `panels.length === QUESTION_COUNT + 1`.
