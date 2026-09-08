@@ -223,7 +223,7 @@ Review of the shipped panels branch found the branch does not typecheck, the key
 - [x] Task 2: Clipboard fallback (`copyToClipboard`), feedback lifecycle (generation ID, timer ref, stale invalidation), expand K9 and unit tests [2026-09-08]
 - [x] Task 3: Shared navigation clamp from `questions.length - 1` in `QuizContext` and panels route parsing; fixed 13-question panel invariants [2026-09-08]
 - [x] Task 4: Panel image hints (`decoding`, eager/lazy loading); extend U1 empty-layout coverage at 1440×900 and 390×844 [2026-09-08]
-- [ ] Task 5: Same-document shared-route regression coverage — extend R9 with History API transitions and flash detection
+- [x] Task 5: Same-document shared-route regression coverage — extend R9 with History API transitions and flash detection [2026-09-08]
 - [ ] Task 6: Reproducible asset measurement tooling and npm command; enforce under 1,200,000-byte build-based budget
 - [ ] Task 7: Integrate updated `feat/panels-screen` into `docs/panels-sync`; synchronize planning, AGENTS, BRANDING, COPY, README, DESIGN
 - [ ] Task 8: Final validation on integrated code (`lint`, `test`, `typecheck`, `test:e2e`, asset measurement, `git diff --check`); PR evidence and PPLX handoff (no merge)
@@ -297,6 +297,14 @@ Review of the shipped panels branch found the branch does not typecheck, the key
 - Keys-hint assertions passed immediately (coverage strengthening, not RED). Artifact PNGs verified in `.superpowers/sdd/varkly-close-review-findings/artifacts/` after full E2E.
 - Verification: focused U1 + I1–I6 8/8; `npm test` 134/134; `typecheck` pass; `test:e2e` 40/40.
 - Baseline: `ec421e9`; branch `feat/panels-screen` pushed, not merged.
+
+### 2026-09-08 — PR #14 close-review Task 5 (same-document shared-route regression)
+
+- Added R10 E2E: seeded local answers + nonzero shared profile → same-document History API transitions (auditory profile, zero-score prompts guard, invalid redirect) with document sentinel, in-place observer buffer reset, prohibited-flash assertions, and byte-for-byte sessionStorage preservation.
+- Extended `e2e/helpers.ts`: `AUDITORY_SHARED_HASH`, `resetSeenText`, `readQuizStateBytes`, `installDocumentSentinel`, `assertDocumentSentinel`, `navigateSameDocument`.
+- Coverage closure (not TDD RED): R10 passed on first run; production synchronous hash decode already correct.
+- Verification: focused R10 pass; `npm test` 134/134; `npm run typecheck` pass; `npm run test:e2e` 41/41.
+- Baseline: `53d93aa`; branch `feat/panels-screen` pushed, not merged.
 
 ### 2026-09-08 — PR #14 close-review Task 4 (panel image hints and empty-layout coverage)
 

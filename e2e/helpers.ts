@@ -20,6 +20,8 @@ export const DEFAULT_QUIZ_STATE: SeededQuizState = {
 
 /** btoa('9-2-1-1') without padding — the share hash shipped before the panels redesign. */
 export const LEGACY_SHARED_HASH = 'OS0yLTEtMQ';
+/** btoa('2-9-1-1') without padding — a valid profile with Auditory dominance. */
+export const AUDITORY_SHARED_HASH = 'Mi05LTEtMQ';
 /** btoa('0-0-0-0') without padding — a valid link to an all-zero profile. */
 export const ZERO_SHARED_HASH = 'MC0wLTAtMA';
 /** btoa('not-valid') — decodes cleanly but is not four score parts. */
@@ -131,6 +133,48 @@ export async function watchForText(page: Page, needles: string[]): Promise<void>
 
 export function seenText(page: Page): Promise<string[]> {
   return page.evaluate(() => (window as unknown as { __seen: string[] }).__seen);
+}
+
+/** Clears the MutationObserver buffer in place so the observer keeps its captured array reference. */
+export async function resetSeenText(page: Page): Promise<void> {
+  await page.evaluate(() => {
+    const seen = (window as unknown as { __seen: string[] }).__seen;
+    if (seen) {
+      seen.length = 0;
+    }
+  });
+}
+
+export async function readQuizStateBytes(page: Page): Promise<string | null> {
+  return page.evaluate(() => window.sessionStorage.getItem('quizState'));
+}
+
+/** Installs a window sentinel once; identity must survive same-document route changes. */
+export async function installDocumentSentinel(page: Page): Promise<string> {
+  return page.evaluate(() => {
+    const sentinel = { id: `e2e-${String(Date.now())}` };
+    (window as unknown as { __docSentinel: { id: string } }).__docSentinel = sentinel;
+    return sentinel.id;
+  });
+}
+
+export async function assertDocumentSentinel(page: Page, expectedId: string): Promise<void> {
+  const current = await page.evaluate(() => {
+    const sentinel = (window as unknown as { __docSentinel?: { id: string } }).__docSentinel;
+    return sentinel?.id ?? null;
+  });
+  expect(current).toBe(expectedId);
+}
+
+/**
+ * Same-document route change via History API plus a browser history event.
+ * React Router picks up the new pathname without a full document reload.
+ */
+export async function navigateSameDocument(page: Page, pathname: string): Promise<void> {
+  await page.evaluate((path) => {
+    window.history.pushState(window.history.state, '', path);
+    window.dispatchEvent(new PopStateEvent('popstate', { state: window.history.state }));
+  }, pathname);
 }
 
 export async function expectNoHorizontalOverflow(page: Page): Promise<void> {
