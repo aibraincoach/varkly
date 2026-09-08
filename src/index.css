@@ -70,7 +70,7 @@
   }
 
   *::-webkit-scrollbar-thumb:hover {
-    background-color: #c8c8cf;
+    @apply bg-muted-3;
   }
 }
 
@@ -108,5 +108,77 @@
 
   .text-pretty {
     text-wrap: pretty;
+  }
+
+  /* PR A staging shims — removed with incumbent components in PR B */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3.5 font-semibold rounded-xl transition-colors duration-200;
+    @apply bg-ink text-ground border border-ink;
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    @apply bg-ink/90;
+  }
+
+  .btn-primary:active:not(:disabled) {
+    @apply scale-[0.98];
+  }
+
+  .btn-primary:focus-visible {
+    @apply outline-none ring-2 ring-ink ring-offset-2 ring-offset-ground;
+  }
+
+  .btn-primary:disabled {
+    @apply opacity-50 cursor-not-allowed;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3.5 font-semibold rounded-xl transition-colors duration-200;
+    @apply bg-white text-ink border-2 border-line;
+  }
+
+  .btn-secondary:hover:not(:disabled) {
+    @apply border-ink bg-white;
+  }
+
+  .btn-secondary:active:not(:disabled) {
+    @apply scale-[0.98];
+  }
+
+  .btn-secondary:focus-visible {
+    @apply outline-none ring-2 ring-ink ring-offset-2 ring-offset-ground;
+  }
+
+  .btn-secondary:disabled {
+    @apply opacity-50 cursor-not-allowed;
+  }
+
+  .card {
+    @apply rounded-2xl p-6 md:p-8 border border-line bg-white shadow-sm;
+  }
+
+  .quiz-option {
+    @apply relative rounded-xl p-4 transition-colors duration-200 cursor-pointer;
+    @apply bg-white border-2 border-line text-ink;
+  }
+
+  .quiz-option:hover:not(.selected):not(:disabled) {
+    @apply border-ink;
+  }
+
+  .quiz-option:focus-visible {
+    @apply outline-none ring-2 ring-ink ring-offset-2 ring-offset-ground;
+  }
+
+  .quiz-option.selected {
+    @apply bg-ink border-ink text-ground;
+  }
+
+  .quiz-option:active:not(:disabled) {
+    @apply scale-[0.995];
+  }
+
+  .quiz-option:disabled {
+    @apply opacity-50 cursor-not-allowed;
   }
 }

@@ -2,8 +2,7 @@ import { useEffect } from 'react';
 import { APP } from '../constants/app';
 
 const DEFAULT_TITLE = `${APP.name} — ${APP.tagline}`;
-const DEFAULT_DESCRIPTION =
-  'Take the 90-second VARK quiz and get a personalized prompt that makes ChatGPT, Claude, or any AI adapt to how your brain actually works.';
+const DEFAULT_DESCRIPTION = APP.description;
 
 /**
  * Sets document title, meta description, and Open Graph title/description for the current page.

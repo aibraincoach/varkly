@@ -4,8 +4,8 @@
   "description": "Discover your VARK learning style in 90 seconds. Get personalized AI prompts for any AI.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#faf5ff",
-  "theme_color": "#7c3aed",
+  "background_color": "#f3f3f5",
+  "theme_color": "#f3f3f5",
   "orientation": "portrait-primary",
   "icons": [
     {

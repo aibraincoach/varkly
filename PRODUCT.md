@@ -80,5 +80,5 @@ The approved panels redesign is a presentation replacement for the quiz and resu
 ## Accessibility & Inclusion
 
 - Full keyboard operation for quiz flow (answer selection, navigation, skip)
-- Accessible labels on interactive controls (buttons, options, theme toggle until removed by panels redesign)
+- Accessible labels on interactive controls (buttons, options)
 - Results and prompts must remain readable and operable without mouse-only interaction
