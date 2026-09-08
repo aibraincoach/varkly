@@ -7,6 +7,14 @@ export const defaultQuizState: QuizState = {
   isCompleted: false,
 };
 
+export function getFreshQuizStartState(): QuizState {
+  return {
+    currentQuestionIndex: 0,
+    answers: {},
+    isCompleted: false,
+  };
+}
+
 export function normalizeQuizState(saved: unknown): QuizState {
   if (typeof saved !== 'object' || saved === null) {
     return defaultQuizState;

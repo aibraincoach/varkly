@@ -12,7 +12,7 @@ const iconMap = {
 
 const styleMap = {
   success: 'bg-ink text-ground border border-ink',
-  error: 'bg-ink text-ground border border-ink',
+  error: 'bg-white text-ink border-2 border-vark-k ring-2 ring-vark-k/30',
   info: 'bg-white text-ink border border-line',
 };
 
