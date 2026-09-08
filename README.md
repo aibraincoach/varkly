@@ -74,7 +74,8 @@ The URL encodes aggregate scores only. Legacy links such as `OS0yLTEtMQ` remain 
 | Styling | Tailwind CSS v3 (light-only tokens) |
 | Animation | Framer Motion v11 |
 | Icons | Lucide React |
-| Tests | Vitest (109 utility tests) + Playwright E2E (Chromium) |
+| Tests | Vitest (134 src tests) + Node measurement tests (9) + Playwright E2E (41 Chromium) |
+| Asset budget | `npm run measure:assets` — build-based estimate, gzip level 6 |
 | Deployment | Vercel (static SPA) |
 
 ---
@@ -91,7 +92,7 @@ src/
 ├── contexts/                   QuizContext, ToastContext (+ context modules)
 ├── data/                       questions.ts, panels.ts
 ├── hooks/                      usePageMeta, useQuiz, useToast
-├── utils/                      scores.ts, aiPrompts.ts, __tests__/
+├── utils/                      scores.ts, aiPrompts.ts, navigation.ts, copyToClipboard.ts, __tests__/
 └── constants/app.ts            Routes, branding, storage keys
 ```
 
@@ -147,12 +148,13 @@ Output is in `dist/`. `vercel.json` rewrites all paths to `index.html` for SPA r
 | `npm test` | Run Vitest (utility tests in `src/`) |
 | `npm run test:watch` | Vitest in watch mode |
 | `npm run test:e2e` | Playwright E2E (requires `npx playwright install chromium` first) |
+| `npm run measure:assets` | Reproducible build-based budget estimate (JS/CSS gzip + panel WebP raw) |
 
 ---
 
 ## Keyboard Shortcuts
 
-Global shortcuts run at the window level. On question views, recognized shortcuts take precedence over focused buttons and links. On landing, results, and prompts, Enter/Space activate a focused button and Enter follows a focused link.
+Global shortcuts run at the window level with explicit key ownership: when a shortcut fires, repeat `keydown` events for that key are swallowed until `keyup`, window `blur`, or unmount. On question views, recognized shortcuts take precedence over focused buttons and links. On landing, results, and prompts, Enter/Space activate a focused button and Enter follows a focused link.
 
 | Context | Keys |
 |---|---|
@@ -168,9 +170,11 @@ Visible hint on landing, results, and prompts: `With a button focused, Enter or 
 
 ## Tests
 
-Vitest (109 tests) covers pure utilities: `calculateScores`, `encodeScores`/`decodeScores`, `generateAIPrompts`, `panelsLogic`, and quiz start-state transitions.
+Vitest (134 tests in `src/`) plus Node measurement tests (9 in `scripts/__tests__/`) cover pure utilities: `calculateScores`, `encodeScores`/`decodeScores`, `generateAIPrompts`, `clampQuestionIndex`, `copyToClipboard`, copy-feedback lifecycle, `panelsLogic`, product invariants (13 questions, 14 panels), and quiz start-state transitions. **143 unit tests total** (subject to Task 8 rerun at final integrated SHA).
 
-Playwright E2E (25 Chromium tests in `e2e/`) covers the keyboard contract (K1–K11), quiz continuation (S1–S4), route guards and empty-profile recovery (R1–R9), and responsive layout (U1). Install browsers with `npx playwright install chromium`, then run `npm run test:e2e` after `npm run build`.
+Playwright E2E (**41 Chromium tests** in `e2e/`, subject to Task 8 rerun) covers keyboard ownership (K1–K19), clipboard K9 matrix, quiz continuation (S1–S4), route guards and same-document shared transitions (R1–R10), responsive empty-layout checks (U1), and panel image hints (I1–I6). Install browsers with `npx playwright install chromium`, then run `npm run test:e2e` after `npm run build`.
+
+Production `dist/` contains no Playwright or Vitest references. Asset budget: `npm run measure:assets` — authoritative build-based estimate **608,162 bytes** at tooling SHA `efea9fd` / integrated `8712a8b` (gzip level 6; OG 882,538 excluded).
 
 ---
 

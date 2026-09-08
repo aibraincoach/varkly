@@ -66,7 +66,7 @@ Used for score dots, bars, and semantic emphasis (error toast ring).
 
 ## 5. Editorial Image Rail
 
-- **14 WebP panels** in `public/panels/` (01–14), one per quiz scenario plus results.
+- **14 WebP panels** in `public/panels/` (01–14), one per quiz scenario plus results; `decoding="async"`; first and active panels `loading="eager"`, others `loading="lazy"`.
 - **Desktop (≥1100px):** Horizontal flex rail; active panel expands, collapsed panels show vertical labels.
 - **Mobile (<1100px):** Stacked 56px strips; active panel `min-height: 260px`.
 - **Panel radius:** 20px.

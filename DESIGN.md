@@ -217,11 +217,11 @@ Controls use gently rounded 12px corners; compact copy controls use 8px; answer 
 ### Navigation
 - **Header:** A 72px row pairs a compact Varkly home link with mono progress text and a 3px animated progress track.
 - **Action row:** Previous, primary next-state action, and optional skip/retake remain left-aligned with 8px gaps.
-- **Keyboard:** 1–4 select answers, Enter or Right Arrow advances, Left Arrow returns, and Space skips. On question views, recognized shortcuts outrank focused buttons and links. On landing, results, and prompts, Enter/Space activate a focused button and Enter follows a focused link. Shortcuts are suppressed while editing editable fields.
+- **Keyboard:** 1–4 select answers, Enter or Right Arrow advances, Left Arrow returns, and Space skips. On question views, recognized shortcuts outrank focused buttons and links. On landing, results, and prompts, Enter/Space activate a focused button and Enter follows a focused link. Shortcuts are suppressed while editing editable fields. Owned keys are tracked from shortcut `keydown` through matching `keyup`, window `blur`, or unmount so held keys cannot double-fire across route/view changes.
 
 ### Editorial Panel Rail
 
-The rail is the signature component. Every panel is an accessible button over a cover-cropped 720×1201 image, a dark lower gradient, and sequence labeling. Inactive desktop images sit at 1.06 scale and transition to 1.0 when active. Completion is shown through saturation: unanswered panels are grayscale, answered panels are fully saturated, and unavailable results are partially saturated. Shared-result links desaturate question panels and disable review.
+The rail is the signature component. Every panel is an accessible button over a cover-cropped 720×1201 image (`decoding="async"`; first and active panels load eagerly, others lazily), a dark lower gradient, and sequence labeling. Inactive desktop images sit at 1.06 scale and transition to 1.0 when active. Completion is shown through saturation: unanswered panels are grayscale, answered panels are fully saturated, and unavailable results are partially saturated. Shared-result links desaturate question panels and disable review.
 
 Flex expansion and image filters transition over 550ms with standard `cubic-bezier(.4,0,.2,1)` easing; active titles crossfade in after expansion. Progress width uses 500ms and score bars use 600ms with the same easing. Reduced-motion preferences collapse animation and transition durations to 0.01ms.
 

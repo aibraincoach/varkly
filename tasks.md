@@ -225,7 +225,7 @@ Review of the shipped panels branch found the branch does not typecheck, the key
 - [x] Task 4: Panel image hints (`decoding`, eager/lazy loading); extend U1 empty-layout coverage at 1440×900 and 390×844 [2026-09-08]
 - [x] Task 5: Same-document shared-route regression coverage — extend R9 with History API transitions and flash detection [2026-09-08]
 - [x] Task 6: Reproducible asset measurement tooling and npm command; enforce under 1,200,000-byte build-based budget [2026-09-08]
-- [ ] Task 7: Integrate updated `feat/panels-screen` into `docs/panels-sync`; synchronize planning, AGENTS, BRANDING, COPY, README, DESIGN
+- [x] Task 7: Integrate updated `feat/panels-screen` into `docs/panels-sync`; synchronize planning, AGENTS, BRANDING, COPY, README, DESIGN [2026-09-08]
 - [ ] Task 8: Final validation on integrated code (`lint`, `test`, `typecheck`, `test:e2e`, asset measurement, `git diff --check`); PR evidence and PPLX handoff (no merge)
 
 ### PR C — `docs/panels-sync`
@@ -393,3 +393,10 @@ Review of the shipped panels branch found the branch does not typecheck, the key
 - No app/Vite asset metric change; tests/docs only outside `src` graph. Authoritative app measurement remains at tooling commit `efea9fd` (608,162 bytes).
 - Verification: focused Node 9/9; `npm test` 143/143; `npm run typecheck` pass; clean `npm run build`; `npm run measure:assets` unchanged at `efea9fd` output.
 - Baseline: `efea9fd`; branch `feat/panels-screen` pushed at `a84ed58`, not merged.
+
+### 2026-09-08 — Task 7: PR #15 integration and documentation synchronization
+
+- Merged `origin/feat/panels-screen` (`a84ed58`) into `docs/panels-sync` at merge commit `8712a8b` without history rewriting. Conflict in `tasks.md` session log only — retained Task C entry (with corrected push evidence for `e82717a`) plus Task 6 session entries from PR #14 head.
+- Synchronized `planning.md`, `AGENTS.md`, `README.md`, `BRANDING.md`, and `DESIGN.md` for keyboard ownership through `keyup`/blur/unmount, question-vs-native button/link behavior, API-first `copyToClipboard` with `execCommand` fallback limitations, copy-feedback generation/timer lifecycle, `clampQuestionIndex` from dataset length with fixed 13-question/14-panel invariants, panel image `decoding`/`loading` hints, expanded coverage (K1–K19, K9 matrix, R10, U1, I1–I6), `npm run measure:assets` (gzip level 6, build-based 608,162 at `8712a8b`, OG 882,538 excluded), 143 unit + 41 Chromium E2E counts (subject to Task 8 rerun), no test frameworks in production `dist/`, stateless app-data vs intentional analytics, and deferred OG/domain/Firefox-WebKit. `COPY.md` already accurate — not edited. Historic PPLX review input preserved; **fresh PPLX required on new PR #14/#15 heads after Task 8** — not rerun in this session.
+- Verification: `npm test` 143/143, `npm run typecheck` pass, `npm run build` pass, `npm run test:e2e` 41/41 Chromium, `npm run measure:assets` PASS (608,162), `git diff --check` pass; `dist/` contains no Playwright/Vitest references.
+- Commits: merge `8712a8b` (pushed), docs sync commit follows.
