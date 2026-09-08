@@ -147,12 +147,14 @@ Neither analytics service is part of the application package dependency graph or
     ├── index.css                   Global foundation + approved panel primitives
     ├── components/
     │   ├── layout/                 AppLayout, AppFooter
-    │   ├── panels/                 PanelsScreen, four views, rail, logic, tests
+    │   ├── panels/                 PanelsScreen, four views, rail, logic
+    │   │   └── __tests__/          Vitest: panelsLogic
     │   └── shared/                 ErrorBoundary, NotFoundPage, Toast
     ├── constants/app.ts            Branding, routes, storage keys
     ├── contexts/
     │   ├── QuizContext.tsx         QuizProvider
-    │   ├── quiz-context.ts         Context object, normalizeQuizState, fresh-start helper
+    │   ├── quiz-context.ts         Context object, defaultQuizState, normalizeQuizState, getQuizStartState
+    │   ├── __tests__/              Vitest: quizState (start-state transitions)
     │   ├── ToastContext.tsx        ToastProvider
     │   ├── toast-context.ts        Toast context object
     │   └── toastTypes.ts           Toast types
@@ -167,7 +169,7 @@ Neither analytics service is part of the application package dependency graph or
     └── utils/
         ├── aiPrompts.ts            Deterministic prompt generation
         ├── scores.ts               Pure score/share helpers
-        └── __tests__/              Vitest: aiPrompts, scores, panelsLogic, quizState
+        └── __tests__/              Vitest: aiPrompts, scores
 ```
 
 Removed in the panels redesign (no longer present): `ThemeContext`, `ThemeToggle`, `LandingPage`, `QuizIntro`, `Question`, `QuizContainer`, `ProgressBar`, `ResultsPage`, `ResultsChart`, `ResultsExplanation`, `AIPromptsCard`, `AppNav`, `public/brain-icon.svg`, and all `dark:` styling.
@@ -185,7 +187,7 @@ Removed in the panels redesign (no longer present): `ThemeContext`, `ThemeToggle
 | `/results` | `13` | results | Redirect to `/` if not completed and no selections |
 | `/prompts` | `13` | prompts | Redirect to `/results` if completed with no selections; to `/` if not completed |
 | `/r/:hash` | `13` | results (shared) | Invalid hash → redirect `/`; previous/review disabled |
-| `/r/:hash/prompts` | `13` | prompts (shared) | Invalid hash → redirect `/` |
+| `/r/:hash/prompts` | `13` | prompts (shared) | Invalid hash → redirect `/`; no selections → replace `/r/:hash` |
 | `*` | — | 404 (`NotFoundPage`) | — |
 
 Shared routes decode scores from the hash only. Question panels are desaturated; the user cannot navigate back through answered questions on a shared link.

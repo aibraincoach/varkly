@@ -25,7 +25,7 @@ All routes render the same `PanelsScreen` container with route-derived view stat
 | `/results` | Results (requires selections or quiz completion) |
 | `/prompts` | AI prompts (requires at least one selection; zero-score completed profiles redirect to `/results`) |
 | `/r/:hash` | Shared results (scores decoded from hash) |
-| `/r/:hash/prompts` | Shared prompts |
+| `/r/:hash/prompts` | Shared prompts (requires selections; all-zero hash redirects to `/r/:hash`) |
 | `*` | 404 |
 
 Invalid share hashes redirect to `/`. Shared links disable answer review. A skip-all run (completed with zero selections) can view empty local results but cannot open prompts.
