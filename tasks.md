@@ -188,3 +188,4 @@ Remove all code that depends on Supabase, email delivery, or application-side se
 - Confirmed nine stale `cursor/*` remote branches were deleted.
 - Confirmed `voice-UI` remains intentionally unmerged at `2e97507`.
 - Recorded that the panels redesign plan was revised and is awaiting approval; no redesign application code was changed in this session.
+- Updated the GitHub description to "Discover your VARK learning style and generate personalized AI prompts tailored to how you learn." and confirmed the homepage as `https://varkly-eight.vercel.app`.

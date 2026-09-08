@@ -239,6 +239,7 @@ No application environment variables are required. Google Analytics and Cloudfla
 ## 9. Current Repository and Work State
 
 - GitHub repository: `aibraincoach/varkly`.
+- GitHub description: "Discover your VARK learning style and generate personalized AI prompts tailored to how you learn."
 - As verified on 2026-09-08, `main` is 39 commits behind and 4 commits ahead of the parent fork's `main`. This divergence is intentional; do not use GitHub's **Sync fork** action or merge the parent branch without explicit authorization.
 - PR #10 established the canonical memory bank and was merged with merge commit `837f4b0`.
 - PR #11 captured the Milestone 7 backlog and was merged with merge commit `19eda64`.
