@@ -441,3 +441,16 @@ Review of the shipped panels branch found the branch does not typecheck, the key
 
 - Corrected README and `planning.md` current measurement from stale **608,162** / **116,128** to authoritative post-lint-fix **608,152** / **116,118** (14 panel WebPs **492,034**; OG **882,538** unchanged). Observable app bundle attributed to merge `087e71f` (PR #14 `4a6a774`); measurement taken at integrated HEAD `c4848de`.
 - Docs-only; no app code change. Final validation rerun pending on post-correction HEAD. PPLX, PM triage, merge/deploy remain open.
+
+### 2026-09-08 — Final review polish (PPLX grounding docs)
+
+- **planning.md §12:** Replaced stale PR #14 head `a84ed58` with current exact head `4a6a774ea006d8486c3a218365d5b0f613fccdd7`; removed obsolete PR #15 merge `8712a8b` current-head claim. PR #15 documented as `docs/panels-sync` with reintegration merge `087e71f`; live tip SHA deferred to PR #15 body/handoff report (not self-SHA in this commit).
+- **planning.md keyboard contract:** Owned-key identifier is `event.code` with `event.key` fallback (`event.code || event.key`), not `event.code` + `event.key`.
+- **Final-review minor dispositions (no code change):**
+  - Success toast uses existing global 3s duration; 2s timer applies to copied-label feedback/generation only; success toast emitted immediately.
+  - Gzip pinned by `GZIP_LEVEL === 6` plus recorded temporary-9 RED; older default-vs-explicit assertion redundant, not relied upon.
+  - I4 conditional `naturalWidth` assertion intentional — `loading` is a browser hint; exact request behavior not asserted.
+  - `resetClipboardWrites` closure mismatch is known test-helper minor; K9 independently navigates/reinitializes each matrix cell.
+  - Screenshot calls committed; ignored PNG persistence harness-limited.
+  - Task 6 original implementation-first caveat remains explicit.
+- Final validation rerun pending on post-polish HEAD. PPLX, PM triage, merge/deploy remain open.

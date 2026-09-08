@@ -59,7 +59,7 @@ An invalid share hash replaces to `/`. While a guard is redirecting the screen r
 
 ### Keyboard contract
 
-`PanelsScreen` registers stable window `keydown`/`keyup`/`blur` listeners. Recognized shortcuts on question views take precedence over focused buttons and links; on landing, results, and prompts, Enter/Space activate a focused button and Enter follows a focused link. When a shortcut fires, the handler records an owned key (`event.code` + `event.key`) and `preventDefault`s repeat `keydown` events until matching `keyup`, window `blur`, or unmount clears ownership — so held keys cannot double-fire or leak to Retake after route/view changes. Copy feedback uses a generation ID and disposes window timers on newer copy attempts, navigation, and unmount.
+`PanelsScreen` registers stable window `keydown`/`keyup`/`blur` listeners. Recognized shortcuts on question views take precedence over focused buttons and links; on landing, results, and prompts, Enter/Space activate a focused button and Enter follows a focused link. When a shortcut fires, the handler records an owned key identifier as `event.code` with `event.key` fallback (`event.code || event.key`) and `preventDefault`s repeat `keydown` events until matching `keyup`, window `blur`, or unmount clears ownership — so held keys cannot double-fire or leak to Retake after route/view changes. Copy feedback uses a generation ID and disposes window timers on newer copy attempts, navigation, and unmount.
 
 ---
 
@@ -332,8 +332,8 @@ No application environment variables are required. Analytics identifiers are emb
 - GitHub repository: `aibraincoach/varkly`.
 - **PR #12** (`docs/state-sync`) — prerequisite documentation/state sync; remains open and unmerged.
 - **PR #13** (`feat/panels-foundation`) — foundation, assets, score utilities, styling; opened, not merged.
-- **PR #14** (`feat/panels-screen`) — `PanelsScreen`, four views, close-review Tasks 1–6; head `a84ed58`, pushed, not merged.
-- **PR #15** (`docs/panels-sync`, this branch) — documentation synchronization integrated with PR #14 head at merge `8712a8b`; pushed, not merged.
+- **PR #14** (`feat/panels-screen`) — `PanelsScreen`, four views, close-review Tasks 1–8; current exact head `4a6a774ea006d8486c3a218365d5b0f613fccdd7`, pushed, not merged.
+- **PR #15** (`docs/panels-sync`, this branch) — documentation synchronization; includes reintegration merge `087e71f` (integrates PR #14 lint fix). Authoritative live tip SHA is recorded in PR #15 body and the Task 8 handoff report after final validation — not self-referenced in this commit.
 - Stack order preserved: #12 → #13 → #14 → #15. Nothing in the panels stack is deployed to production or merged to `main` as of 2026-09-08.
 - Historic PPLX review comments on earlier PR heads remain valid input; **new PR #14/#15 heads require a fresh PPLX pass after Task 8 final validation** — PPLX has not rerun on the integrated stack.
 - The preserved `voice-UI` branch at `2e97507` remains unmerged by design.
