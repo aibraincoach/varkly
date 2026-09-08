@@ -25,10 +25,15 @@ export function createCopyFeedbackController(callbacks: CopyFeedbackCallbacks) {
     }
   };
 
-  const invalidate = () => {
+  const invalidateForNavigation = () => {
     generation += 1;
     clearTimer();
     setCopiedKey('');
+  };
+
+  const dispose = () => {
+    generation += 1;
+    clearTimer();
   };
 
   const copy = async (
@@ -69,7 +74,7 @@ export function createCopyFeedbackController(callbacks: CopyFeedbackCallbacks) {
   return {
     copy,
     getCopiedKey: () => copiedKey,
-    invalidateForNavigation: invalidate,
-    dispose: invalidate,
+    invalidateForNavigation,
+    dispose,
   };
 }

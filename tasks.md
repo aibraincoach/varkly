@@ -290,6 +290,7 @@ Review of the shipped panels branch found the branch does not typecheck, the key
 - Added 16 unit tests (`copyToClipboard.test.ts`, `copyFeedback.test.ts`); verification: `npm test` 125/125, `npm run test:e2e` 34/34, `npm run typecheck` pass.
 - Baseline: `ee6698a`; branch `feat/panels-screen` pushed, not merged.
 
+### 2026-09-08 — PR #14 close-review Task 1 (keyboard ownership)
 
 - Added explicit key ownership in `PanelsScreen`: stable window listeners via refs, `event.code`/`event.key` tracking, owned-keydown swallowing, keyup `preventDefault`, blur/unmount cleanup, ownership retained across route/view changes.
 - Added Playwright regressions K12–K19 (focused Next/Previous/rail/Q13 held Enter/Space, post-release press, window blur); retained K7 page-focused held-key cases and full K1–K11 suite.

@@ -249,13 +249,24 @@ describe('copyToClipboard', () => {
 
   it('restores focus, connected selection ranges, scroll position, and removes the textarea', async () => {
     harness.removeClipboard();
+    const connectedStart = { isConnected: true } as Node;
+    const connectedEnd = { isConnected: true } as Node;
+    const connectedRange = {
+      start: connectedStart,
+      end: connectedEnd,
+      startOffset: 2,
+      endOffset: 7,
+    };
     const disconnected = { isConnected: false } as Node;
-    harness.selection.ranges.push({
-      start: disconnected,
-      end: disconnected,
-      startOffset: 0,
-      endOffset: 1,
-    });
+    harness.selection.ranges = [
+      connectedRange,
+      {
+        start: disconnected,
+        end: disconnected,
+        startOffset: 0,
+        endOffset: 1,
+      },
+    ];
     harness.selection.rangeCount = harness.selection.ranges.length;
 
     await copyToClipboard('restore me');
@@ -263,7 +274,7 @@ describe('copyToClipboard', () => {
     expect(harness.focusTarget.focus).toHaveBeenCalledWith({ preventScroll: true });
     expect(harness.getScroll()).toEqual({ scrollX: 120, scrollY: 45 });
     expect(harness.scrollTo).toHaveBeenCalledWith(120, 45);
-    expect(harness.selection.ranges).toHaveLength(1);
+    expect(harness.selection.ranges).toEqual([connectedRange]);
     expect(harness.bodyChildren()).toHaveLength(0);
   });
 

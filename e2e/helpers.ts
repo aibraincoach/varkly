@@ -82,6 +82,12 @@ export function clipboardWrites(page: Page): Promise<string[]> {
   return page.evaluate(() => (window as unknown as { __copies: string[] }).__copies);
 }
 
+export async function resetClipboardWrites(page: Page): Promise<void> {
+  await page.evaluate(() => {
+    (window as unknown as { __copies: string[] }).__copies = [];
+  });
+}
+
 /**
  * Records any of `needles` that ever reach the document, so a redirect can be proven
  * to have happened without a one-frame flash of the guarded content.

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { copyToClipboard } from '../../utils/copyToClipboard';
-import { createCopyFeedbackController } from './copyFeedback';
+import { COPY_ERROR_MESSAGE, createCopyFeedbackController } from './copyFeedback';
 
 type UseCopyFeedbackOptions = {
   addToast: (message: string, type?: 'success' | 'error') => void;
@@ -15,7 +15,7 @@ export function useCopyFeedback({ addToast, invalidateOnPathname }: UseCopyFeedb
         addToast(message);
       },
       onError: () => {
-        addToast('Could not copy. Please try again.', 'error');
+        addToast(COPY_ERROR_MESSAGE, 'error');
       },
       onCopiedKeyChange: setCopiedKey,
     })
@@ -37,8 +37,9 @@ export function useCopyFeedback({ addToast, invalidateOnPathname }: UseCopyFeedb
   }, [invalidateOnPathname]);
 
   useEffect(() => {
+    const controller = controllerRef.current;
     return () => {
-      controllerRef.current.dispose();
+      controller.dispose();
     };
   }, []);
 

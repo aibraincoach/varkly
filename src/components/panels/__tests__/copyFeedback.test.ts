@@ -141,17 +141,40 @@ describe('createCopyFeedbackController', () => {
     expect(controller.getCopiedKey()).toBe('');
   });
 
-  it('cleans up timers on unmount invalidation', async () => {
-    const onSuccess = vi.fn();
-    const controller = createCopyFeedbackController({ onSuccess, onError: vi.fn() });
+  it('dispose cancels the feedback timer without a redundant empty label notification', async () => {
+    const onCopiedKeyChange = vi.fn();
+    const controller = createCopyFeedbackController({
+      onSuccess: vi.fn(),
+      onError: vi.fn(),
+      onCopiedKeyChange,
+    });
     const copy = vi.fn(async () => undefined);
 
     await controller.copy('link', 'url', 'Link copied', copy);
+    expect(onCopiedKeyChange).toHaveBeenLastCalledWith('link');
+
     controller.dispose();
+    expect(onCopiedKeyChange).toHaveBeenCalledTimes(2);
 
     vi.advanceTimersByTime(COPY_FEEDBACK_DURATION_MS);
+    expect(onCopiedKeyChange).toHaveBeenCalledTimes(2);
+    expect(controller.getCopiedKey()).toBe('link');
+  });
+
+  it('invalidateForNavigation clears the label for same-document route changes', async () => {
+    const onCopiedKeyChange = vi.fn();
+    const controller = createCopyFeedbackController({
+      onSuccess: vi.fn(),
+      onError: vi.fn(),
+      onCopiedKeyChange,
+    });
+    const copy = vi.fn(async () => undefined);
+
+    await controller.copy('sys', 'one', 'System prompt copied', copy);
+    controller.invalidateForNavigation();
+
+    expect(onCopiedKeyChange).toHaveBeenLastCalledWith('');
     expect(controller.getCopiedKey()).toBe('');
-    expect(onSuccess).toHaveBeenCalledOnce();
   });
 
   it('handles two successes within 2s by resetting the timeout for the latest key', async () => {

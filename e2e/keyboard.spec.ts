@@ -5,11 +5,12 @@ import {
   expectResultsSurface,
   optionAt,
   readQuizState,
+  resetClipboardWrites,
   seedQuizState,
   stubClipboard,
 } from './helpers';
 import { generateAIPrompts } from '../src/utils/aiPrompts';
-import { calculateScores } from '../src/utils/scores';
+import { calculateScores, encodeScores } from '../src/utils/scores';
 
 const AT_FIRST_QUESTION = {
   currentQuestionIndex: 0,
@@ -238,63 +239,100 @@ test('K8: editable targets and modified shortcuts change neither state nor route
   }
 });
 
+const COPY_BOTH_DELIMITER = '\n\n---\n\n';
+const K9_BASE_URL = 'http://127.0.0.1:4173';
+
 test('K9: activating a focused copy button runs the native action only', async ({ page }) => {
   await stubClipboard(page);
+
   const scores = calculateScores(ANSWERED.answers);
   const prompts = generateAIPrompts(scores);
-  const combined = `${prompts.systemPrompt}\n\n---\n\n${prompts.conversationPrompt}`;
+  const exactLinkUrl = `${K9_BASE_URL}/r/${encodeScores(scores)}`;
+  const combined = `${prompts.systemPrompt}${COPY_BOTH_DELIMITER}${prompts.conversationPrompt}`;
 
-  await seedQuizState(page, ANSWERED, '/results');
-  await expectResultsSurface(page);
+  const matrix = [
+    {
+      label: 'Copy link + Enter',
+      destination: '/results',
+      button: () => page.getByRole('button', { name: 'Copy link' }),
+      key: 'Enter',
+      payload: exactLinkUrl,
+    },
+    {
+      label: 'Copy link + Space',
+      destination: '/results',
+      button: () => page.getByRole('button', { name: 'Copy link' }),
+      key: ' ',
+      payload: exactLinkUrl,
+    },
+    {
+      label: 'System Copy + Enter',
+      destination: '/prompts',
+      button: () => page.getByRole('button', { name: 'Copy', exact: true }).first(),
+      key: 'Enter',
+      payload: prompts.systemPrompt,
+    },
+    {
+      label: 'System Copy + Space',
+      destination: '/prompts',
+      button: () => page.getByRole('button', { name: 'Copy', exact: true }).first(),
+      key: ' ',
+      payload: prompts.systemPrompt,
+    },
+    {
+      label: 'Conversation Copy + Enter',
+      destination: '/prompts',
+      button: () => page.getByRole('button', { name: 'Copy', exact: true }).nth(1),
+      key: 'Enter',
+      payload: prompts.conversationPrompt,
+    },
+    {
+      label: 'Conversation Copy + Space',
+      destination: '/prompts',
+      button: () => page.getByRole('button', { name: 'Copy', exact: true }).nth(1),
+      key: ' ',
+      payload: prompts.conversationPrompt,
+    },
+    {
+      label: 'Copy both + Enter',
+      destination: '/prompts',
+      button: () => page.getByRole('button', { name: 'Copy both prompts' }),
+      key: 'Enter',
+      payload: combined,
+    },
+    {
+      label: 'Copy both + Space',
+      destination: '/prompts',
+      button: () => page.getByRole('button', { name: 'Copy both prompts' }),
+      key: ' ',
+      payload: combined,
+    },
+  ] as const;
 
-  const copyLink = page.getByRole('button', { name: 'Copy link' });
-  await copyLink.focus();
-  await expect(copyLink).toBeFocused();
-  await page.keyboard.press('Enter');
-  await expect(page.getByRole('button', { name: 'Copied' })).toBeVisible();
-  await expect(page).toHaveURL(/\/results$/);
-  let writes = await clipboardWrites(page);
-  expect(writes).toHaveLength(1);
-  expect(writes[0]).toContain('/r/');
+  for (const cell of matrix) {
+    await resetClipboardWrites(page);
+    await seedQuizState(page, ANSWERED, cell.destination);
 
-  await copyLink.focus();
-  await page.keyboard.press('Space');
-  writes = await clipboardWrites(page);
-  expect(writes).toHaveLength(2);
-  expect(writes[1]).toContain('/r/');
+    if (cell.destination === '/results') {
+      await expectResultsSurface(page);
+    } else {
+      await expect(page).toHaveURL(/\/prompts$/);
+    }
 
-  await seedQuizState(page, ANSWERED, '/prompts');
-  const systemCopy = page.getByRole('button', { name: 'Copy', exact: true }).first();
-  const conversationCopy = page.getByRole('button', { name: 'Copy', exact: true }).nth(1);
+    const routeBefore = page.url();
+    const answersBefore = await readQuizState(page);
 
-  await systemCopy.focus();
-  await page.keyboard.press('Enter');
-  writes = await clipboardWrites(page);
-  expect(writes).toHaveLength(1);
-  expect(writes[0]).toBe(prompts.systemPrompt);
+    const button = cell.button();
+    await button.focus();
+    await expect(button).toBeFocused();
+    await page.keyboard.press(cell.key);
 
-  await conversationCopy.focus();
-  await page.keyboard.press('Space');
-  writes = await clipboardWrites(page);
-  expect(writes).toHaveLength(2);
-  expect(writes[1]).toBe(prompts.conversationPrompt);
-
-  const copyBoth = page.getByRole('button', { name: 'Copy both prompts' });
-  await copyBoth.focus();
-  await page.keyboard.press('Enter');
-  await expect(page.getByRole('button', { name: 'Copied both' })).toBeVisible();
-  writes = await clipboardWrites(page);
-  expect(writes).toHaveLength(3);
-  expect(writes[2]).toBe(combined);
-
-  await copyBoth.focus();
-  await page.keyboard.press('Space');
-  writes = await clipboardWrites(page);
-  expect(writes).toHaveLength(4);
-  expect(writes[3]).toBe(combined);
-
-  await expect(page).toHaveURL(/\/prompts$/);
-  expect((await readQuizState(page))?.answers).toEqual(ANSWERED.answers);
+    const writes = await clipboardWrites(page);
+    expect(writes, cell.label).toHaveLength(1);
+    expect(writes[0], cell.label).toBe(cell.payload);
+    expect(page.url(), cell.label).toBe(routeBefore);
+    expect(await readQuizState(page), cell.label).toEqual(answersBefore);
+  }
 });
 
 test('K10: with the page focused Enter opens prompts and Space retakes, clearing state', async ({
