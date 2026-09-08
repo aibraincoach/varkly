@@ -1,30 +1,55 @@
 # Varkly — VARK Learning Style Quiz
 
-Varkly is a fast, frictionless web app that helps you discover your VARK learning style and immediately apply it to every AI tool you use. The experience is instant, playful, and genuinely useful — no accounts, no database, no server.
+Varkly is a fast, frictionless web app that helps you discover your VARK learning style and immediately apply it to every AI tool you use. One screen, four views — landing, thirteen scenario questions, results, and copy-ready AI prompts. No accounts, no application database, no server-side quiz logic.
 
 ---
 
 ## Features
 
-- **13-question VARK quiz** — Scenario-based, humorous multiple-choice questions (multi-select per question). Quiz state is persisted in `sessionStorage` so progress is never lost on a refresh.
+- **13-question VARK quiz** — Scenario-based, humorous multiple-choice questions (multi-select per question). Progress persists in `sessionStorage` for the current tab.
+- **Editorial image rail** — Fourteen WebP panels visualize each scenario; desktop expands one panel at a time in a horizontal rail (≥1100px).
 - **Instant shareable results** — Scores are base64-encoded into a unique URL (`/r/:hash`) that anyone can open without an account or server lookup.
-- **AI Prompts** — Copy-ready system and conversation prompts generated client-side from your VARK scores, ready to paste into any AI tool.
-- **Dark mode** — Full dark/light mode switching persisted in `localStorage`.
+- **AI prompts** — Deterministic system and conversation prompts generated client-side from your VARK scores, ready to paste into ChatGPT, Claude, Gemini, or any AI tool.
+- **Keyboard-first** — Keys 1–4 toggle options; Enter/ArrowRight advance; ArrowLeft go back; Space skip.
+
+---
+
+## Supported Routes
+
+All routes render the same `PanelsScreen` container with route-derived view state:
+
+| Route | View |
+|---|---|
+| `/` | Landing |
+| `/quiz` | Question (index from session state) |
+| `/results` | Results (requires at least one answer) |
+| `/prompts` | AI prompts (requires at least one answer) |
+| `/r/:hash` | Shared results (scores decoded from hash) |
+| `/r/:hash/prompts` | Shared prompts |
+| `*` | 404 |
+
+Invalid share hashes redirect to `/`. Shared links disable answer review.
 
 ---
 
 ## Architecture
 
-Varkly is entirely stateless. There is no backend, no database, and no API calls during the quiz or results flow. Everything runs in the browser.
+Varkly stores no application user data on a server. Quiz answers, scoring, and prompt generation run entirely in the browser.
 
 ```
 Browser (React SPA)
     │
-    ├── Quiz state         → sessionStorage (ephemeral, cleared on tab close)
-    ├── Theme preference   → localStorage
-    ├── Score calculation  → in-memory (QuizContext.calculateScores)
-    └── Results sharing    → URL encoding (btoa/atob, no server involved)
+    ├── Quiz state         → sessionStorage (`quizState`)
+    ├── Score calculation  → src/utils/scores.ts (pure)
+    ├── AI prompts         → src/utils/aiPrompts.ts (pure, deterministic)
+    └── Results sharing    → URL encoding (btoa/atob)
 ```
+
+**Intentional network requests** (owner-side, not user-data persistence):
+
+- Google Analytics (`G-QCPTM267KD`) — traffic measurement
+- Cloudflare Web Analytics — beacon in `index.html`
+- Google Fonts — Sora and JetBrains Mono
 
 ### Shareable URL encoding
 
@@ -32,37 +57,25 @@ Browser (React SPA)
 scores string: "V-A-R-K"  (e.g. "9-2-1-1")
 base64 encode: btoa("9-2-1-1") = "OS0yLTEtMQ=="
 strip padding: "OS0yLTEtMQ"
-final URL:     https://varkly.app/r/OS0yLTEtMQ
+final URL:     https://varkly-eight.vercel.app/r/OS0yLTEtMQ
 ```
 
-Anyone with a `/r/:hash` link can view the results without any server request. The URL is fully self-contained.
+The URL encodes aggregate scores only. Legacy links such as `OS0yLTEtMQ` remain compatible.
 
 ---
 
 ## Tech Stack
 
-<p align="center">
-  <img src="https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=react&logoColor=black" alt="React" />
-  <img src="https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
-  <img src="https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white" alt="Vite" />
-  <img src="https://img.shields.io/badge/React_Router-CA4245?style=for-the-badge&logo=react-router&logoColor=white" alt="React Router" />
-  <img src="https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS" />
-  <img src="https://img.shields.io/badge/Framer_Motion-0055FF?style=for-the-badge&logo=framer&logoColor=white" alt="Framer Motion" />
-  <img src="https://img.shields.io/badge/Lucide-808080?style=for-the-badge&logo=lucide&logoColor=white" alt="Lucide" />
-  <img src="https://img.shields.io/badge/Recharts-FF6384?style=for-the-badge&logo=recharts&logoColor=white" alt="Recharts" />
-  <img src="https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="Vercel" />
-</p>
-
 | Layer | Technology |
 |---|---|
-| Frontend framework | React 18 + TypeScript |
-| Build tool | Vite 5 |
+| Frontend | React 18 + TypeScript |
+| Build | Vite 5 |
 | Routing | React Router DOM v6 |
-| Styling | Tailwind CSS v3 |
-| Animations | Framer Motion v11 |
+| Styling | Tailwind CSS v3 (light-only tokens) |
+| Animation | Framer Motion v11 |
 | Icons | Lucide React |
-| Charts | Recharts |
-| Deployment | Vercel |
+| Tests | Vitest (utility tests) |
+| Deployment | Vercel (static SPA) |
 
 ---
 
@@ -70,30 +83,19 @@ Anyone with a `/r/:hash` link can view the results without any server request. T
 
 ```
 src/
-├── App.tsx                        # Root component — routes: /, /quiz, /results, /r/:hash
-├── main.tsx                       # App entry point
-├── index.css                      # Global Tailwind styles
-├── types/
-│   └── index.ts                   # Core types: Question, VarkScores, QuizState
-├── data/
-│   └── questions.ts               # All 13 VARK quiz questions
-├── contexts/
-│   ├── QuizContext.tsx            # Quiz state management (answers, navigation, scoring)
-│   └── ThemeContext.tsx           # Dark/light mode context
-└── components/
-    ├── landing/LandingPage.tsx    # Home page with quiz intro
-    ├── quiz/
-    │   ├── QuizContainer.tsx      # Quiz flow orchestration
-    │   ├── QuizIntro.tsx          # Pre-quiz intro screen
-    │   ├── Question.tsx           # Individual question component
-    │   └── ProgressBar.tsx        # Progress indicator
-    ├── results/
-    │   ├── ResultsPage.tsx        # Results display and shareable URL
-    │   ├── ResultsChart.tsx       # VARK score bar chart
-    │   └── ResultsExplanation.tsx # Per-style tips and explanations
-    └── shared/
-        └── ThemeToggle.tsx        # Dark/light mode toggle button
+├── App.tsx                     Routes and providers
+├── components/
+│   ├── layout/                 AppLayout, AppFooter
+│   ├── panels/                 PanelsScreen, views, PanelRail, panelsLogic
+│   └── shared/                 ErrorBoundary, NotFoundPage, Toast
+├── contexts/                   QuizContext, ToastContext (+ context modules)
+├── data/                       questions.ts, panels.ts
+├── hooks/                      usePageMeta, useQuiz, useToast
+├── utils/                      scores.ts, aiPrompts.ts, __tests__/
+└── constants/app.ts            Routes, branding, storage keys
 ```
+
+Design documentation: `DESIGN.md`, `.impeccable/design.json`, `BRANDING.md`, `COPY.md`.
 
 ---
 
@@ -110,15 +112,16 @@ npm install
 npm run dev
 ```
 
-No environment variables are required. The app is fully functional with zero configuration.
+No environment variables are required.
 
 ### Build for production
 
 ```bash
 npm run build
+npm run preview   # optional: serve dist/ locally
 ```
 
-The output is in `dist/`. The included `vercel.json` configures SPA rewrites for Vercel deployments so `/r/:hash` deep links work correctly.
+Output is in `dist/`. `vercel.json` rewrites all paths to `index.html` for SPA routing.
 
 ---
 
@@ -130,3 +133,42 @@ The output is in `dist/`. The included `vercel.json` configures SPA rewrites for
 | `npm run build` | Build for production |
 | `npm run preview` | Preview the production build locally |
 | `npm run lint` | Run ESLint |
+| `npm test` | Run Vitest (utility tests) |
+| `npm run test:watch` | Vitest in watch mode |
+
+---
+
+## Keyboard Shortcuts
+
+| Context | Keys |
+|---|---|
+| Landing | Enter — start quiz |
+| Questions | 1–4 — toggle options; Enter/→ — next; ← — previous; Space — skip |
+| Results | ← — review last question (normal flow only); Enter — go to prompts |
+| Prompts | ← — back to results; Enter — copy both prompts |
+
+---
+
+## Tests
+
+Vitest covers pure utilities: `calculateScores`, `encodeScores`/`decodeScores`, `generateAIPrompts`, `panelsLogic`, and quiz fresh-start state. **No Playwright or E2E tests are committed.**
+
+---
+
+## Deployment
+
+Hosted on Vercel as a static SPA. Production URL: `https://varkly-eight.vercel.app`. Custom domain is deferred.
+
+Open Graph and Twitter card metadata use a static `og-image.png` — shared `/r/:hash` links do not get per-score preview images.
+
+---
+
+## Documentation
+
+| File | Purpose |
+|---|---|
+| `planning.md` | Architecture, routes, risks |
+| `AGENTS.md` | Canonical agent/session rules |
+| `tasks.md` | Implementation roadmap and session log |
+| `PRD.md` | Product requirements |
+| `COPY.md` | All customer-facing strings |

@@ -51,12 +51,13 @@ Before ending any session, append a dated summary under the **Session Log** head
 - Use Tailwind utility classes exclusively — do not add inline styles or new CSS files unless absolutely necessary.
 - Follow the panels palette tokens: `ink`, `ground`, `line`, `panel`, `track`, `muted-1` through `muted-4`, and `vark-v` / `vark-a` / `vark-r` / `vark-k` for VARK accents.
 - Typography: `font-sans` (Sora) for UI copy; `font-mono` (JetBrains Mono) for measurement labels, progress keys, and numeric readouts.
-- `src/index.css` may define only global foundation styles plus the narrowly allowed panel primitives: `collapsed-panel`, `panel-container`, `panel-vertical-label`, `text-pretty`, and the `vkFade` keyframes.
+- `src/index.css` may define only global foundation styles plus the narrowly allowed panel primitives: `collapsed-panel`, `panel-container`, `panel-vertical-label`, `panel-vertical-label--landing`, `text-pretty`, `panels-aside-body`, `panel-button`, and the `vkFade` keyframes.
 
 ### State, Data, and Analytics
 
-- Quiz state lives in `QuizContext` and `sessionStorage`. Do not add local component state for shared quiz data.
-- Score calculation, AI prompt generation, and results URL encoding are client-side operations with no application backend.
+- Quiz state lives in `QuizContext` / `quiz-context.ts` and `sessionStorage` key `quizState`. Fields: `currentQuestionIndex`, `answers`, `isCompleted`. `normalizeQuizState()` tolerates legacy blobs missing removed fields (e.g. `userIntent`). `startQuiz()` always clears answers via `getFreshQuizStartState()`.
+- One route-aware `PanelsScreen` serves `/`, `/quiz`, `/results`, `/prompts`, `/r/:hash`, and `/r/:hash/prompts`. Normal `/results` and `/prompts` redirect to `/` without answers. Shared routes decode aggregate scores from the hash only — shared eyebrows use neutral labels, not `N of 13 answered`.
+- Score calculation (`src/utils/scores.ts`), AI prompt generation (`src/utils/aiPrompts.ts`), and results URL encoding are pure client-side operations with no application backend.
 - Google Analytics (`G-QCPTM267KD`) and the Cloudflare Web Analytics beacon in `index.html` are intentional owner-side analytics. Do not remove or treat them as leftover application persistence.
 
 ---
@@ -83,7 +84,6 @@ The package lists and version ranges below mirror `package.json` exactly.
 | `react` | `^18.3.1` |
 | `react-dom` | `^18.3.1` |
 | `react-router-dom` | `^6.22.2` |
-| `recharts` | `^2.12.7` |
 
 ### Development dependencies
 
@@ -114,3 +114,26 @@ The production target is Vercel. `vercel.json` serves the Vite build as a single
 ## Environment Variables Reference
 
 No application environment variables are required. The intentional analytics identifiers are embedded in `index.html` and report to the owner's accounts.
+
+---
+
+## Current File Map
+
+```
+src/
+├── App.tsx                     Six panel routes + 404
+├── components/
+│   ├── layout/                 AppLayout, AppFooter
+│   ├── panels/                 PanelsScreen, views, PanelRail, panelsLogic, tests
+│   └── shared/                 ErrorBoundary, NotFoundPage, Toast
+├── constants/app.ts            APP, ROUTES, STORAGE_KEYS
+├── contexts/                   Quiz + Toast providers and context modules
+├── data/                       questions.ts, panels.ts
+├── hooks/                      usePageMeta, useQuiz, useToast
+├── types/index.ts
+└── utils/                      aiPrompts.ts, scores.ts, __tests__/
+```
+
+Supporting docs: `PRODUCT.md`, `DESIGN.md`, `.impeccable/design.json`, `BRANDING.md`, `COPY.md`.
+
+Do not reference deleted files: `ThemeContext`, `ThemeToggle`, `LandingPage`, `QuizIntro`, `Question`, `QuizContainer`, `ProgressBar`, `ResultsPage`, `ResultsChart`, `ResultsExplanation`, `AIPromptsCard`, `AppNav`.

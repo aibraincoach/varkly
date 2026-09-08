@@ -1,6 +1,6 @@
 # Tasks — Varkly
 
-**Last updated:** 2026-09-08 (Milestone 8 panels redesign planning)
+**Last updated:** 2026-09-08 (Milestone 8 panels redesign implementation)
 
 Tasks are organized by milestone. Check off items as they are completed and add the date: `[x] Task description [2026-03-14]`.
 
@@ -114,7 +114,7 @@ Remove all code that depends on Supabase, email delivery, or application-side se
 - [x] Codebase audit — remove all non-production scaffolding and dead files [2026-03-14]
 - [ ] Add Vitest + React Testing Library — unit tests for `calculateScores` and `generateAIPrompts`
 - [x] Add proper 404 page for unmatched routes [2026-03-14]
-- [ ] Add `<meta>` Open Graph tags to `index.html` for better social sharing previews on the `/r/:hash` URL
+- [x] Add `<meta>` Open Graph tags to `index.html` for better social sharing previews on the `/r/:hash` URL [2026-09-08]
 - [x] Audit and remove all `console.log` statements from production code [2026-09-07]
 - [ ] Add E2E test for the full quiz → results → copy prompt flow with Playwright (good-to-have)
 - [x] Fix dark mode flickering during quiz navigation (unstable useEffect deps) [2026-03-14]
@@ -124,8 +124,8 @@ Remove all code that depends on Supabase, email delivery, or application-side se
 - [x] Fix all-zero scores edge case in ResultsPage (dominantStyles) [2026-03-14]
 - [x] Wrap QuizContext functions in useCallback for stable references [2026-03-14]
 - [x] Create BRANDING.md — full brand style guide for designer handoff [2026-03-14]
-- [ ] Reconcile `README.md` claims that the app makes no network calls with the intentional Google Analytics and Cloudflare Web Analytics requests in `index.html`
-- [ ] Fix current ESLint findings: unused `scenario` in `src/components/quiz/Question.tsx`, unused `_` in `src/components/results/ResultsPage.tsx`, and Fast Refresh export warnings in the three context files
+- [x] Reconcile `README.md` claims that the app makes no network calls with the intentional Google Analytics and Cloudflare Web Analytics requests in `index.html` [2026-09-08]
+- [x] Fix current ESLint findings: unused `scenario` in `src/components/quiz/Question.tsx`, unused `_` in `src/components/results/ResultsPage.tsx`, and Fast Refresh export warnings in the three context files [2026-09-08]
 - [ ] Review and remediate the 22 dependency vulnerabilities reported by `npm ci` (3 low, 4 moderate, 15 high) without applying unreviewed breaking upgrades
 
 ---
@@ -134,18 +134,18 @@ Remove all code that depends on Supabase, email delivery, or application-side se
 
 ### Correctness and honesty
 
-- [ ] README claims "no API calls during the quiz or results flow" but GA, Cloudflare, and Google Fonts load on every page. Decide wording vs code fix.
+- [x] README claims "no API calls during the quiz or results flow" but GA, Cloudflare, and Google Fonts load on every page. Decide wording vs code fix. [2026-09-08]
 - [ ] The `/r/:hash` results URL encodes VARK scores in the path, and GA reports full page paths by default. Scope GA to exclude `/r/` paths so scores are not sent to Google.
-- [ ] Sync `COPY.md` with the current in-app copy.
+- [x] Sync `COPY.md` with the current in-app copy. [2026-09-08]
 
 ### Quality
 
-- [ ] Fix 2 ESLint unused-variable errors and 3 Fast Refresh warnings.
-- [ ] Add Open Graph and Twitter card meta tags to `index.html` for `/r/:hash` sharing.
-- [ ] Add unit tests for `calculateScores` (`src/contexts/QuizContext.tsx`).
+- [x] Fix 2 ESLint unused-variable errors and 3 Fast Refresh warnings. [2026-09-08]
+- [x] Add Open Graph and Twitter card meta tags to `index.html` for `/r/:hash` sharing. [2026-09-08]
+- [x] Add unit tests for `calculateScores` (`src/utils/scores.ts`). [2026-09-08]
 - [ ] Playwright E2E for quiz to results to copy-prompt flow.
 - [ ] Review 22 npm audit advisories. Low priority, static client app, do not upgrade packages speculatively.
-- [ ] Remove dead `userIntent` state: `setUserIntent` writes to context, nothing reads it, and `aiPrompts.ts` never references it. Delete `setUserIntent`, the `userIntent` field on `QuizState`, and the `UserIntent` type.
+- [x] Remove dead `userIntent` state: `setUserIntent` writes to context, nothing reads it, and `aiPrompts.ts` never references it. Delete `setUserIntent`, the `userIntent` field on `QuizState`, and the `UserIntent` type. [2026-09-08]
 
 ### Product
 
@@ -155,7 +155,7 @@ Remove all code that depends on Supabase, email delivery, or application-side se
 - [ ] Voice conversation rebuild. The `voice-UI` branch is a per-question TTS/STT bridge, not a conversation. Keep the branch, do not merge it. Reusable parts are the question content and the VARK classification logic only.
 - [ ] Restore an "About VARK" entry point on the landing view. Deferred pending a designer round and not part of the panels redesign. The design code hides the button, while the design screenshot shows it. On a one-screen app it is the only place the credibility argument can live, and VARK as a taxonomy is contested.
 - [ ] Reinstate a condensed results explanation. Deferred pending a designer round and not part of the panels redesign. The panels redesign reduces each VARK style to a single blurb, so a user who scores Kinesthetic learns little about what that means.
-- [ ] Preserve `ResultsExplanation.tsx` copy in `COPY.md` before the component is deleted in the panels redesign, so reinstating the deferred explanation is copy-paste work rather than git archaeology.
+- [x] Preserve `ResultsExplanation.tsx` copy in `COPY.md` before the component is deleted in the panels redesign, so reinstating the deferred explanation is copy-paste work rather than git archaeology. [2026-09-08]
 
 ### Repo hygiene
 
@@ -169,42 +169,42 @@ The approved panels redesign replaces the multi-page violet UI with one screen a
 
 ### PR A — `feat/panels-foundation`
 
-- [ ] Add `PRODUCT.md` with Impeccable product schema and confirmed product truth (no palette, fonts, or component details)
-- [ ] Verify `COPY.md` §16–22 against `ResultsExplanation.tsx`; add any missing strings before the component is deleted in PR B
-- [ ] Convert 14 design PNGs to WebP (`public/panels/NN-slug.webp`) with `cwebp -q 78 -resize 720 0`; record raw image total (`du -ch`) and landing transfer weight (DevTools Network on `/`, target under 1.2 MB)
-- [ ] Create `src/data/panels.ts` mapping panel index 01–14 to title and image slug (preserve design source order)
-- [ ] Foundation styling: Sora + JetBrains Mono fonts, slate light-only tokens in `tailwind.config.js` and `index.css`; remove gradients, `.card`, `.btn-*`, `.quiz-option`; add `vkFade` keyframes and `screens.panels = '1100px'`
-- [ ] Update `index.html`: swap Google Fonts link, remove dark-mode inline script, set `theme-color` to `#f3f3f5`, add Open Graph and Twitter card meta tags with `public/og-image.png` (1200×630)
-- [ ] Remove `ThemeContext`, `ThemeToggle`, `STORAGE_KEYS.theme`, and all `dark:` styling rules from AGENTS.md
-- [ ] Rewrite `AppFooter` to `© 2026 AI Brain Coach, All Rights Reserved` on every route including 404
-- [ ] Extract pure score/share utilities to `src/utils/scores.ts` (`calculateScores`, `getDominantStyles`, `summarizeScores`, `encodeScores`, `decodeScores`) with `src/utils/__tests__/scores.test.ts` including share-link compatibility (`OS0yLTEtMQ` round-trip, 0–13 validation)
-- [ ] `QuizContext` cleanup: delegate `calculateScores` to util, remove `userIntent`/`setUserIntent`/`UserIntent` type, remove `isCompleted → navigate('/results')` effect (explicit navigation in PR B)
-- [ ] `ResultsPage` temporarily uses `decodeScores` from util; keep incumbent quiz → results → copy-prompt flow operational through PR A
-- [ ] Keep `recharts` through PR A (removed in PR B alongside `ResultsChart.tsx`) so the intermediate app still builds
-- [ ] Intermediate verification: `npm run lint`, `npm test` (existing 37 + new scores tests), `npm run build` green; record landing-weight evidence in PR description and session log
+- [x] Add `PRODUCT.md` with Impeccable product schema and confirmed product truth (no palette, fonts, or component details) [2026-09-08]
+- [x] Verify `COPY.md` §16–22 against `ResultsExplanation.tsx`; add any missing strings before the component is deleted in PR B [2026-09-08]
+- [x] Convert 14 design PNGs to WebP (`public/panels/NN-slug.webp`) with `cwebp -q 78 -resize 720 0`; record raw image total (`du -ch`) and landing transfer weight (DevTools Network on `/`, target under 1.2 MB) [2026-09-08]
+- [x] Create `src/data/panels.ts` mapping panel index 01–14 to title and image slug (preserve design source order) [2026-09-08]
+- [x] Foundation styling: Sora + JetBrains Mono fonts, slate light-only tokens in `tailwind.config.js` and `index.css`; remove gradients, `.card`, `.btn-*`, `.quiz-option`; add `vkFade` keyframes and `screens.panels = '1100px'` [2026-09-08]
+- [x] Update `index.html`: swap Google Fonts link, remove dark-mode inline script, set `theme-color` to `#f3f3f5`, add Open Graph and Twitter card meta tags with `public/og-image.png` (1200×630) [2026-09-08]
+- [x] Remove `ThemeContext`, `ThemeToggle`, `STORAGE_KEYS.theme`, and all `dark:` styling rules from AGENTS.md [2026-09-08]
+- [x] Rewrite `AppFooter` to `© 2026 AI Brain Coach, All Rights Reserved` on every route including 404 [2026-09-08]
+- [x] Extract pure score/share utilities to `src/utils/scores.ts` (`calculateScores`, `getDominantStyles`, `summarizeScores`, `encodeScores`, `decodeScores`) with `src/utils/__tests__/scores.test.ts` including share-link compatibility (`OS0yLTEtMQ` round-trip, 0–13 validation) [2026-09-08]
+- [x] `QuizContext` cleanup: delegate `calculateScores` to util, remove `userIntent`/`setUserIntent`/`UserIntent` type, remove `isCompleted → navigate('/results')` effect (explicit navigation in PR B) [2026-09-08]
+- [x] `ResultsPage` temporarily uses `decodeScores` from util; keep incumbent quiz → results → copy-prompt flow operational through PR A [2026-09-08]
+- [x] Keep `recharts` through PR A (removed in PR B alongside `ResultsChart.tsx`) so the intermediate app still builds [2026-09-08]
+- [x] Intermediate verification: `npm run lint`, `npm test` (existing 37 + new scores tests), `npm run build` green; record landing-weight evidence in PR description and session log [2026-09-08]
 
 ### PR B — `feat/panels-screen`
 
-- [ ] Build `PanelsScreen` route-aware container with `PanelsHeader`, aside views, `ActionRow`, and keyboard handler (window-level: 1–4 toggle, Enter/ArrowRight next, ArrowLeft prev, Space skip)
-- [ ] Implement routing: `/` landing (`active === -1`), `/quiz` (0–12), `/results` and `/prompts` (13, guard redirect if no answers), `/r/:hash` and `/r/:hash/prompts` (decoded scores, review disabled)
-- [ ] Build `LandingView`, `QuestionView`, `ResultsView`, `PromptsView` with fixed-height aside block so action row never moves
-- [ ] Build responsive `PanelRail` and `Panel`: desktop flex rail (≥1100px) with expand/collapse, saturate filter, vertical labels; mobile stacked 56px strips with active `min-height:260px`
-- [ ] Results view: headline/blurb per dominant style, score rows with pct/bar, "Copy link" via toast, shared-link `/r/:hash` renders decoded scores with question panels desaturated
-- [ ] Prompts view: System and Conversation prompt cards with individual Copy and "Copy both" action; prompts text equals `generateAIPrompts` output
-- [ ] Delete superseded components: `LandingPage`, `QuizIntro`, `Question`, `QuizContainer`, `ProgressBar`, `ResultsPage`, `ResultsChart`, `ResultsExplanation`, `ResultsLoadingSkeleton`, `AIPromptsCard`, `AppNav`, `ThemeToggle`, `ThemeContext`
-- [ ] Restyle retained shared UI: `NotFoundPage`, `Toast`/`ToastContext`, `ErrorBoundary` to ink/ground tokens
-- [ ] Remove `recharts` from `package.json`; confirm build output has no recharts chunk
-- [ ] PR B verification: `npm run lint`, `npm test`, `npm run build` green; manual flow (landing → quiz → results → prompts → copy → shared link → mobile rail); landing weight under 1.2 MB
+- [x] Build `PanelsScreen` route-aware container with `PanelsHeader`, aside views, `ActionRow`, and keyboard handler (window-level: 1–4 toggle, Enter/ArrowRight next, ArrowLeft prev, Space skip) [2026-09-08]
+- [x] Implement routing: `/` landing (`active === -1`), `/quiz` (0–12), `/results` and `/prompts` (13, guard redirect if no answers), `/r/:hash` and `/r/:hash/prompts` (decoded scores, review disabled) [2026-09-08]
+- [x] Build `LandingView`, `QuestionView`, `ResultsView`, `PromptsView` with fixed-height aside block so action row never moves [2026-09-08]
+- [x] Build responsive `PanelRail` and `Panel`: desktop flex rail (≥1100px) with expand/collapse, saturate filter, vertical labels; mobile stacked 56px strips with active `min-height:260px` [2026-09-08]
+- [x] Results view: headline/blurb per dominant style, score rows with pct/bar, "Copy link" via toast, shared-link `/r/:hash` renders decoded scores with question panels desaturated [2026-09-08]
+- [x] Prompts view: System and Conversation prompt cards with individual Copy and "Copy both" action; prompts text equals `generateAIPrompts` output [2026-09-08]
+- [x] Delete superseded components: `LandingPage`, `QuizIntro`, `Question`, `QuizContainer`, `ProgressBar`, `ResultsPage`, `ResultsChart`, `ResultsExplanation`, `ResultsLoadingSkeleton`, `AIPromptsCard`, `AppNav`, `ThemeToggle`, `ThemeContext` [2026-09-08]
+- [x] Restyle retained shared UI: `NotFoundPage`, `Toast`/`ToastContext`, `ErrorBoundary` to ink/ground tokens [2026-09-08]
+- [x] Remove `recharts` from `package.json`; confirm build output has no recharts chunk [2026-09-08]
+- [x] PR B verification: `npm run lint`, `npm test`, `npm run build` green; manual flow (landing → quiz → results → prompts → copy → shared link → mobile rail); landing weight under 1.2 MB [2026-09-08]
 
 ### PR C — `docs/panels-sync`
 
-- [ ] Synchronize `planning.md` (single-screen architecture, routes, no theme, file tree, tech stack minus recharts, image-weight risks)
-- [ ] Synchronize `AGENTS.md` (light-only styling rule, new tokens, updated tech-stack table)
-- [ ] Synchronize `BRANDING.md` (new palette and fonts)
-- [ ] Synchronize `COPY.md` (new in-app copy; keep §16–22 as preserved explanation copy)
-- [ ] Synchronize `README.md` (remove dark-mode claims, update architecture description)
-- [ ] Add `DESIGN.md` via Impeccable design-world workflow from shipped PR B artifact
-- [ ] Mark Milestone 8 implementation tasks complete with dates; append final session log entry
+- [x] Synchronize `planning.md` (single-screen architecture, routes, no theme, file tree, tech stack minus recharts, image-weight risks) [2026-09-08]
+- [x] Synchronize `AGENTS.md` (light-only styling rule, new tokens, updated tech-stack table) [2026-09-08]
+- [x] Synchronize `BRANDING.md` (new palette and fonts) [2026-09-08]
+- [x] Synchronize `COPY.md` (new in-app copy; keep §16–22 as preserved explanation copy) [2026-09-08]
+- [x] Synchronize `README.md` (remove dark-mode claims, update architecture description) [2026-09-08]
+- [x] Add `DESIGN.md` via Impeccable design-world workflow from shipped PR B artifact [2026-09-08]
+- [x] Mark Milestone 8 implementation tasks complete with dates; append final session log entry [2026-09-08]
 
 ---
 
@@ -242,3 +242,16 @@ The approved panels redesign replaces the multi-page violet UI with one screen a
 - Verified deferred Milestone 7 items (About VARK entry point, condensed results explanation, COPY preservation) already exist; did not duplicate them.
 - Diffed `ResultsExplanation.tsx` against `COPY.md` §16–22; all heading, empty state, multimodal paragraph, RayRayRay quote, V/A/R/K/Balanced titles, descriptions, tips, and closing quote are preserved — no COPY changes required.
 - No application code, analytics code, or implementation tasks marked complete.
+
+### 2026-09-08 — VARK Panels implementation
+
+- Opened [PR #13](https://github.com/aibraincoach/varkly/pull/13) (`feat/panels-foundation`) on the prerequisite [PR #12](https://github.com/aibraincoach/varkly/pull/12), then opened [PR #14](https://github.com/aibraincoach/varkly/pull/14) (`feat/panels-screen`) on PR #13. Prepared `docs/panels-sync` as PR C. All three panels branches remain stacked and unmerged.
+- Added `PRODUCT.md`, 14 ordered 720×1201 WebP editorial panels, the light-only Sora/JetBrains Mono foundation, static Open Graph/Twitter metadata, the fixed footer, and pure score/share utilities with legacy `OS0yLTEtMQ` compatibility.
+- Replaced the legacy multi-page UI with one route-aware `PanelsScreen` serving landing, 13 questions, results, prompts, shared results/prompts, and responsive desktop/mobile panel rails. Removed the theme system, legacy components, dead `userIntent` state, and Recharts.
+- Fixed review findings before handoff: the PR A compatibility regression that left the incumbent UI unstyled; shared links falsely claiming an answered-question count; non-semantic panel controls; rail gap/width formula drift; landing-label and 390px-header visual defects; stale answers surviving `startQuiz`; Fast Refresh warnings; and indistinguishable error toasts.
+- Preserved the small uppercase contextual eyebrows because they are explicitly pinned by the approved VARK Panels Revision 2 design and the product owner confirmed that requirement overrides the general no-kicker craft guideline. `DESIGN.md` limits the pattern to contextual labels within this screen.
+- Asset evidence: panel WebPs total **492,034 bytes** raw. Production-preview landing transfer measured **615,222 bytes**, below the 1.2 MB budget.
+- Verification: `npm run lint` passed with 0 errors and 0 warnings; `npm test` passed 83/83; `npm run build` passed with no Recharts chunk; `git diff --check` passed. Browser verification covered the complete keyboard flow, refresh persistence, results/prompts and copy actions, legacy shared links with review disabled, 404/footer behavior, and mobile stacking.
+- Visual evidence was inspected at 1440×900 and 390×844. The Impeccable detector returned `[]`, and the final Impeccable finish review returned `ship`.
+- Synchronized `planning.md`, `AGENTS.md`, `BRANDING.md`, `COPY.md`, and `README.md` with the implemented architecture; generated `DESIGN.md` and `.impeccable/design.json` from the finished artifact. Analytics scripts were not changed.
+- No pull request was merged.
