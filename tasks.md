@@ -427,11 +427,17 @@ Review of the shipped panels branch found the branch does not typecheck, the key
 - **RED:** `npm run lint` at `a84ed58` — 0 errors, 1 warning (`useCopyFeedback.ts`: unnecessary `addToast` in `useCopyFeedback` `useCallback` deps; callback uses stable `controllerRef` only).
 - **Fix:** Removed `addToast` from `copyText` dependency array (`[]`); toast behavior unchanged via `createCopyFeedbackController` ref callbacks.
 - **GREEN:** focused `copyFeedback.test.ts` 9/9; `npm test` 143/143; `npm run typecheck` pass; `npm run lint` 0 errors, 0 warnings; `git diff --check` pass.
-- Committed on `feat/panels-screen` at `4a6a774`; merged into `docs/panels-sync`. Final integrated validation rerun pending on post-merge HEAD.
+- Committed on `feat/panels-screen` at `4a6a774`; merged into `docs/panels-sync` at `087e71f`.
+- **Integrated rerun at `c4848de`:** `npm run lint` 0 errors, 0 warnings; `npm test` 143/143; `npm run typecheck` pass; `npm run test:e2e` 41/41 Chromium; `npm run measure:assets` **608,152** bytes (JS/CSS gzip 116,118 + panel WebP raw 492,034) → PASS; OG **882,538** excluded; `git diff --check` clean; `dist/` no test-framework/Recharts code.
 - PPLX, PM triage, and merge/deploy remain open (not authorized).
 
 ### 2026-09-08 — Task 8 fix round 1 (docs reintegration and count finalization)
 
-- Merged `origin/feat/panels-screen` (`4a6a774`) into `docs/panels-sync`; resolved `tasks.md` conflict preserving Task C/7/8 session history plus PR #14 lint-fix entry.
-- Removed stale README "subject to Task 8 rerun" language; finalized 143 unit + 41 E2E counts. Updated planning/README asset wording; prior `d14535b` validation (1 lint warning) superseded by lint fix + final rerun.
-- Final integrated validation rerun pending on post-docs-commit HEAD. PPLX, PM triage, merge/deploy remain open.
+- Merged `origin/feat/panels-screen` (`4a6a774`) into `docs/panels-sync` at `087e71f`; resolved `tasks.md` conflict preserving Task C/7/8 session history plus PR #14 lint-fix entry.
+- Removed stale README "subject to Task 8 rerun" language; finalized 143 unit + 41 E2E counts. Prior `d14535b` validation (1 lint warning, 608,162 budget) superseded by lint fix + integrated rerun at `c4848de`.
+- PPLX, PM triage, merge/deploy remain open.
+
+### 2026-09-08 — Task 8 fix round 2 (measurement provenance correction)
+
+- Corrected README and `planning.md` current measurement from stale **608,162** / **116,128** to authoritative post-lint-fix **608,152** / **116,118** (14 panel WebPs **492,034**; OG **882,538** unchanged). Observable app bundle attributed to merge `087e71f` (PR #14 `4a6a774`); measurement taken at integrated HEAD `c4848de`.
+- Docs-only; no app code change. Final validation rerun pending on post-correction HEAD. PPLX, PM triage, merge/deploy remain open.
