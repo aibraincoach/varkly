@@ -196,6 +196,26 @@ The approved panels redesign replaces the multi-page violet UI with one screen a
 - [ ] Remove `recharts` from `package.json`; confirm build output has no recharts chunk
 - [ ] PR B verification: `npm run lint`, `npm test`, `npm run build` green; manual flow (landing → quiz → results → prompts → copy → shared link → mobile rail); landing weight under 1.2 MB
 
+### PR B remediation — `feat/panels-screen` correction
+
+Review of the shipped panels branch found the branch does not typecheck, the keyboard handler contradicts native button and link activation, `startQuiz` destroys in-progress answers, and `/results` and `/prompts` are guarded by selection count instead of completion, so a genuine skip-all run is thrown back to the landing view.
+
+- [x] Remove the unused default `React` import from `ErrorBoundary.tsx` so `tsc --noEmit` passes without suppressions [2026-09-08]
+- [x] Add `typecheck`, build-gated `build`, `src`-scoped `test`, `test:watch`, and `test:e2e` scripts to `package.json` [2026-09-08]
+- [x] Add strict `tsconfig.e2e.json` for the Playwright config and `e2e/**/*.ts`, and reference it from the root `tsconfig.json` [2026-09-08]
+- [x] Add `@playwright/test` `1.63.0` as an exact dev dependency without unrelated lockfile upgrades [2026-09-08]
+- [x] Rename `getFreshQuizStartState` to `getQuizStartState` and preserve previous answers so returning to the landing view no longer wipes an in-progress quiz [2026-09-08]
+- [x] Add `completeQuiz` to `QuizContextType` and `QuizProvider`, and call it only when Next or Skip leaves question index 12 [2026-09-08]
+- [x] Rewrite the `PanelsScreen` keyboard handler: ignore prevented, repeated, composing, modified, and editable-target events; question shortcuts win on questions; native button and link activation is preserved elsewhere [2026-09-08]
+- [x] Separate `hasAnswers` (profile has selections) from `canViewLocalResults` (selections or completion) and apply the full `/results`, `/prompts`, and shared-hash guard matrix [2026-09-08]
+- [x] Decode shared scores synchronously from the current URL hash and delete the shared-score state and effect so a prior hash cannot govern the next route [2026-09-08]
+- [x] Build the empty results state (zero summary, `Choose at least one answer to get your AI prompts.` helper, `Answer questions` / `Take quiz` primary) and make generated prompts nullable so zero-score profiles never generate, render, or copy personalized prompts [2026-09-08]
+- [x] Give `PanelRail` a boolean results-access prop so route eligibility, not selection count, enables the Results panel [2026-09-08]
+- [x] Correct the keyboard hint copy for every surface and add the visible button/link focus note on landing, results, and prompts [2026-09-08]
+- [x] Add Playwright configuration (Chromium, single worker, built preview on `127.0.0.1:4173`) and ignore its generated report, trace, and test-result directories [2026-09-08]
+- [x] Add E2E coverage for keyboard (K1–K11), quiz continuation (S1–S4), route and empty-profile recovery (R1–R9), and responsive layout (U1) [2026-09-08]
+- [x] Update the start-state unit tests for preserved answers, empty and completed previous states, and input immutability [2026-09-08]
+
 ### PR C — `docs/panels-sync`
 
 - [ ] Synchronize `planning.md` (single-screen architecture, routes, no theme, file tree, tech stack minus recharts, image-weight risks)
@@ -242,3 +262,11 @@ The approved panels redesign replaces the multi-page violet UI with one screen a
 - Verified deferred Milestone 7 items (About VARK entry point, condensed results explanation, COPY preservation) already exist; did not duplicate them.
 - Diffed `ResultsExplanation.tsx` against `COPY.md` §16–22; all heading, empty state, multimodal paragraph, RayRayRay quote, V/A/R/K/Balanced titles, descriptions, tips, and closing quote are preserved — no COPY changes required.
 - No application code, analytics code, or implementation tasks marked complete.
+
+### 2026-09-08 — PR #14 application remediation (Task A)
+
+- Corrected panels keyboard contract, quiz continuation (`getQuizStartState`, `completeQuiz`), route guards, empty results, nullable prompts, and `PanelRail` results access on `feat/panels-screen`.
+- Added Playwright E2E suite (25 tests: K1–K11, S1–S4, R1–R9, U1) and expanded unit tests (83 → 109).
+- Added `typecheck`, build-gated `build`, `test:e2e`, strict `tsconfig.e2e.json`, and `@playwright/test` 1.63.0.
+- Verification: `npm run lint` (0 issues), `npm test` (109/109), `npm run typecheck` (pass), `npm run test:e2e` (25/25), `npm run build` (pass), `git diff --check` (pass).
+- Landing transfer weight (gzipped JS/CSS + panel WebPs, fonts excluded): 639,258 bytes (0.61 MB); OG image separate at 862 KB. `dist/` contains no recharts, playwright, or vitest references.

@@ -1,0 +1,71 @@
+import { test, expect } from '@playwright/test';
+import {
+  expectNoHorizontalOverflow,
+  expectQuestion,
+  expectResultsSurface,
+  KEYBOARD_FOCUS_NOTE,
+  LEGACY_SHARED_HASH,
+  seedQuizState,
+} from './helpers';
+
+const VIEWPORTS = [
+  { label: 'desktop', width: 1440, height: 900 },
+  { label: 'mobile 390px', width: 390, height: 844 },
+];
+
+const ANSWERED = {
+  currentQuestionIndex: 12,
+  answers: { '1': ['1V', '1R'], '2': ['2A'], '5': ['5K'] },
+  isCompleted: true,
+};
+
+for (const viewport of VIEWPORTS) {
+  test(`U1: hints, actions and footer stay visible without horizontal overflow on ${viewport.label}`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: viewport.width, height: viewport.height });
+    const footer = page.getByRole('contentinfo');
+
+    await page.goto('/');
+    await expect(page.getByText('enter to start')).toBeVisible();
+    await expect(page.getByText(KEYBOARD_FOCUS_NOTE)).toBeVisible();
+    await expect(page.getByRole('button', { name: "Let's begin" })).toBeVisible();
+    await expect(footer).toBeVisible();
+    await expectNoHorizontalOverflow(page);
+
+    await page.getByRole('button', { name: "Let's begin" }).click();
+    await expectQuestion(page, 1);
+    await expect(page.getByText('keys 1–4 select · enter next · space skip')).toBeVisible();
+    await expect(page.getByText(KEYBOARD_FOCUS_NOTE)).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Next' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Skip' })).toBeVisible();
+    await expect(footer).toBeVisible();
+    await expectNoHorizontalOverflow(page);
+
+    await seedQuizState(page, ANSWERED, '/results');
+    await expectResultsSurface(page);
+    await expect(
+      page.getByText('← review answers · enter get prompts · space retake')
+    ).toBeVisible();
+    await expect(page.getByText(KEYBOARD_FOCUS_NOTE)).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Get my AI prompts' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Retake' })).toBeVisible();
+    await expect(footer).toBeVisible();
+    await expectNoHorizontalOverflow(page);
+
+    await page.goto('/prompts');
+    await expect(
+      page.getByText('← back to results · enter copy both · space retake')
+    ).toBeVisible();
+    await expect(page.getByText(KEYBOARD_FOCUS_NOTE)).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Copy both prompts' })).toBeVisible();
+    await expect(footer).toBeVisible();
+    await expectNoHorizontalOverflow(page);
+
+    await page.goto(`/r/${LEGACY_SHARED_HASH}`);
+    await expect(page.getByText('enter get prompts · space retake')).toBeVisible();
+    await expect(page.getByText(KEYBOARD_FOCUS_NOTE)).toBeVisible();
+    await expect(footer).toBeVisible();
+    await expectNoHorizontalOverflow(page);
+  });
+}

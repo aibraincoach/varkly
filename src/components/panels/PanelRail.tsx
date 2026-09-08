@@ -10,6 +10,7 @@ type PanelRailProps = {
   panelGap: number;
   answers: Record<number, string[]>;
   hasAnswers: boolean;
+  canOpenResults: boolean;
   isShared: boolean;
   onPanelActivate: (panelIndex: number) => void;
 };
@@ -21,6 +22,7 @@ const PanelRail: React.FC<PanelRailProps> = ({
   panelGap,
   answers,
   hasAnswers,
+  canOpenResults,
   isShared,
   onPanelActivate,
 }) => {
@@ -47,7 +49,7 @@ const PanelRail: React.FC<PanelRailProps> = ({
         const isResults = index === 13;
         const saturation = getPanelSaturation(index, answers, hasAnswers, isShared);
         const disabled =
-          isActive || (isShared && !isResults) || (isResults && !hasAnswers && !isShared);
+          isActive || (isShared && !isResults) || (isResults && !canOpenResults);
 
         const handleActivate = () => {
           if (disabled) return;

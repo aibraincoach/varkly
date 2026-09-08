@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { QuizContextType, QuizState, VarkScores } from '../types';
 import { calculateScores as calculateScoresFromAnswers } from '../utils/scores';
-import { QuizContext, defaultQuizState, getFreshQuizStartState, normalizeQuizState } from './quiz-context';
+import { QuizContext, defaultQuizState, getQuizStartState, normalizeQuizState } from './quiz-context';
 
 export const QuizProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [quizState, setQuizState] = useState<QuizState>(() => {
@@ -28,8 +28,13 @@ export const QuizProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [quizState]);
 
   const startQuiz = useCallback(() => {
-    setQuizState(getFreshQuizStartState);
+    setQuizState(getQuizStartState);
     navigate('/quiz');
+  }, [navigate]);
+
+  const completeQuiz = useCallback(() => {
+    setQuizState((prevState) => ({ ...prevState, isCompleted: true }));
+    navigate('/results');
   }, [navigate]);
 
   const goToQuestion = useCallback(
@@ -80,6 +85,7 @@ export const QuizProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const value: QuizContextType = {
     quizState,
     startQuiz,
+    completeQuiz,
     goToQuestion,
     toggleOption,
     isOptionSelected,
