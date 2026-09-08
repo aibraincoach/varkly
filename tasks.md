@@ -420,4 +420,18 @@ Review of the shipped panels branch found the branch does not typecheck, the key
 - `npm run measure:assets` — build-based budget estimate **608,162** bytes (JS/CSS gzip 116,128 + panel WebP raw 492,034) → PASS; OG **882,538** excluded; source commit `dd57ebc`.
 - `git diff --check` — clean.
 - `dist/` inspection (`rg -i 'playwright|vitest|@testing-library|jest|mocha|cypress|recharts' dist/`) — no matches; no test-framework or Recharts code in production bundle.
-- PR #14 head unchanged at `a84ed58`; PR #15 head at `dd57ebc` before this evidence-only commit. Fresh PPLX, PM triage, merge/deploy remain open.
+- PR #14 head unchanged at `a84ed58`; PR #15 head at `dd57ebc` before evidence-only commit `d14535b`. Fresh PPLX, PM triage, merge/deploy remain open.
+
+### 2026-09-08 — Task 8 fix round 1 (lint: useCopyFeedback exhaustive-deps, PR #14)
+
+- **RED:** `npm run lint` at `a84ed58` — 0 errors, 1 warning (`useCopyFeedback.ts`: unnecessary `addToast` in `useCopyFeedback` `useCallback` deps; callback uses stable `controllerRef` only).
+- **Fix:** Removed `addToast` from `copyText` dependency array (`[]`); toast behavior unchanged via `createCopyFeedbackController` ref callbacks.
+- **GREEN:** focused `copyFeedback.test.ts` 9/9; `npm test` 143/143; `npm run typecheck` pass; `npm run lint` 0 errors, 0 warnings; `git diff --check` pass.
+- Committed on `feat/panels-screen` at `4a6a774`; merged into `docs/panels-sync`. Final integrated validation rerun pending on post-merge HEAD.
+- PPLX, PM triage, and merge/deploy remain open (not authorized).
+
+### 2026-09-08 — Task 8 fix round 1 (docs reintegration and count finalization)
+
+- Merged `origin/feat/panels-screen` (`4a6a774`) into `docs/panels-sync`; resolved `tasks.md` conflict preserving Task C/7/8 session history plus PR #14 lint-fix entry.
+- Removed stale README "subject to Task 8 rerun" language; finalized 143 unit + 41 E2E counts. Updated planning/README asset wording; prior `d14535b` validation (1 lint warning) superseded by lint fix + final rerun.
+- Final integrated validation rerun pending on post-docs-commit HEAD. PPLX, PM triage, merge/deploy remain open.

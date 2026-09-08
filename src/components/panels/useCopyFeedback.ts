@@ -29,7 +29,7 @@ export function useCopyFeedback({ addToast, invalidateOnPathname }: UseCopyFeedb
         // Error toast is emitted by the controller for the current attempt only.
       }
     },
-    [addToast]
+    [],
   );
 
   useEffect(() => {
