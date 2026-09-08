@@ -222,7 +222,7 @@ Review of the shipped panels branch found the branch does not typecheck, the key
 - [x] Task 1: Keyboard ownership and focused-control regressions — explicit key ownership in `PanelsScreen`, focused Playwright held-key tests, retain page-focused repeat cases [2026-09-08]
 - [x] Task 2: Clipboard fallback (`copyToClipboard`), feedback lifecycle (generation ID, timer ref, stale invalidation), expand K9 and unit tests [2026-09-08]
 - [x] Task 3: Shared navigation clamp from `questions.length - 1` in `QuizContext` and panels route parsing; fixed 13-question panel invariants [2026-09-08]
-- [ ] Task 4: Panel image hints (`decoding`, eager/lazy loading); extend U1 empty-layout coverage at 1440×900 and 390×844
+- [x] Task 4: Panel image hints (`decoding`, eager/lazy loading); extend U1 empty-layout coverage at 1440×900 and 390×844 [2026-09-08]
 - [ ] Task 5: Same-document shared-route regression coverage — extend R9 with History API transitions and flash detection
 - [ ] Task 6: Reproducible asset measurement tooling and npm command; enforce under 1,200,000-byte build-based budget
 - [ ] Task 7: Integrate updated `feat/panels-screen` into `docs/panels-sync`; synchronize planning, AGENTS, BRANDING, COPY, README, DESIGN
@@ -290,7 +290,14 @@ Review of the shipped panels branch found the branch does not typecheck, the key
 - Added 16 unit tests (`copyToClipboard.test.ts`, `copyFeedback.test.ts`); verification: `npm test` 125/125, `npm run test:e2e` 34/34, `npm run typecheck` pass.
 - Baseline: `ee6698a`; branch `feat/panels-screen` pushed, not merged.
 
-### 2026-09-08 — PR #14 close-review Task 3 (derived navigation bounds and fixed-product invariants)
+### 2026-09-08 — PR #14 close-review Task 4 (panel image hints and empty-layout coverage)
+
+- Added `decoding="async"` and first-or-active `loading` eager/lazy hints on panel `<img>` in `Panel.tsx`; artwork paths, sizing, `object-cover`, and decorative empty `alt` unchanged.
+- Added `e2e/panel-images.spec.ts` (I1–I6): attribute hints, mobile scroll render success, activation artwork, layout visibility; TDD RED 5/6 fail pre-hints → GREEN 6/6.
+- Extended U1 at 1440×900 and 390×844 for completed empty local `/results` and zero-score shared `/r/MC0wLTAtMA`: recovery actions, helper, focus note, Retake, no overflow; screenshots in `.superpowers/sdd/varkly-close-review-findings/artifacts/`.
+- Verification: `npm test` 134/134, `npm run typecheck` pass, `npm run test:e2e` 40/40 (focused I1–I6 + U1 + full suite).
+- Baseline: `6010613`; branch `feat/panels-screen` pushed, not merged.
+
 
 - Added `clampQuestionIndex(index, questionCount)` in `src/utils/navigation.ts`; `QuizContext.goToQuestion` and `panelsLogic.parseRouteState` (via re-exported `clampQuestionIndex`) derive bounds from `questions.length - 1`.
 - Exported `QUESTION_COUNT` from `questions.ts`; eyebrow copy uses it; product invariant tests assert 13 questions, ordered question panels + Results, and `panels.length === QUESTION_COUNT + 1`.

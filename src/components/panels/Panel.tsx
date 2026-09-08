@@ -55,6 +55,8 @@ const Panel: React.FC<PanelProps> = ({
         alt=""
         width={400}
         height={600}
+        decoding="async"
+        loading={panelIndex === 0 || isActive ? 'eager' : 'lazy'}
         className={`absolute inset-0 w-full h-full object-cover object-center transition-[filter,transform] duration-[550ms] ease-[cubic-bezier(.4,0,.2,1)] motion-reduce:transition-none ${
           isActive ? 'scale-100' : 'scale-[1.06]'
         }`}

@@ -1,4 +1,10 @@
+import path from 'node:path';
 import { expect, type Locator, type Page } from '@playwright/test';
+
+export const E2E_ARTIFACT_DIR = path.join(
+  process.cwd(),
+  '.superpowers/sdd/varkly-close-review-findings/artifacts'
+);
 
 export type SeededQuizState = {
   currentQuestionIndex: number;
