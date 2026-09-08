@@ -130,6 +130,35 @@ Remove all code that depends on Supabase, email delivery, or application-side se
 
 ---
 
+## Milestone 7 — Backlog
+
+### Correctness and honesty
+
+- [ ] README claims "no API calls during the quiz or results flow" but GA, Cloudflare, and Google Fonts load on every page. Decide wording vs code fix.
+- [ ] The `/r/:hash` results URL encodes VARK scores in the path, and GA reports full page paths by default. Scope GA to exclude `/r/` paths so scores are not sent to Google.
+- [ ] Sync `COPY.md` with the current in-app copy.
+
+### Quality
+
+- [ ] Fix 2 ESLint unused-variable errors and 3 Fast Refresh warnings.
+- [ ] Add Open Graph meta tags to `index.html` for `/r/:hash` sharing.
+- [ ] Add unit tests for `calculateScores` (`src/contexts/QuizContext.tsx`).
+- [ ] Playwright E2E for quiz to results to copy-prompt flow.
+- [ ] Review 22 npm audit advisories. Low priority, static client app, do not upgrade packages speculatively.
+
+### Product
+
+- [ ] Manually test the System Prompt and Conversation Prompt against ChatGPT, Claude, and Gemini, then update `PRD.md` with final copy.
+- [ ] Custom domain on Vercel to replace `varkly-eight.vercel.app`.
+- [ ] Investigate JJ's conversational voice agent work: does it still exist, what state is it in, what is reusable.
+- [ ] Voice conversation rebuild. The `voice-UI` branch is a per-question TTS/STT bridge, not a conversation. Keep the branch, do not merge it. Reusable parts are the question content and the VARK classification logic only.
+
+### Repo hygiene
+
+- [ ] Decide whether to leave the fork network. Permanent, and loses the 10 PRs and their review threads. Deferred, not urgent.
+
+---
+
 ## Session Log
 
 ### 2026-09-07 — Memory-bank synchronization
@@ -141,3 +170,9 @@ Remove all code that depends on Supabase, email delivery, or application-side se
 - Added a follow-up task for the analytics contradiction in `README.md`; did not edit `README.md`, `BRANDING.md`, `COPY.md`, or `PRD.md`.
 - Verification: `npm test` passed 37/37 tests, `npm run build` completed successfully, and `git diff --check` passed.
 - `npm run lint` reported two errors and three warnings in existing application code; `npm ci` reported 22 dependency vulnerabilities. Both findings were recorded above as follow-up tasks and no application code was changed.
+
+### 2026-09-07 — Backlog capture
+
+- Added Milestone 7 with the supplied correctness, quality, product, and repository-hygiene backlog.
+- Left every new item unchecked and did not start any implementation work.
+- Changed only `tasks.md`.
