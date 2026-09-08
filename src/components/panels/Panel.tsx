@@ -8,6 +8,7 @@ type PanelProps = {
   isLanding: boolean;
   isMobile: boolean;
   saturation: number;
+  disabled: boolean;
   onActivate: () => void;
 };
 
@@ -18,10 +19,13 @@ const Panel: React.FC<PanelProps> = ({
   isLanding,
   isMobile,
   saturation,
+  disabled,
   onActivate,
 }) => {
   const num = String(panelIndex + 1).padStart(2, '0');
   const isResults = panelIndex === 13;
+  const label = isResults ? 'Results' : panel.title;
+  const ariaLabel = isResults ? 'Results' : `Question ${num}: ${panel.title}`;
 
   const flexClass = isActive
     ? isMobile
@@ -36,10 +40,13 @@ const Panel: React.FC<PanelProps> = ({
         : 'collapsed-panel';
 
   return (
-    <article
-      onClick={isActive ? undefined : onActivate}
+    <button
+      type="button"
+      onClick={onActivate}
+      disabled={disabled}
+      aria-label={ariaLabel}
       aria-current={isActive ? 'step' : undefined}
-      className={`panel-container relative overflow-hidden rounded-[20px] bg-panel transition-[flex] duration-[550ms] ease-[cubic-bezier(.4,0,.2,1)] motion-reduce:transition-none ${
+      className={`panel-button panel-container relative overflow-hidden rounded-[20px] bg-panel transition-[flex] duration-[550ms] ease-[cubic-bezier(.4,0,.2,1)] motion-reduce:transition-none ${
         isActive ? 'cursor-default' : 'cursor-pointer'
       } ${flexClass}`}
     >
@@ -58,7 +65,6 @@ const Panel: React.FC<PanelProps> = ({
         aria-hidden="true"
       />
 
-      {/* Collapsed label */}
       <div
         className={`absolute text-white font-semibold whitespace-nowrap transition-opacity duration-300 pointer-events-none ${
           isActive ? 'opacity-0' : 'opacity-100'
@@ -71,10 +77,9 @@ const Panel: React.FC<PanelProps> = ({
         }`}
       >
         <span className="opacity-60 font-mono text-[11px]">{num}</span>
-        {panel.title}
+        {label}
       </div>
 
-      {/* Active label */}
       <div
         className={`absolute left-[clamp(18px,2.5vw,32px)] bottom-[clamp(18px,2.5vw,32px)] right-6 text-white transition-opacity duration-300 delay-200 pointer-events-none ${
           isActive ? 'opacity-100' : 'opacity-0'
@@ -84,10 +89,10 @@ const Panel: React.FC<PanelProps> = ({
           {num} / 14
         </div>
         <div className="text-[clamp(28px,3vw,44px)] font-semibold tracking-[-0.03em] leading-none mt-2">
-          {isResults ? 'Results' : panel.title}
+          {label}
         </div>
       </div>
-    </article>
+    </button>
   );
 };
 

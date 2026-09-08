@@ -9,9 +9,8 @@ type PanelRailProps = {
   isMobile: boolean;
   panelGap: number;
   answers: Record<number, string[]>;
-  answeredCount: number;
-  isShared: boolean;
   hasAnswers: boolean;
+  isShared: boolean;
   onPanelActivate: (panelIndex: number) => void;
 };
 
@@ -21,12 +20,17 @@ const PanelRail: React.FC<PanelRailProps> = ({
   isMobile,
   panelGap,
   answers,
-  answeredCount,
-  isShared,
   hasAnswers,
+  isShared,
   onPanelActivate,
 }) => {
-  const railStyle = isMobile ? undefined : { gap: `${panelGap}px` };
+  const railStyle = isMobile
+    ? undefined
+    : ({
+        gap: `${panelGap}px`,
+        '--panel-gap': `${panelGap}px`,
+        '--panel-gap-total': `${panelGap * 13}px`,
+      } as React.CSSProperties);
 
   return (
     <section
@@ -40,18 +44,14 @@ const PanelRail: React.FC<PanelRailProps> = ({
     >
       {panels.map((panel, index) => {
         const isActive = index === active;
-        const saturation = getPanelSaturation(index, answers, answeredCount, isShared);
+        const isResults = index === 13;
+        const saturation = getPanelSaturation(index, answers, hasAnswers, isShared);
+        const disabled =
+          isActive || (isShared && !isResults) || (isResults && !hasAnswers && !isShared);
 
         const handleActivate = () => {
-          if (index === 13) {
-            if (hasAnswers || isShared) {
-              onPanelActivate(index);
-            }
-            return;
-          }
-          if (!isShared) {
-            onPanelActivate(index);
-          }
+          if (disabled) return;
+          onPanelActivate(index);
         };
 
         return (
@@ -63,6 +63,7 @@ const PanelRail: React.FC<PanelRailProps> = ({
             isLanding={isLanding}
             isMobile={isMobile}
             saturation={saturation}
+            disabled={disabled}
             onActivate={handleActivate}
           />
         );

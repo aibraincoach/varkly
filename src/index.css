@@ -110,6 +110,26 @@
     text-wrap: pretty;
   }
 
+  .panels-aside-body {
+    @apply grid gap-2;
+    height: auto;
+  }
+
+  @media (min-width: 1100px) {
+    .panels-aside-body {
+      height: calc(4 * (4.35em + 27px) + 24px);
+    }
+  }
+
+  .panel-button {
+    @apply border-0 p-0 m-0 bg-transparent text-left font-sans cursor-pointer;
+    appearance: none;
+  }
+
+  .panel-button:disabled {
+    @apply cursor-default;
+  }
+
   /* PR A staging shims — removed with incumbent components in PR B */
   .btn-primary {
     @apply inline-flex items-center justify-center gap-2 px-6 py-3.5 font-semibold rounded-xl transition-colors duration-200;

@@ -1,7 +1,5 @@
 import React from 'react';
 
-const ASIDE_BODY_HEIGHT = 'calc(4 * (4.35em + 27px) + 24px)';
-
 const LandingView: React.FC = () => {
   return (
     <>
@@ -15,10 +13,7 @@ const LandingView: React.FC = () => {
           Read. Do.
         </span>
       </h1>
-      <div
-        className="grid gap-2 content-start"
-        style={{ height: ASIDE_BODY_HEIGHT }}
-      >
+      <div className="panels-aside-body content-start">
         <p className="m-0 text-base leading-[1.55] text-muted-1 max-w-[40ch] text-pretty">
           Thirteen everyday situations. Pick every answer that sounds like you, skip the ones that
           don&apos;t. At the end you get your VARK profile and two prompts that make any AI adapt to

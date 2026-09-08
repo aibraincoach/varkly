@@ -5,6 +5,11 @@ import {
   parseKeyboardCommand,
   clampQuestionIndex,
   getProgressPct,
+  getCollapsedPanelGap,
+  getPanelSaturation,
+  getResultsEyebrow,
+  getPromptsEyebrow,
+  scoresHaveSelections,
 } from '../panelsLogic';
 
 describe('countAnsweredQuestions', () => {
@@ -110,5 +115,70 @@ describe('getProgressPct', () => {
     expect(getProgressPct(0)).toBe(7);
     expect(getProgressPct(12)).toBe(93);
     expect(getProgressPct(13)).toBe(100);
+  });
+});
+
+describe('getCollapsedPanelGap', () => {
+  it('returns 8 on mobile', () => {
+    expect(getCollapsedPanelGap(1200, true)).toBe(8);
+  });
+
+  it('caps desktop gap at 10px on wide viewports', () => {
+    expect(getCollapsedPanelGap(2000, false)).toBe(10);
+    expect(getCollapsedPanelGap(1600, false)).toBe(10);
+  });
+
+  it('scales desktop gap between 4 and 10px on narrower desktop widths', () => {
+    expect(getCollapsedPanelGap(1100, false)).toBe(4);
+    expect(getCollapsedPanelGap(1300, false)).toBe(9);
+  });
+});
+
+describe('getPanelSaturation', () => {
+  const answers = { 1: ['1V'] };
+
+  it('desaturates results panel when hasAnswers is false', () => {
+    expect(getPanelSaturation(13, answers, false, false)).toBe(0.3);
+    expect(getPanelSaturation(13, answers, false, true)).toBe(0.3);
+  });
+
+  it('saturates results panel when hasAnswers is true', () => {
+    expect(getPanelSaturation(13, answers, true, false)).toBe(1);
+    expect(getPanelSaturation(13, {}, true, true)).toBe(1);
+  });
+
+  it('desaturates all shared question panels regardless of answers', () => {
+    expect(getPanelSaturation(0, answers, true, true)).toBe(0);
+    expect(getPanelSaturation(5, answers, true, true)).toBe(0);
+  });
+});
+
+describe('scoresHaveSelections', () => {
+  it('returns false for all-zero scores', () => {
+    expect(scoresHaveSelections({ V: 0, A: 0, R: 0, K: 0 })).toBe(false);
+  });
+
+  it('returns true when any score is greater than zero', () => {
+    expect(scoresHaveSelections({ V: 1, A: 0, R: 0, K: 0 })).toBe(true);
+  });
+});
+
+describe('getResultsEyebrow', () => {
+  it('uses neutral copy on shared routes', () => {
+    expect(getResultsEyebrow(true, 5)).toBe('Shared VARK profile');
+  });
+
+  it('uses answered count on normal routes', () => {
+    expect(getResultsEyebrow(false, 5)).toBe('Your VARK profile · 5 of 13 answered');
+  });
+});
+
+describe('getPromptsEyebrow', () => {
+  it('uses neutral copy on shared routes', () => {
+    expect(getPromptsEyebrow(true, 5)).toBe('Shared AI prompts');
+  });
+
+  it('uses answered count on normal routes', () => {
+    expect(getPromptsEyebrow(false, 8)).toBe('Your AI prompts · 8 of 13 answered');
   });
 });

@@ -1,3 +1,5 @@
+import type { VarkScores } from '../../types';
+
 export type PanelsView = 'quiz' | 'prompts';
 
 export type RouteState = {
@@ -88,12 +90,12 @@ export function hasAnyAnswers(answers: Record<number, string[]>): boolean {
 export function getPanelSaturation(
   panelIndex: number,
   answers: Record<number, string[]>,
-  answeredCount: number,
+  hasAnswers: boolean,
   isShared: boolean
 ): number {
   const isResults = panelIndex === 13;
   if (isResults) {
-    return answeredCount > 0 ? 1 : 0.3;
+    return hasAnswers ? 1 : 0.3;
   }
 
   if (isShared) {
@@ -109,5 +111,24 @@ export function getCollapsedPanelGap(windowWidth: number, isMobile: boolean): nu
   if (isMobile) {
     return 8;
   }
-  return Math.max(4, Math.round((windowWidth - 1100) / 40) + 4);
+  const scaled = Math.max(4, Math.round((windowWidth - 1100) / 40) + 4);
+  return Math.min(10, scaled);
+}
+
+export function scoresHaveSelections(scores: VarkScores): boolean {
+  return scores.V + scores.A + scores.R + scores.K > 0;
+}
+
+export function getResultsEyebrow(isShared: boolean, answeredCount: number): string {
+  if (isShared) {
+    return 'Shared VARK profile';
+  }
+  return `Your VARK profile · ${answeredCount} of 13 answered`;
+}
+
+export function getPromptsEyebrow(isShared: boolean, answeredCount: number): string {
+  if (isShared) {
+    return 'Shared AI prompts';
+  }
+  return `Your AI prompts · ${answeredCount} of 13 answered`;
 }

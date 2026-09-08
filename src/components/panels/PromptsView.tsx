@@ -1,10 +1,10 @@
 import React from 'react';
 import PromptCard from './PromptCard';
-
-const ASIDE_BODY_HEIGHT = 'calc(4 * (4.35em + 27px) + 24px)';
+import { getPromptsEyebrow } from './panelsLogic';
 
 type PromptsViewProps = {
   answeredCount: number;
+  isShared: boolean;
   systemPrompt: string;
   conversationPrompt: string;
   sysCopyLabel: string;
@@ -17,6 +17,7 @@ type PromptsViewProps = {
 
 const PromptsView: React.FC<PromptsViewProps> = ({
   answeredCount,
+  isShared,
   systemPrompt,
   conversationPrompt,
   sysCopyLabel,
@@ -29,7 +30,7 @@ const PromptsView: React.FC<PromptsViewProps> = ({
   return (
     <>
       <div className="font-mono text-[11px] tracking-[0.08em] uppercase text-muted-3">
-        Your AI prompts · {answeredCount} of 13 answered
+        {getPromptsEyebrow(isShared, answeredCount)}
       </div>
       <h1 className="mt-3.5 mb-[22px] min-h-[5.4em] text-[clamp(18px,1.5vw,23px)] leading-[1.35] font-semibold tracking-[-0.02em] text-pretty">
         <span className="block text-[clamp(28px,2.4vw,38px)] leading-[1.1] tracking-[-0.035em] mb-2.5">
@@ -40,10 +41,7 @@ const PromptsView: React.FC<PromptsViewProps> = ({
           conversation prompt drops into any live chat.
         </span>
       </h1>
-      <div
-        className="grid gap-2 grid-rows-[1fr_auto] min-h-0"
-        style={{ height: ASIDE_BODY_HEIGHT }}
-      >
+      <div className="panels-aside-body grid-rows-[1fr_auto] min-h-0">
         <PromptCard
           title="System prompt"
           prompt={systemPrompt}

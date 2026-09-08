@@ -27,15 +27,17 @@ const PanelsHeader: React.FC<PanelsHeaderProps> = ({ progressLabel, active }) =>
       </Link>
       <div className="flex items-center gap-5 text-[13px] text-muted-2">
         <span className="font-mono">{progressLabel}</span>
-        <div className="w-[120px] h-[3px] bg-line rounded-sm overflow-hidden">
+        <div
+          className="w-[120px] h-[3px] bg-line rounded-sm overflow-hidden"
+          role="progressbar"
+          aria-valuenow={progressPct}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-label="Quiz progress"
+        >
           <div
             className="h-full bg-ink rounded-sm transition-[width] duration-500 ease-[cubic-bezier(.4,0,.2,1)]"
             style={{ width: `${progressPct}%` }}
-            role="progressbar"
-            aria-valuenow={progressPct}
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-label="Quiz progress"
           />
         </div>
       </div>

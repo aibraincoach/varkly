@@ -22,6 +22,7 @@ import {
   hasAnyAnswers,
   parseKeyboardCommand,
   parseRouteState,
+  scoresHaveSelections,
 } from './panelsLogic';
 
 const COPY_BOTH_DELIMITER = '\n\n---\n\n';
@@ -64,12 +65,12 @@ const PanelsScreen: React.FC = () => {
     ? sharedScores
     : calculateScores(quizState.answers);
 
+  const hasAnswers = isShared
+    ? scoresHaveSelections(scores)
+    : anyAnswers;
+
   const summary = summarizeScores(scores);
   const prompts = generateAIPrompts(scores);
-
-  const displayAnsweredCount = isShared
-    ? Math.min(13, scores.V + scores.A + scores.R + scores.K)
-    : answeredCount;
 
   const pageTitle = isLanding
     ? 'VARK Learning Style Quiz'
@@ -276,7 +277,10 @@ const PanelsScreen: React.FC = () => {
       const command = parseKeyboardCommand(event.key, active);
       if (!command) return;
 
-      if (command === 'previous' && (active <= 0 || (isResults && isShared))) return;
+      if (command === 'previous' && (active <= 0 || (isResults && isShared))) {
+        event.preventDefault();
+        return;
+      }
 
       if (command === 'toggle-1') actionHandlersRef.current.handleToggleOption(0);
       if (command === 'toggle-2') actionHandlersRef.current.handleToggleOption(1);
@@ -373,7 +377,7 @@ const PanelsScreen: React.FC = () => {
           )}
           {isResults && (
             <ResultsView
-              answeredCount={displayAnsweredCount}
+              answeredCount={answeredCount}
               summary={summary}
               onCopyLink={handleCopyLink}
               copyLinkLabel={copiedKey === 'link' ? 'Copied' : 'Copy link'}
@@ -382,7 +386,8 @@ const PanelsScreen: React.FC = () => {
           )}
           {isPrompts && (
             <PromptsView
-              answeredCount={displayAnsweredCount}
+              answeredCount={answeredCount}
+              isShared={isShared}
               systemPrompt={prompts.systemPrompt}
               conversationPrompt={prompts.conversationPrompt}
               sysCopyLabel={copiedKey === 'sys' ? 'Copied' : 'Copy'}
@@ -415,9 +420,8 @@ const PanelsScreen: React.FC = () => {
           isMobile={isMobile}
           panelGap={panelGap}
           answers={quizState.answers}
-          answeredCount={displayAnsweredCount}
+          hasAnswers={hasAnswers}
           isShared={isShared}
-          hasAnswers={anyAnswers || isShared}
           onPanelActivate={handlePanelActivate}
         />
       </div>
