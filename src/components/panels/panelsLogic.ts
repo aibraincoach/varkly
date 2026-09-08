@@ -1,4 +1,4 @@
-import { QUESTION_COUNT } from '../../data/questions';
+import { QUESTION_COUNT, questions } from '../../data/questions';
 import type { VarkScores } from '../../types';
 import { clampQuestionIndex as clampQuestionIndexFromCount } from '../../utils/navigation';
 
@@ -52,7 +52,7 @@ export function countAnsweredQuestions(answers: Record<number, string[]>): numbe
 }
 
 export function clampQuestionIndex(index: number): number {
-  return clampQuestionIndexFromCount(index, QUESTION_COUNT);
+  return clampQuestionIndexFromCount(index, questions.length);
 }
 
 export function parseRouteState(pathname: string, questionIndex: number): RouteState {

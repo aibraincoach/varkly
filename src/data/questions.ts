@@ -1,5 +1,8 @@
 import { Question } from '../types';
 
+/** Declared product metadata — must match `questions.length` (see productInvariants tests). */
+export const QUESTION_COUNT = 13;
+
 export const questions: Question[] = [
   {
     id: 1,
@@ -340,5 +343,3 @@ export const questions: Question[] = [
     ]
   }
 ];
-
-export const QUESTION_COUNT = questions.length;
