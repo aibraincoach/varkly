@@ -138,10 +138,13 @@ export function seenText(page: Page): Promise<string[]> {
 /** Clears the MutationObserver buffer in place so the observer keeps its captured array reference. */
 export async function resetSeenText(page: Page): Promise<void> {
   await page.evaluate(() => {
-    const seen = (window as unknown as { __seen: string[] }).__seen;
-    if (seen) {
-      seen.length = 0;
+    const seen = (window as unknown as { __seen?: string[] }).__seen;
+    if (!seen) {
+      throw new Error(
+        'MutationObserver seen buffer is missing — call watchForText before resetSeenText'
+      );
     }
+    seen.length = 0;
   });
 }
 

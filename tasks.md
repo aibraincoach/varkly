@@ -306,6 +306,14 @@ Review of the shipped panels branch found the branch does not typecheck, the key
 - Verification: focused R10 pass; `npm test` 134/134; `npm run typecheck` pass; `npm run test:e2e` 41/41.
 - Baseline: `53d93aa`; branch `feat/panels-screen` pushed, not merged.
 
+### 2026-09-08 — PR #14 close-review Task 5 fix round 1 (observer liveness)
+
+- R10: positive destination-marker assertions after each in-place observer reset (Auditory headline, `No answers yet.`, landing `See. Hear.`); invalid step asserts landing marker present and prohibited shared/result/prompt markers absent; dropped mirrored `9 · 69%` score checks.
+- `resetSeenText`: throws if MutationObserver `__seen` buffer missing instead of silent no-op.
+- Coverage strengthening (not TDD RED): R10 GREEN on first run.
+- Verification: focused R10 pass; `npm test` 134/134; `typecheck` pass; `test:e2e` 41/41.
+- Baseline: `bdd399d`; branch `feat/panels-screen` pushed, not merged.
+
 ### 2026-09-08 — PR #14 close-review Task 4 (panel image hints and empty-layout coverage)
 
 - Added `decoding="async"` and first-or-active `loading` eager/lazy hints on panel `<img>` in `Panel.tsx`; artwork paths, sizing, `object-cover`, and decorative empty `alt` unchanged.
