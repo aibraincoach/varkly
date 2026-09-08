@@ -6,6 +6,12 @@ Tasks are organized by milestone. Check off items as they are completed and add 
 
 ---
 
+## CI audit and migration — 2026-09-08
+
+Actions is disabled. [CI_POLICY.md](CI_POLICY.md) records the owner ruling,
+repository evidence, retained checks and outstanding provider blockers. This
+entry does not mark unverified replacement checks as passed or completed.
+
 ## Milestone 0 — Project Setup & Documentation
 
 - [x] Create repository and initial Vite + React + TypeScript scaffold [pre-2026]
