@@ -53,7 +53,8 @@ test('K2: tabbing to an option then pressing Enter advances once without togglin
   await seedQuizState(page, AT_FIRST_QUESTION, '/quiz');
   await expectQuestion(page, 1);
 
-  // Skip link, then the Varkly logo link, then the first option.
+  // Skip link, then the Varkly logo link, then the theme toggle, then the first option.
+  await page.keyboard.press('Tab');
   await page.keyboard.press('Tab');
   await page.keyboard.press('Tab');
   await page.keyboard.press('Tab');

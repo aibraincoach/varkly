@@ -54,7 +54,7 @@ export async function readQuizState(page: Page): Promise<SeededQuizState | null>
 }
 
 export function optionAt(page: Page, index: number): Locator {
-  return page.locator('button[aria-pressed]').nth(index);
+  return page.locator('aside button[aria-pressed]').nth(index);
 }
 
 export function progressLabel(page: Page): Locator {
