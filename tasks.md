@@ -272,10 +272,10 @@ Source: `VARKLY Questionnaire Design.zip`, `github.md` sync 2026-09-09T12:14:29Z
 
 ### PR 1 — `feat/design-sync-content`
 
-- [ ] Landing: four VARK style tiles fill `.panels-aside-body`; auto-height below 1100px
-- [ ] About VARK: `/about` route, `AboutView`, tertiary landing button, Enter starts quiz, ← returns to landing
-- [ ] Results: `ExplanationCard` under score rows with COPY.md §16–21 description and tips (2+2 for two dominant styles, balanced for three or more)
-- [ ] Layout verification: `e2e/design-sync-layout.spec.ts` overflow and action-row invariants, screenshots at 1440/1100/390 for landing, about, results variants
+- [x] Landing: four VARK style tiles fill `.panels-aside-body`; auto-height below 1100px [2026-09-09]
+- [x] About VARK: `/about` route, `AboutView`, tertiary landing button, Enter starts quiz, ← returns to landing [2026-09-09]
+- [x] Results: `ExplanationCard` under score rows with COPY.md §16–21 description and tips (2+2 for two dominant styles, balanced for three or more) [2026-09-09]
+- [x] Layout verification: `e2e/design-sync-layout.spec.ts` overflow and action-row invariants, screenshots at 1440/1100/390 for landing, about, results variants [2026-09-09]
 
 ### PR 2 — `feat/dark-mode-reinstatement`
 
