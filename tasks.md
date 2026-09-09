@@ -260,6 +260,10 @@ Review of the shipped panels branch found the branch does not typecheck, the key
 - [ ] Separately integrate the dirty review-procedure/governance files from the original worktree checkout.
 - [ ] Preserve About VARK and expanded results explanations (see Milestone 7 product backlog).
 
+### PR #17 follow-up — rail exit proof and documentation consistency
+
+- [ ] Replace the weak rail-exit checks with the eight-case surface × direction × viewport matrix, reconcile the maintained Enter/Space contract and current test/asset evidence, and route the validated PR #17 head through review. Starting SHA: `7f04384d5471248e6934b05778a7e634435c5b03`.
+
 ---
 
 ## Session Log
