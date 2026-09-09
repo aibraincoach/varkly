@@ -1,6 +1,6 @@
 # Planning — Varkly
 
-**Last updated:** 2026-09-07
+**Last updated:** 2026-09-08
 
 ---
 
@@ -76,6 +76,7 @@ These package names and version ranges match `package.json`.
 - **Vercel** hosts the static Vite SPA.
 - **Google Analytics** measurement ID `G-QCPTM267KD` is loaded intentionally from `index.html` and reports to the owner's Google account.
 - **Cloudflare Web Analytics** is loaded intentionally by the beacon in `index.html` and reports to the owner's Cloudflare account.
+- **Google Fonts** serves Plus Jakarta Sans from `fonts.googleapis.com` and `fonts.gstatic.com` on every page.
 
 Neither analytics service is part of the application package dependency graph or a replacement for the removed Supabase persistence layer.
 
@@ -91,6 +92,7 @@ Neither analytics service is part of the application package dependency graph or
 ├── PRD.md                          Product requirements
 ├── planning.md                     Architecture and technical reality
 ├── tasks.md                        Living implementation roadmap and session log
+├── WALL_OF_STUPID.md               PM and agent failure record
 ├── index.html                      SPA shell, metadata, and intentional analytics
 ├── package.json                    Scripts and package declarations
 ├── package-lock.json               npm lockfile
@@ -212,7 +214,7 @@ const dominantStyles = (['V', 'A', 'R', 'K'] as const).filter(k => scores[k] ===
 
 ## 7. Deployment Target — Vercel
 
-The repository is configured for a static Vite deployment on Vercel. The custom-domain example used by the project is `https://varkly.app`; the Vercel project metadata is not checked into the repository.
+The repository is configured for a static Vite deployment on Vercel. The current production homepage is `https://varkly-eight.vercel.app`. A custom domain is deferred in the Milestone 7 backlog. Vercel project metadata is not checked into the repository.
 
 `vercel.json`:
 ```json
@@ -237,3 +239,16 @@ No application environment variables are required. Google Analytics and Cloudfla
 | Analytics coverage is not documented at the event level | **Medium** | Google Analytics and Cloudflare Web Analytics are installed intentionally, but the repository does not prove that prompt-copy and quiz-completion success metrics have dedicated events |
 | Partial unit-test coverage | **Low** | Vitest covers `generateAIPrompts`; `calculateScores` and React components do not yet have the planned React Testing Library coverage |
 | No E2E coverage | **Low** | The complete quiz → results → copy-prompt flow is not covered by Playwright |
+
+---
+
+## 9. Current Repository and Work State
+
+- GitHub repository: `aibraincoach/varkly`.
+- GitHub description: "Discover your VARK learning style and generate personalized AI prompts tailored to how you learn."
+- As verified on 2026-09-08, `main` is 39 commits behind and 4 commits ahead of the parent fork's `main`. This divergence is intentional; do not use GitHub's **Sync fork** action or merge the parent branch without explicit authorization.
+- PR #10 established the canonical memory bank and was merged with merge commit `837f4b0`.
+- PR #11 captured the Milestone 7 backlog and was merged with merge commit `19eda64`.
+- Nine stale merged `cursor/*` branches were deleted after ancestry verification.
+- The only preserved feature branch is `voice-UI` at `2e97507`. It is unmerged by design and must not be merged as the conversational voice implementation.
+- The panels redesign remains in planning. Its revised plan is awaiting approval, and no redesign implementation is in flight.
