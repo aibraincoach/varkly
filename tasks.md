@@ -272,8 +272,11 @@ Source: `VARKLY Questionnaire Design.zip`, `github.md` sync 2026-09-09T12:14:29Z
 
 ### PR 1 — `feat/design-sync-content`
 
+<<<<<<< HEAD
 - [x] Remediation 2026-09-09: unclamp h1, remove spacers, single-line score rows, Copy link inside fixed block, asideMetrics invariant [2026-09-09]
 
+=======
+>>>>>>> 4dde3be (docs: record designer-sync session in tasks.md)
 - [x] Landing: four VARK style tiles fill `.panels-aside-body`; auto-height below 1100px [2026-09-09]
 - [x] About VARK: `/about` route, `AboutView`, tertiary landing button, Enter starts quiz, ← returns to landing [2026-09-09]
 - [x] Results: `ExplanationCard` under score rows with COPY.md §16–21 description and tips (2+2 for two dominant styles, balanced for three or more) [2026-09-09]
@@ -281,9 +284,9 @@ Source: `VARKLY Questionnaire Design.zip`, `github.md` sync 2026-09-09T12:14:29Z
 
 ### PR 2 — `feat/dark-mode-reinstatement`
 
-- [ ] Tokens: single CSS-variable palette driving light and dark; no `dark:` variants
-- [ ] Theme provider, header toggle, system default, localStorage persistence, flash-prevention script
-- [ ] Layout verification repeated in dark mode
+- [x] Tokens: single CSS-variable palette driving light and dark; no `dark:` variants [2026-09-09]
+- [x] Theme provider, header toggle, system default, localStorage persistence, flash-prevention script [2026-09-09]
+- [x] Layout verification repeated in dark mode [2026-09-09]
 
 ### Deferred until owner review
 
@@ -299,6 +302,16 @@ Source: `VARKLY Questionnaire Design.zip`, `github.md` sync 2026-09-09T12:14:29Z
 - Plan file removed from feature branch; parked on docs/design-sync-plan.
 
 
+
+### 2026-09-09 — Designer sync implementation (PR 1 content, PR 2 dark mode)
+
+- Branches `feat/design-sync-content` and `feat/dark-mode-reinstatement` (stacked) from `main` at `8c24b52`.
+- PR 1 commits: Milestone 9 task list; landing tiles; About VARK; explanation data/card; layout guard with Task 6 spacing fixes (About body em-height, copy-link placeholder, ExplanationCard tightening).
+- PR 2 commits: CSS-variable token layer; hardcoded color refactor; ThemeProvider + header toggle; theme e2e + dark layout pass; e2e helper scoped `optionAt` to aside (ThemeToggle `aria-pressed` collision).
+- Verification PR 1 (`b15510e`): lint clean, typecheck clean, Vitest 134/134, Node 9/9, Playwright 67/67; 18 light layout screenshots reviewed PASS.
+- Verification PR 2 (`a93a616`): lint clean, typecheck clean, Vitest 147/147, Node 9/9, Playwright 74/74; 36 layout screenshots (18 light + 18 dark) reviewed PASS.
+- Draft PRs opened: #18 (content), #19 (dark mode, base `feat/design-sync-content`). Not merged, not deployed. Narrative docs untouched pending review.
+- Follow-ups: hover states for new elements (open design question); optional return-to-auto theme control; §22 closing quote not reinstated; `COPY.md` About/tile copy not updated; Milestone 7 product checkboxes deferred until merge.
 
 ### 2026-09-07 — Memory-bank synchronization
 
