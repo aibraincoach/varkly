@@ -67,7 +67,7 @@ An invalid share hash replaces to `/`. While a guard is redirecting the screen r
 
 ### Keyboard contract
 
-`PanelsScreen` registers stable window `keydown`/`keyup`/`blur` listeners. Recognized shortcuts on question views take precedence over focused buttons and links; on landing, results, and prompts, Enter/Space activate a focused button and Enter follows a focused link. When a shortcut fires, the handler records an owned key identifier as `event.code` with `event.key` fallback (`event.code || event.key`) and `preventDefault`s repeat `keydown` events until matching `keyup`, window `blur`, or unmount clears ownership — so held keys cannot double-fire or leak to Retake after route/view changes. Copy feedback uses a generation ID and disposes window timers on newer copy attempts, navigation, and unmount.
+On question views, Enter/Space activates the focused enabled rail destination once per press. Other recognized quiz shortcuts retain their existing precedence. Outside question views, existing native button/link activation remains supported. `PanelsScreen` records owned keys as `event.code` with `event.key` fallback (`event.code || event.key`) and suppresses repeat actions until `keyup`, `blur`, or unmount. Copy feedback uses a generation ID and disposes window timers on newer copy attempts, navigation, and unmount.
 
 ---
 
@@ -291,7 +291,7 @@ Template structures, style instruction banks, and word-count constraints are doc
 
 **Motion:** Restrained `vkFade` keyframes and Framer Motion on 404/error surfaces. `prefers-reduced-motion` respected in `index.css`.
 
-**Assets:** 14 WebP images in `public/panels/`; raw total **492,034 bytes**. Authoritative app/tooling measurement via `npm run measure:assets`: build-based budget estimate **608,152 bytes** (JS/CSS gzip at level 6: 116,118 + panel WebP raw: 492,034) → strict `< 1,200,000` PASS. Excludes fonts, source maps, HTML, icons, and OG from the combined metric. `og-image.png` reported separately at **882,538 bytes** (862 KB). Observable app bundle introduced at merge `087e71f` (integrates PR #14 `4a6a774` lint fix); measured at integrated HEAD `c4848de`.
+**Assets:** 14 WebP images in `public/panels/`; raw total **492,034 bytes**. Fresh authoritative app/tooling measurement from `npm run build && npm run measure:assets` at source `a04618502085e92a6bdd161fc1cac0022db90fd8`: build-based budget estimate **608,329 bytes** (JS/CSS gzip at level 6: 116,295 + panel WebP raw: 492,034) → strict `< 1,200,000` PASS. Excludes fonts, source maps, HTML, icons, and OG from the combined metric. `og-image.png` is reported separately at **882,538 bytes** (862 KB).
 
 Full design-world documentation: `DESIGN.md` and `.impeccable/design.json`.
 
@@ -330,7 +330,7 @@ No application environment variables are required. Analytics identifiers are emb
 | Clipboard fallback limitations | **Low** | `copyToClipboard` tries Clipboard API first, then offscreen textarea + `execCommand`; both paths can fail in restricted or deprecated contexts (non-secure origins, some embedded frames) |
 | `btoa`/`atob` not available in very old browsers | **Low** | Target modern browsers only; add polyfill if needed |
 | Partial unit-test coverage | **Low** | Vitest (134) + Node measurement tests (9) = 143 unit tests covering pure score, prompt, navigation, clipboard, and panels logic; React components have no React Testing Library coverage and are exercised through Playwright instead |
-| E2E runs Chromium only | **Low** | Playwright (55 tests) covers keyboard ownership (K1–K19), clipboard K9 matrix (`e2e/clipboard.spec.ts`), quiz continuation (S1–S4), route guards including R10 same-document transitions (R1–R10, `e2e/routes.spec.ts`), responsive layout (U1, `e2e/layout.spec.ts`), and panel image hints (I1–I6, `e2e/panel-images.spec.ts`) on a single Chromium worker; WebKit and Firefox regressions deferred |
+| E2E runs Chromium only | **Low** | Playwright (61 tests) covers keyboard ownership (K1–K19), clipboard K9 matrix (`e2e/clipboard.spec.ts`), quiz continuation (S1–S4), route guards including R10 same-document transitions (R1–R10, `e2e/routes.spec.ts`), responsive layout (U1, `e2e/layout.spec.ts`), panel image hints (I1–I6, `e2e/panel-images.spec.ts`), and rail activation plus eight exit-proof cases (`e2e/rail-navigation.spec.ts`) on a single Chromium worker; WebKit and Firefox regressions deferred |
 | Analytics event coverage | **Medium** | GA and Cloudflare are installed; dedicated prompt-copy / quiz-completion events are not proven in-repo |
 
 ---

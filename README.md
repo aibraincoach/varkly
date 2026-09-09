@@ -74,7 +74,7 @@ The URL encodes aggregate scores only. Legacy links such as `OS0yLTEtMQ` remain 
 | Styling | Tailwind CSS v3 (light-only tokens) |
 | Animation | Framer Motion v11 |
 | Icons | Lucide React |
-| Tests | Vitest (134 src tests) + Node measurement tests (9) + Playwright E2E (55 Chromium) |
+| Tests | Vitest (134 src tests) + Node measurement tests (9) + Playwright E2E (61 Chromium) |
 | Asset budget | `npm run measure:assets` — build-based estimate, gzip level 6 |
 | Deployment | Vercel (static SPA) |
 
@@ -154,7 +154,7 @@ Output is in `dist/`. `vercel.json` rewrites all paths to `index.html` for SPA r
 
 ## Keyboard Shortcuts
 
-Global shortcuts run at the window level with explicit key ownership: when a shortcut fires, repeat `keydown` events for that key are swallowed until `keyup`, window `blur`, or unmount. On question views, recognized shortcuts take precedence over focused buttons and links. On landing, results, and prompts, Enter/Space activate a focused button and Enter follows a focused link.
+On question views, Enter/Space activates the focused enabled rail destination once per press. Other recognized quiz shortcuts retain their existing precedence. Outside question views, existing native button/link activation remains supported. Owned keys suppress repeat actions until `keyup`, `blur`, or unmount.
 
 | Context | Keys |
 |---|---|
@@ -172,9 +172,9 @@ Visible hint on landing, results, and prompts: `With a button focused, Enter or 
 
 Vitest (134 tests in `src/`) plus Node measurement tests (9 in `scripts/__tests__/`) cover pure utilities: `calculateScores`, `encodeScores`/`decodeScores`, `generateAIPrompts`, `clampQuestionIndex`, `copyToClipboard`, copy-feedback lifecycle, `panelsLogic`, product invariants (13 questions, 14 panels), and quiz start-state transitions. **143 unit tests total.**
 
-Playwright E2E (**55 Chromium tests** in `e2e/`) covers keyboard ownership (K1–K19), clipboard K9 matrix, quiz continuation (S1–S4), route guards and same-document shared transitions (R1–R10), responsive empty-layout checks (U1), panel image hints (I1–I6), and the rail-navigation keyboard-reachability matrix (`e2e/rail-navigation.spec.ts`). Install browsers with `npx playwright install chromium`, then run `npm run test:e2e` after `npm run build`.
+Playwright E2E (**61 Chromium tests** in `e2e/`) covers keyboard ownership (K1–K19), clipboard K9 matrix, quiz continuation (S1–S4), route guards and same-document shared transitions (R1–R10), responsive empty-layout checks (U1), panel image hints (I1–I6), and the rail-navigation activation and eight-case exit-proof matrices (`e2e/rail-navigation.spec.ts`). Install browsers with `npx playwright install chromium`, then run `npm run test:e2e` after `npm run build`.
 
-Production `dist/` contains no Playwright or Vitest references. Asset budget: `npm run measure:assets` — authoritative build-based estimate **608,152 bytes** (JS/CSS gzip 116,118 + panel WebP raw 492,034) → strict `< 1,200,000` PASS. Gzip level 6; OG **882,538** excluded. Observable app bundle introduced at merge `087e71f` (integrates PR #14 `4a6a774` lint fix); measured at integrated HEAD `c4848de`.
+Production `dist/` contains no Playwright or Vitest references. Asset budget: `npm run build && npm run measure:assets` at source `a04618502085e92a6bdd161fc1cac0022db90fd8` — authoritative build-based estimate **608,329 bytes** (JS/CSS gzip 116,295 + panel WebP raw 492,034) → strict `< 1,200,000` PASS. Gzip level 6; OG **882,538** excluded.
 
 ---
 
