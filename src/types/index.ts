@@ -54,3 +54,10 @@ export type QuizContextType = {
   calculateScores: () => VarkScores;
   resetQuiz: () => void;
 };
+
+export type VarkStyleTile = {
+  code: VarkStyle;
+  name: string;
+  blurb: string;
+  dotClass: string;
+};

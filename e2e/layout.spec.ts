@@ -41,6 +41,14 @@ for (const viewport of VIEWPORTS) {
     await expect(page.getByText('enter to start')).toBeVisible();
     await expect(page.getByText(KEYBOARD_FOCUS_NOTE)).toBeVisible();
     await expect(page.getByRole('button', { name: "Let's begin" })).toBeVisible();
+    for (const blurb of [
+      'Charts, diagrams, seeing it demonstrated',
+      'Listening, discussion, verbal instructions',
+      'Words, lists, written materials',
+      'Doing, experiencing, hands-on practice',
+    ]) {
+      await expect(page.getByText(blurb)).toBeVisible();
+    }
     await expect(footer).toBeVisible();
     await expectNoHorizontalOverflow(page);
 
