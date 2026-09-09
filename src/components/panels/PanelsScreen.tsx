@@ -7,7 +7,8 @@ import { panels } from '../../data/panels';
 import { ROUTES } from '../../constants/app';
 import { usePageMeta } from '../../hooks/usePageMeta';
 import { generateAIPrompts } from '../../utils/aiPrompts';
-import { calculateScores, decodeScores, encodeScores, summarizeScores } from '../../utils/scores';
+import { calculateScores, decodeScores, encodeScores, getDominantStyles, summarizeScores } from '../../utils/scores';
+import { buildExplanation } from '../../utils/explanation';
 import type { VarkScores } from '../../types';
 import PanelsHeader from './PanelsHeader';
 import LandingView from './LandingView';
@@ -126,6 +127,7 @@ const PanelsScreen: React.FC = () => {
   const hasAnswers = scoresHaveSelections(scores);
 
   const summary = summarizeScores(scores);
+  const explanation = buildExplanation(getDominantStyles(scores));
   const prompts = hasAnswers ? generateAIPrompts(scores) : null;
   const systemPrompt = prompts ? prompts.systemPrompt : null;
   const conversationPrompt = prompts ? prompts.conversationPrompt : null;
@@ -501,6 +503,7 @@ const PanelsScreen: React.FC = () => {
             <ResultsView
               answeredCount={answeredCount}
               summary={summary}
+              explanation={explanation}
               onCopyLink={handleCopyLink}
               copyLinkLabel={copiedKey === 'link' ? 'Copied' : 'Copy link'}
               isShared={isShared}

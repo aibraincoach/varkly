@@ -1,11 +1,13 @@
 import React from 'react';
-import type { ScoreSummary } from '../../types';
+import type { ResultsExplanation, ScoreSummary } from '../../types';
 import ScoreRows from './ScoreRows';
+import ExplanationCard from './ExplanationCard';
 import { getResultsEyebrow } from './panelsLogic';
 
 type ResultsViewProps = {
   answeredCount: number;
   summary: ScoreSummary;
+  explanation: ResultsExplanation;
   onCopyLink: () => void;
   copyLinkLabel: string;
   isShared: boolean;
@@ -14,6 +16,7 @@ type ResultsViewProps = {
 const ResultsView: React.FC<ResultsViewProps> = ({
   answeredCount,
   summary,
+  explanation,
   onCopyLink,
   copyLinkLabel,
   isShared,
@@ -31,8 +34,11 @@ const ResultsView: React.FC<ResultsViewProps> = ({
           {summary.blurb}
         </span>
       </h1>
-      <div className="panels-aside-body content-evenly">
-        <ScoreRows styles={summary.styles} />
+      <div className="panels-aside-body content-between">
+        <div className="grid gap-2">
+          <ScoreRows styles={summary.styles} />
+        </div>
+        <ExplanationCard explanation={explanation} />
       </div>
       <button
         type="button"
