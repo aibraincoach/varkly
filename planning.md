@@ -34,6 +34,33 @@ Browser (React SPA)
 
 The application is a client-side SPA with no Varkly API, server, or database. It is deployed as static files on Vercel. The two analytics scripts in `index.html` make intentional third-party network requests; this does not make quiz answers or results server-persisted by the application.
 
+### Quiz state transitions
+
+`QuizContext` owns the only mutable quiz state and mirrors it to `sessionStorage` under `quizState`.
+
+| Transition | Effect on state |
+|---|---|
+| `startQuiz()` | Reopens at index 0, **preserves every previous answer**, clears completion |
+| `goToQuestion(i)` | Clamps `i` to 0–12, clears completion |
+| `completeQuiz()` | Keeps answers and index, sets completion, navigates to `/results` |
+| `toggleOption()` | Adds or removes one option id for one question |
+| `resetQuiz()` | Restores the default state and removes the storage key |
+
+Reaching the landing view — through the logo, a browser back, or a shared link — never mutates state. `completeQuiz()` fires only when Next or Skip leaves question index 12, so a genuine skip-all run is a completed profile with no selections rather than an abandoned one.
+
+### Route guards
+
+`PanelsScreen` decodes `/r/:hash` synchronously from the current URL on every render, so a previously viewed profile can never govern the next route. Two independent predicates drive the guards: `hasAnswers` (the active local or shared profile has selections) and `canViewLocalResults` (local selections exist **or** the quiz was completed).
+
+| Route | Selections | No selections, completed | No selections, not completed |
+|---|---|---|---|
+| `/results` | Normal result | Empty result | Replace `/` |
+| `/prompts` | Normal prompts | Replace `/results` | Replace `/` |
+| `/r/:hash` | Normal result | Empty result (valid all-zero link) | — |
+| `/r/:hash/prompts` | Normal prompts | Replace `/r/:hash` | — |
+
+An invalid share hash replaces to `/`. While a guard is redirecting the screen renders only the spinner, so prompts never flash for an invalid or empty profile. Personalized prompts are nullable and are never generated, rendered, or copied for an all-zero profile.
+
 ---
 
 ## 3. Current Tech Stack
@@ -56,6 +83,7 @@ These package names and version ranges match `package.json`.
 | Package | Version |
 |---|---|
 | `@eslint/js` | `^9.9.1` |
+| `@playwright/test` | `1.63.0` |
 | `@types/react` | `^18.3.5` |
 | `@types/react-dom` | `^18.3.0` |
 | `@vitejs/plugin-react` | `^4.3.1` |
@@ -98,10 +126,12 @@ Neither analytics service is part of the application package dependency graph or
 ├── package-lock.json               npm lockfile
 ├── vercel.json                     Vercel SPA rewrite
 ├── vite.config.ts                  Vite configuration
+├── playwright.config.ts            Playwright Chromium E2E configuration
 ├── eslint.config.js                ESLint configuration
 ├── tailwind.config.js              Tailwind theme and content paths
 ├── postcss.config.js               PostCSS configuration
 ├── tsconfig*.json                  TypeScript configurations
+├── e2e/                            Playwright keyboard, state, route, and layout specs
 ├── public/
 │   ├── manifest.json               PWA manifest
 │   ├── varkly-icon.svg             Primary app icon
@@ -141,7 +171,7 @@ strip padding: "OS0yLTEtMQ"
 final URL:     https://varkly.app/r/OS0yLTEtMQ
 ```
 
-On load, `ResultsPage` decodes `atob(hash)`, splits on `-`, and validates each value is a number between 0 and 13. Invalid hashes redirect to `/`.
+`PanelsScreen` decodes `atob(hash)` during render, splits on `-`, and validates each value is a number between 0 and 13. Decoding is deliberately synchronous and unstored so no shared profile survives into a later route. Invalid hashes replace to `/`.
 
 **Implication:** The results URL is fully self-contained. Anyone with the link can view the results and generate the same AI prompts without any server request. The URL encodes scores only — not the full answer breakdown.
 
@@ -237,8 +267,8 @@ No application environment variables are required. Google Analytics and Cloudfla
 | `btoa`/`atob` not available in very old browsers | **Low** | Target modern browsers only; add polyfill if needed |
 | Shareable URL encodes scores only, not full answer breakdown | **Low** | Accepted tradeoff — scores are sufficient to generate prompts and render results |
 | Analytics coverage is not documented at the event level | **Medium** | Google Analytics and Cloudflare Web Analytics are installed intentionally, but the repository does not prove that prompt-copy and quiz-completion success metrics have dedicated events |
-| Partial unit-test coverage | **Low** | Vitest covers `generateAIPrompts`; `calculateScores` and React components do not yet have the planned React Testing Library coverage |
-| No E2E coverage | **Low** | The complete quiz → results → copy-prompt flow is not covered by Playwright |
+| Partial unit-test coverage | **Low** | Vitest covers the pure score, prompt, and panels logic; React components have no React Testing Library coverage and are exercised through Playwright instead |
+| E2E runs Chromium only | **Low** | Playwright covers the keyboard contract, quiz continuation, route guards, and responsive layout on a single Chromium worker against the built preview; WebKit and Firefox regressions would not be caught |
 
 ---
 

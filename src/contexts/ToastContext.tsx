@@ -1,32 +1,9 @@
-import React, { createContext, useCallback, useContext, useState } from 'react';
-
-export type ToastType = 'success' | 'error' | 'info';
-
-export type Toast = {
-  id: string;
-  message: string;
-  type: ToastType;
-  duration?: number;
-};
-
-type ToastContextType = {
-  toasts: Toast[];
-  addToast: (message: string, type?: ToastType, duration?: number) => void;
-  removeToast: (id: string) => void;
-};
-
-const ToastContext = createContext<ToastContextType | null>(null);
+import React, { useCallback, useState } from 'react';
+import { ToastContext } from './toast-context';
+import type { Toast, ToastType } from './toastTypes';
 
 let toastId = 0;
 const genId = () => `toast-${++toastId}-${Date.now()}`;
-
-export const useToast = () => {
-  const context = useContext(ToastContext);
-  if (!context) {
-    throw new Error('useToast must be used within a ToastProvider');
-  }
-  return context;
-};
 
 const DEFAULT_DURATION = 3000;
 

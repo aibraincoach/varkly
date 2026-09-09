@@ -1,7 +1,8 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Check, AlertCircle, Info, X } from 'lucide-react';
-import { useToast, type Toast as ToastItem } from '../../contexts/ToastContext';
+import { useToast } from '../../hooks/useToast';
+import type { Toast as ToastItem } from '../../contexts/toastTypes';
 
 const iconMap = {
   success: Check,
@@ -10,9 +11,15 @@ const iconMap = {
 };
 
 const styleMap = {
-  success: 'bg-emerald-500/95 dark:bg-emerald-600/95 text-white shadow-lg shadow-emerald-500/25',
-  error: 'bg-red-500/95 dark:bg-red-600/95 text-white shadow-lg shadow-red-500/25',
-  info: 'bg-violet-500/95 dark:bg-violet-600/95 text-white shadow-lg shadow-violet-500/25',
+  success: 'bg-ink text-ground border border-ink',
+  error: 'bg-white text-ink border-2 border-vark-k ring-2 ring-vark-k/30',
+  info: 'bg-white text-ink border border-line',
+};
+
+const liveRegionMap = {
+  success: { role: 'status' as const, ariaLive: 'polite' as const },
+  error: { role: 'alert' as const, ariaLive: 'assertive' as const },
+  info: { role: 'status' as const, ariaLive: 'polite' as const },
 };
 
 const ToastItemComponent: React.FC<{
@@ -21,6 +28,7 @@ const ToastItemComponent: React.FC<{
 }> = ({ toast, onDismiss }) => {
   const Icon = iconMap[toast.type];
   const style = styleMap[toast.type];
+  const liveRegion = liveRegionMap[toast.type];
 
   return (
     <motion.div
@@ -29,19 +37,19 @@ const ToastItemComponent: React.FC<{
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: -8, scale: 0.96 }}
       transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-      className={`flex items-center gap-3 px-4 py-3 rounded-xl ${style} backdrop-blur-sm`}
-      role="status"
-      aria-live="polite"
+      className={`flex items-center gap-3 px-4 py-3 rounded-xl shadow-sm ${style}`}
+      role={liveRegion.role}
+      aria-live={liveRegion.ariaLive}
     >
-      <Icon className="w-5 h-5 flex-shrink-0" strokeWidth={2.5} />
+      <Icon className="w-5 h-5 flex-shrink-0" strokeWidth={2.5} aria-hidden />
       <p className="text-sm font-medium flex-1">{toast.message}</p>
       <button
         type="button"
         onClick={() => onDismiss(toast.id)}
-        className="p-1 rounded-lg hover:bg-white/20 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
-        aria-label="Dismiss"
+        className="p-1 rounded-lg hover:bg-ink/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-ground"
+        aria-label="Dismiss notification"
       >
-        <X className="w-4 h-4" strokeWidth={2.5} />
+        <X className="w-4 h-4" strokeWidth={2.5} aria-hidden />
       </button>
     </motion.div>
   );

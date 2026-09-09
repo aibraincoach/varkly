@@ -1,4 +1,4 @@
-import React, { Component, ErrorInfo, ReactNode } from 'react';
+import { Component, ErrorInfo, ReactNode } from 'react';
 import { motion } from 'framer-motion';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
 import { APP, ROUTES } from '../../constants/app';
@@ -33,42 +33,42 @@ class ErrorBoundary extends Component<Props, State> {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen flex items-center justify-center p-4 bg-gray-50 dark:bg-gray-900">
+        <div className="min-h-screen flex items-center justify-center p-4 bg-ground">
           <motion.div
-            className="card max-w-md w-full text-center"
+            className="max-w-md w-full text-center rounded-2xl p-6 md:p-8 border border-line bg-white shadow-sm"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
+            role="alert"
+            aria-live="assertive"
           >
             <div className="flex justify-center mb-4">
-              <div className="p-4 rounded-2xl bg-amber-100 dark:bg-amber-900/30">
-                <AlertTriangle className="w-10 h-10 text-amber-600 dark:text-amber-400" strokeWidth={2} />
+              <div className="p-4 rounded-2xl bg-ground border border-line">
+                <AlertTriangle className="w-10 h-10 text-ink" strokeWidth={2} aria-hidden />
               </div>
             </div>
-            <h1 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-2">
+            <h1 className="text-xl font-bold text-ink mb-2">
               Something went wrong
             </h1>
-            <p className="text-gray-600 dark:text-gray-300 text-sm mb-6">
+            <p className="text-muted-1 text-sm mb-6">
               We're sorry. The app hit an error. You can try again or go back home.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <motion.button
+                type="button"
                 onClick={this.handleRetry}
-                className="btn-secondary inline-flex items-center justify-center gap-2"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 font-semibold rounded-xl transition-colors duration-200 bg-white text-ink border-2 border-line hover:border-ink active:scale-[0.98]"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
-                <RefreshCw className="w-4 h-4" strokeWidth={2.5} />
+                <RefreshCw className="w-4 h-4" strokeWidth={2.5} aria-hidden />
                 Try again
               </motion.button>
-              <a href={ROUTES.home}>
-                <motion.button
-                  className="btn-primary w-full sm:w-auto inline-flex items-center justify-center gap-2"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  Back to {APP.name}
-                </motion.button>
+              <a
+                href={ROUTES.home}
+                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 font-semibold rounded-xl transition-colors duration-200 bg-ink text-ground border border-ink hover:bg-ink/90 active:scale-[0.98] w-full sm:w-auto"
+              >
+                Back to {APP.name}
               </a>
             </div>
           </motion.div>

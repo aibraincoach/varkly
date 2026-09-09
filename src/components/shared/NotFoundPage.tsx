@@ -11,30 +11,27 @@ const NotFoundPage: React.FC = () => {
   return (
     <div className="flex items-center justify-center p-4 min-h-[calc(100vh-3.5rem)]">
       <motion.div
-        className="card max-w-md w-full text-center"
+        className="max-w-md w-full text-center rounded-2xl p-6 md:p-8 border border-line bg-white shadow-sm"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <h1 className="text-6xl font-bold bg-gradient-to-r from-violet-600 to-indigo-600 dark:from-violet-400 dark:to-indigo-400 bg-clip-text text-transparent mb-4">
+        <h1 className="text-6xl font-bold text-ink mb-4" aria-hidden="true">
           404
         </h1>
-        <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-2">
+        <h2 className="text-xl font-semibold text-ink mb-2">
           Page not found
         </h2>
-        <p className="text-gray-600 dark:text-gray-300 mb-8">
+        <p className="text-muted-1 mb-8">
           The page you're looking for doesn't exist or has been moved.
         </p>
-        <Link to={ROUTES.home}>
-          <motion.button
-            className="btn-primary inline-flex items-center gap-2"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            aria-label="Back to home"
-          >
-            <Home className="w-4 h-4" strokeWidth={2.5} />
-            Back to Home
-          </motion.button>
+        <Link
+          to={ROUTES.home}
+          className="inline-flex items-center justify-center gap-2 px-6 py-3.5 font-semibold rounded-xl transition-colors duration-200 bg-ink text-ground border border-ink hover:bg-ink/90 active:scale-[0.98]"
+          aria-label="Back to home"
+        >
+          <Home className="w-4 h-4" strokeWidth={2.5} aria-hidden />
+          Back to Home
         </Link>
       </motion.div>
     </div>

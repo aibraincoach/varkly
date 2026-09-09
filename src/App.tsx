@@ -7,9 +7,7 @@ import ErrorBoundary from './components/shared/ErrorBoundary';
 import Toast from './components/shared/Toast';
 import { ROUTES } from './constants/app';
 
-const LandingPage = lazy(() => import('./components/landing/LandingPage'));
-const QuizContainer = lazy(() => import('./components/quiz/QuizContainer'));
-const ResultsPage = lazy(() => import('./components/results/ResultsPage'));
+const PanelsScreen = lazy(() => import('./components/panels/PanelsScreen'));
 const NotFoundPage = lazy(() => import('./components/shared/NotFoundPage'));
 
 const PageLoader: React.FC = () => (
@@ -21,6 +19,12 @@ const PageLoader: React.FC = () => (
   </div>
 );
 
+const panelsRoute = (
+  <AppLayout>
+    <PanelsScreen />
+  </AppLayout>
+);
+
 function App() {
   return (
     <ErrorBoundary>
@@ -28,38 +32,12 @@ function App() {
         <QuizProvider>
           <Suspense fallback={<PageLoader />}>
             <Routes>
-              <Route
-                path={ROUTES.home}
-                element={
-                  <AppLayout>
-                    <LandingPage />
-                  </AppLayout>
-                }
-              />
-              <Route
-                path={ROUTES.quiz}
-                element={
-                  <AppLayout>
-                    <QuizContainer />
-                  </AppLayout>
-                }
-              />
-              <Route
-                path={ROUTES.results}
-                element={
-                  <AppLayout>
-                    <ResultsPage />
-                  </AppLayout>
-                }
-              />
-              <Route
-                path="/r/:hash"
-                element={
-                  <AppLayout>
-                    <ResultsPage />
-                  </AppLayout>
-                }
-              />
+              <Route path={ROUTES.home} element={panelsRoute} />
+              <Route path={ROUTES.quiz} element={panelsRoute} />
+              <Route path={ROUTES.results} element={panelsRoute} />
+              <Route path={ROUTES.prompts} element={panelsRoute} />
+              <Route path="/r/:hash" element={panelsRoute} />
+              <Route path="/r/:hash/prompts" element={panelsRoute} />
               <Route
                 path="*"
                 element={
