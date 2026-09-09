@@ -272,11 +272,7 @@ Source: `VARKLY Questionnaire Design.zip`, `github.md` sync 2026-09-09T12:14:29Z
 
 ### PR 1 — `feat/design-sync-content`
 
-<<<<<<< HEAD
 - [x] Remediation 2026-09-09: unclamp h1, remove spacers, single-line score rows, Copy link inside fixed block, asideMetrics invariant [2026-09-09]
-
-=======
->>>>>>> 4dde3be (docs: record designer-sync session in tasks.md)
 - [x] Landing: four VARK style tiles fill `.panels-aside-body`; auto-height below 1100px [2026-09-09]
 - [x] About VARK: `/about` route, `AboutView`, tertiary landing button, Enter starts quiz, ← returns to landing [2026-09-09]
 - [x] Results: `ExplanationCard` under score rows with COPY.md §16–21 description and tips (2+2 for two dominant styles, balanced for three or more) [2026-09-09]
@@ -284,6 +280,7 @@ Source: `VARKLY Questionnaire Design.zip`, `github.md` sync 2026-09-09T12:14:29Z
 
 ### PR 2 — `feat/dark-mode-reinstatement`
 
+- [x] Remediation 2026-09-09: rebase onto PR18; toggle keyboard exemption; text-2→body; flash script sets theme-color; T5 + T3 theme-color assert [2026-09-09]
 - [x] Tokens: single CSS-variable palette driving light and dark; no `dark:` variants [2026-09-09]
 - [x] Theme provider, header toggle, system default, localStorage persistence, flash-prevention script [2026-09-09]
 - [x] Layout verification repeated in dark mode [2026-09-09]
@@ -294,6 +291,14 @@ Source: `VARKLY Questionnaire Design.zip`, `github.md` sync 2026-09-09T12:14:29Z
 - [ ] Hover states for new elements — open design question, owner to assign
 
 ## Session Log
+### 2026-09-09 — PR #19 remediation (rebase + keyboard + theme-color)
+- Rebased onto `feat/design-sync-content` @ 5c3b6f4; merge-base ancestor check OK.
+- ThemeToggle: drop aria-pressed, add data-theme-toggle; PanelsScreen exempts toggle from key handler.
+- optionAt restored to `button[aria-pressed]`; T5 keyboard Enter/Space on question surface.
+- Token rename text-2 → body; flash script sets theme-color to THEME_COLORS hex; T3 asserts #121216.
+- Layout guard runs light+dark with asideMetrics + prompts.
+
+
 ### 2026-09-09 — PR #18 remediation (layout clamp / Copy link / invariant)
 - Unclamped h1 (min-h-[5.4em]), removed invisible Copy link spacers and About empty spacer.
 - Single-line ScoreRows per design; Copy link moved inside `.panels-aside-body`; ExplanationCard design spacing restored.
