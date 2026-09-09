@@ -1,10 +1,126 @@
 # COPY.md — Varkly Customer-Facing Text
 
-> Read-only extraction for copy review. Every piece of customer-facing text in the app, organized by page and component. No text has been altered.
+**Last synchronized:** 2026-09-08
+
+The **Current VARK Panels copy** section below is the source of truth for the shipped interface. Quiz scenarios and answer options remain canonical in `src/data/questions.ts`; deterministic prompt templates remain documented in legacy-numbered sections 24–25.
+
+Sections 16–22 are intentionally preserved verbatim from the deleted `ResultsExplanation.tsx`. They are deferred product copy and are not rendered by the current panels UI.
 
 ---
 
-## Table of Contents
+## Current VARK Panels copy
+
+### Page metadata
+
+| Field | Text |
+|---|---|
+| Page title / Open Graph / Twitter title | Varkly — VARK Learning Style Quiz |
+| Description / Open Graph / Twitter description | Take the 90-second VARK quiz and get a personalized prompt that makes ChatGPT, Claude, or any AI adapt to how your brain actually works. |
+
+Route-specific titles and descriptions are set by `PanelsScreen` through `usePageMeta`:
+
+| View | Title | Description |
+|---|---|---|
+| Landing | VARK Learning Style Quiz | Take the 90-second VARK quiz and discover how your brain learns best. |
+| Question | Question NN | Answer each scenario to build your VARK learning profile. |
+| Results | Your VARK Profile | View your VARK learning style results and share your profile. |
+| Prompts | Your AI Prompts | Copy personalized AI prompts built from your VARK scores. |
+
+### Header
+
+- Brand link: `Varkly.`
+- Landing progress label: `Varkly · VARK quiz`
+- Question progress label: `Question NN / 13`
+- Results and prompts progress label: `Results`
+- Progressbar accessible label: `Quiz progress`
+
+### Landing view
+
+- Eyebrow: `VARK learning style · 13 scenarios · 90 seconds`
+- Headline: `See. Hear.` / `Read. Do.`
+- Introduction: `Thirteen everyday scenarios. Pick every answer that sounds like you, skip the ones that don't. At the end you get your VARK profile and two prompts that make any AI adapt to how you actually learn.`
+- Tips:
+  1. `Select all answers that apply to each scenario`
+  2. `Skip questions that don't resonate with you`
+  3. `Be honest — there are no wrong answers`
+  4. `No account, nothing stored beyond this tab`
+- Helper: `Your brain already knows how it works best. Let's teach your AI the same thing.`
+- Primary action: `Let's begin`
+- Keyboard hint: `enter to start`
+- Focus note: `With a button focused, Enter or Space activates it. With a link focused, Enter follows it.`
+
+### Question view
+
+- Eyebrow pattern: `Question NN / 13 · {panel title}`
+- Scenario and option copy: `src/data/questions.ts`
+- Selected option marker: `✓`; unselected markers: `1`–`4`
+- Helper: `Select all that apply, or skip if none do.`
+- Primary action: `Next`; final question: `See results`
+- Secondary action: `Skip`
+- Previous button accessible label: `Previous`
+- Keyboard hint: `keys 1–4 select · enter next · space skip`
+
+### Results view
+
+- Standard eyebrow: `Your VARK profile · N of 13 answered`
+- Shared-link eyebrow: `Shared VARK profile`
+- Headlines:
+  - no scores: `No answers yet.`
+  - one dominant style: `You lean {Style}.`
+  - tied styles: `You're multimodal: {Style} & {Style}.`
+- Blurbs:
+  - no scores: `Go back and pick the answers that sound like you. Skipped questions are fine; the profile needs at least one selection.`
+  - Visual: `You process fastest through images, diagrams and layout. Ask your AI for charts, mind maps and visual metaphors.`
+  - Auditory: `You hold on to what you hear and say. Ask your AI to explain conversationally and to talk things through as a dialogue.`
+  - Read/Write: `Words on a page are your medium. Ask your AI for structured text, lists, definitions and written summaries.`
+  - Kinesthetic: `You learn by doing. Ask your AI for worked examples, step-by-step exercises and real-world cases.`
+  - multimodal: `You switch modes depending on the task. Ask your AI to mix formats: a diagram, then a worked example, then a written summary.`
+- Score names: `Visual`, `Auditory`, `Read/Write`, `Kinesthetic`
+- Copy-link action: `Copy link` → `Copied`
+- Helper: `Share of all selections, across every answered scenario.`
+- Empty-results helper: `Choose at least one answer to get your AI prompts.`
+- Primary action: `Get my AI prompts`
+- Empty-results primary action (local): `Answer questions`
+- Empty-results primary action (shared): `Take quiz`
+- Secondary action: `Retake`
+- Nonempty local keyboard hint: `← review answers · enter get prompts · space retake`
+- Nonempty shared keyboard hint: `enter get prompts · space retake`
+- Empty local keyboard hint: `← review questions · enter answer questions · space retake`
+- Empty shared keyboard hint: `enter take quiz · space retake`
+- Focus note (landing, results, prompts): `With a button focused, Enter or Space activates it. With a link focused, Enter follows it.`
+
+### Prompts view
+
+- Standard eyebrow: `Your AI prompts · N of 13 answered`
+- Shared-link eyebrow: `Shared AI prompts`
+- Headline: `Teach your AI how you learn.`
+- Introduction: `Two prompts built from your scores. The system prompt goes in custom instructions; the conversation prompt drops into any live chat.`
+- Card titles: `System prompt`, `Conversation prompt`
+- Card action: `Copy` → `Copied`
+- Primary action: `Copy both prompts` → `Copied both`
+- Secondary action: `Retake`
+- Helper: `Paste into ChatGPT, Claude, Gemini or any other AI tool.`
+- Keyboard hint: `← back to results · enter copy both · space retake`
+- Focus note: `With a button focused, Enter or Space activates it. With a link focused, Enter follows it.`
+- Zero-score profiles: prompts view is unreachable; personalized prompts are never generated, rendered, or copied.
+
+### Notifications, errors, and shared controls
+
+- Success toasts: `Link copied to clipboard`, `System prompt copied`, `Conversation prompt copied`, `Both prompts copied`
+- Clipboard failure: `Could not copy. Please try again.`
+- Toast dismiss accessible label: `Dismiss notification`
+- Toast region accessible label: `Notifications`
+- Error boundary: `Something went wrong`; `We're sorry. The app hit an error. You can try again or go back home.`; `Try again`; `Back to Varkly`
+- 404: `404`; `Page not found`; `The page you're looking for doesn't exist or has been moved.`; `Back to Home`
+- Footer: `© 2026 AI Brain Coach, All Rights Reserved`
+
+---
+
+## Preserved legacy copy archive
+
+Sections 1–15, 23, and 26 below describe the deleted pre-panels UI and are retained only for product history. Sections 16–22 are the specifically preserved deferred explanation copy. Sections 24–25 remain the current prompt-template reference. Current runtime copy always takes precedence over this archive.
+
+## Legacy table of contents
 
 1. [HTML / Page Meta](#1-html--page-meta)
 2. [Shared Navigation](#2-shared-navigation)

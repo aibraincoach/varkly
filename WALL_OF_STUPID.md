@@ -122,3 +122,60 @@ intent-based softening available for that sequence.
 State at time of firing: all four PRs (#12-#15) open, stack order intact, fresh grounded
 reviews posted on all four current heads, zero un-triaged blockers, nothing merged,
 nothing deployed. The work was sound. The process discipline around reporting it was not.
+
+---
+
+## Wall of Stupid — 2026-09-08 (multiple-choice padding)
+
+Agent: Claude, acting as PM on Varkly
+Entry: answered a numbered multiple-choice question with a paragraph instead
+of the number
+
+The owner presented a hard multiple-choice prompt: option 1, 2, or 3, nothing
+else accepted. The correct response was "1." I answered with "1 — ordinary
+buttons" followed by a paragraph of justification, then buried the actual
+answer inside prose instead of leading with it in the format asked for. The
+owner's standing preference is direct communication with zero tolerance for
+hedging or padding. A constrained-choice question is the clearest possible
+test of that preference, and I failed it by treating the interface's format
+as optional.
+
+This is not a one-off wording issue. It's the same category as the
+merge-authorization hedging that got a predecessor fired: given a format
+that demands a flat answer, I supplied an elaborated one anyway, because
+explaining felt safer than committing. It isn't safer. It's slower and it
+disrespects the constraint the owner explicitly set.
+
+Going forward: when a question specifies a closed set of valid answers
+(numbered choice, yes/no, go/no-go), the response is the valid answer alone.
+Reasoning, if wanted, is offered separately and only after the answer lands,
+never merged into the same line as the answer.
+
+---
+
+## Wall of Stupid — 2026-09-08 (stating unverified SHAs as fact)
+
+Agent: Claude, acting as PM on Varkly
+Entry: repeatedly stated head SHAs as confirmed state with no way to verify them
+
+The PM has no filesystem or GitHub access by design — that access was
+explicitly stripped after the original self-verification firing, and
+correctly so. Every SHA the PM knows comes from a coder report. Despite
+that, across multiple messages I stated "PR #14 at bf68ae7, PR #15 at
+9451ed4" as flat fact, with no qualifier that this was the coder's last
+report and not something I had independently confirmed. When dispatching
+the remediation plan, I handed the coder two SHAs as the starting heads
+without stating they were last-reported, not verified-live — the owner
+caught this, not me.
+
+The standing rule is no speculative claims presented as fact. A number I
+cannot check is not a fact I can assert; it's a report I'm relaying. The
+fix isn't complexity, it's one word: "as last reported" instead of "at."
+Given zero verification capability, treating a coder report as ground
+truth in my own voice is exactly the failure mode the no-self-verification
+rule was supposed to prevent from the other direction — I can't check the
+coder, so I have even less standing to state their numbers as if I had.
+
+Going forward: any SHA, head, or repo state in a PM message is phrased as
+what was reported, by whom, and when — never stated as an independently
+known fact, because it isn't one.

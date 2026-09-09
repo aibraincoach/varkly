@@ -1,0 +1,305 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-08T13:35:00Z",
+  "title": "Design System: VARK Panels",
+  "extensions": {
+    "colorMeta": {
+      "ink": {
+        "role": "primary",
+        "displayName": "Graphite Ink",
+        "canonical": "#1f1f24",
+        "tonalRamp": ["#17171b", "#29292f", "#45454d", "#62626c", "#85858e", "#adadb4", "#d5d5da", "#f0f0f2"]
+      },
+      "ground": {
+        "role": "neutral",
+        "displayName": "Light Slate Ground",
+        "canonical": "#f3f3f5",
+        "tonalRamp": ["#202024", "#39393f", "#57575f", "#777780", "#9a9aa3", "#bdbdc5", "#dedee3", "#f3f3f5"]
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "Soft Divider",
+        "canonical": "#dedee3",
+        "tonalRamp": ["#1d1d21", "#35353a", "#515158", "#707078", "#91919a", "#b3b3bb", "#d1d1d7", "#eeeeF1"]
+      },
+      "panel": {
+        "role": "neutral",
+        "displayName": "Deep Panel",
+        "canonical": "#1a1a20",
+        "tonalRamp": ["#141418", "#29292f", "#44444c", "#62626b", "#83838c", "#aaaab2", "#d1d1d7", "#efeff1"]
+      },
+      "track": {
+        "role": "neutral",
+        "displayName": "Score Track",
+        "canonical": "#e2e2e7",
+        "tonalRamp": ["#1d1d21", "#35353b", "#525259", "#717179", "#92929b", "#b5b5bd", "#d3d3d9", "#efeff2"]
+      },
+      "muted-1": {
+        "role": "neutral",
+        "displayName": "Muted Ink Strong",
+        "canonical": "#5b5b66",
+        "tonalRamp": ["#18181c", "#303036", "#4b4b54", "#696973", "#898992", "#adadb5", "#d1d1d7", "#efeff2"]
+      },
+      "muted-2": {
+        "role": "neutral",
+        "displayName": "Muted Ink",
+        "canonical": "#6b6b76",
+        "tonalRamp": ["#19191d", "#313137", "#4c4c55", "#6b6b76", "#8b8b94", "#aeaeB6", "#d2d2d8", "#efeff2"]
+      },
+      "muted-3": {
+        "role": "neutral",
+        "displayName": "Muted Ink Soft",
+        "canonical": "#8a8a94",
+        "tonalRamp": ["#1a1a1e", "#333339", "#505058", "#6f6f78", "#8a8a94", "#b0b0b8", "#d3d3d9", "#f0f0f2"]
+      },
+      "muted-4": {
+        "role": "neutral",
+        "displayName": "Muted Ink Quiet",
+        "canonical": "#9a9aa3",
+        "tonalRamp": ["#1b1b1f", "#34343a", "#515159", "#717179", "#9a9aa3", "#b5b5bc", "#d6d6db", "#f0f0f2"]
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "Paper Surface",
+        "canonical": "#ffffff",
+        "tonalRamp": ["#202024", "#3a3a40", "#595960", "#7a7a82", "#9d9da5", "#c0c0c7", "#e1e1e5", "#ffffff"]
+      },
+      "visual": {
+        "role": "secondary",
+        "displayName": "Visual Violet",
+        "canonical": "#af52de",
+        "tonalRamp": ["#2b0e38", "#46145c", "#641c82", "#8228a8", "#a23dca", "#be6be4", "#d99bed", "#f2d9fa"]
+      },
+      "auditory": {
+        "role": "secondary",
+        "displayName": "Auditory Blue",
+        "canonical": "#0071e3",
+        "tonalRamp": ["#001b37", "#002f5e", "#004689", "#005eb6", "#0071e3", "#4298ed", "#83bcf5", "#d6ebfd"]
+      },
+      "read-write": {
+        "role": "secondary",
+        "displayName": "Read/Write Green",
+        "canonical": "#34c759",
+        "tonalRamp": ["#092d13", "#0f4c21", "#176e31", "#229342", "#34b853", "#66d680", "#9ce8ad", "#dcf8e3"]
+      },
+      "kinesthetic": {
+        "role": "secondary",
+        "displayName": "Kinesthetic Orange",
+        "canonical": "#ff9f0a",
+        "tonalRamp": ["#3b2100", "#633700", "#914f00", "#c36b00", "#ed8500", "#ffad35", "#ffce7a", "#ffedcf"]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Two-line landing statements, result and prompt headlines, and active-panel titles."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Scenario questions and primary aside statements."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Orientation and explanatory copy."
+      },
+      "body-compact": {
+        "displayName": "Compact Body",
+        "purpose": "Options, actions, supporting descriptions, score names, and prompt text."
+      },
+      "measurement": {
+        "displayName": "Measurement",
+        "purpose": "Sequence, progress, scores, percentages, and keyboard notation."
+      }
+    },
+    "shadows": [],
+    "motion": [
+      {
+        "name": "ease-standard",
+        "value": "cubic-bezier(.4,0,.2,1)",
+        "purpose": "Shared easing for panel expansion, image treatment, progress, and score bars."
+      },
+      {
+        "name": "state-fast",
+        "value": "200ms",
+        "purpose": "Option and compact copy-control state changes."
+      },
+      {
+        "name": "label-fade",
+        "value": "300ms",
+        "purpose": "Collapsed and expanded panel label crossfades."
+      },
+      {
+        "name": "progress",
+        "value": "500ms",
+        "purpose": "Header progress width changes."
+      },
+      {
+        "name": "panel-expand",
+        "value": "550ms",
+        "purpose": "Panel flex, image scale, and saturation changes."
+      },
+      {
+        "name": "score-grow",
+        "value": "600ms",
+        "purpose": "Result distribution bar width changes."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "0.01ms",
+        "purpose": "Global animation and transition duration under prefers-reduced-motion."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "panels",
+        "value": "1100px"
+      }
+    ],
+    "assetProvenance": [
+      {
+        "range": "public/panels/01-furniture.webp–14-results.webp",
+        "source": "Owner-approved design PNG sequence",
+        "transformation": "cwebp -q 78 -resize 720 0",
+        "output": "Fourteen 720×1201 WebP rasters preserved in source order by src/data/panels.ts",
+        "externalAttribution": "No stock provider or generative source is asserted by the shipped repository."
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Action",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The dominant next-step, result, or copy-both action.",
+      "html": "<button class=\"ds-btn-primary\">LET'S BEGIN <span aria-hidden=\"true\">→</span></button>",
+      "css": ".ds-btn-primary { height: 44px; padding: 0 20px; border: 0; border-radius: 12px; background: #1f1f24; color: #f3f3f5; font: 600 14px Sora, -apple-system, BlinkMacSystemFont, system-ui, sans-serif; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; transition: opacity 200ms; } .ds-btn-primary:hover { opacity: .9; } .ds-btn-primary:active { transform: translateY(1px); } .ds-btn-primary:focus-visible { outline: 2px solid #1f1f24; outline-offset: 2px; }"
+    },
+    {
+      "name": "Previous Action",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "A square bordered control for backward movement.",
+      "html": "<button class=\"ds-btn-previous\" aria-label=\"Previous\"><svg aria-hidden=\"true\" viewBox=\"0 0 24 24\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m15 18-6-6 6-6\"/></svg></button>",
+      "css": ".ds-btn-previous { width: 44px; height: 44px; border: 1.5px solid #dedee3; border-radius: 12px; background: #fff; color: #1f1f24; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: border-color 200ms, opacity 200ms; } .ds-btn-previous:hover { border-color: #1f1f24; } .ds-btn-previous:active { transform: translateY(1px); } .ds-btn-previous:focus-visible { outline: 2px solid #1f1f24; outline-offset: 2px; } .ds-btn-previous:disabled { opacity: .4; cursor: default; }"
+    },
+    {
+      "name": "Ghost Action",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "A low-emphasis skip or retake action.",
+      "html": "<button class=\"ds-btn-ghost\">SKIP</button>",
+      "css": ".ds-btn-ghost { height: 44px; padding: 0 14px; border: 0; border-radius: 12px; background: transparent; color: #6b6b76; font: 400 13px Sora, -apple-system, BlinkMacSystemFont, system-ui, sans-serif; cursor: pointer; transition: color 200ms; } .ds-btn-ghost:hover { color: #1f1f24; } .ds-btn-ghost:active { transform: translateY(1px); } .ds-btn-ghost:focus-visible { outline: 2px solid #1f1f24; outline-offset: 2px; }"
+    },
+    {
+      "name": "Answer Option",
+      "kind": "button",
+      "refersTo": "option",
+      "description": "A multi-select answer with a visible number or selected checkmark.",
+      "html": "<button class=\"ds-option\" aria-pressed=\"false\"><span class=\"ds-option-mark\">1</span><span>Watch someone demonstrate it first.</span></button>",
+      "css": ".ds-option { min-height: 68px; padding: 12px 14px; border: 1.5px solid #dedee3; border-radius: 12px; background: #fff; color: #1f1f24; font: 400 14px/1.45 Sora, -apple-system, BlinkMacSystemFont, system-ui, sans-serif; display: flex; align-items: flex-start; gap: 12px; text-align: left; cursor: pointer; transition: background 200ms, color 200ms, border-color 200ms; } .ds-option-mark { width: 22px; height: 22px; flex: 0 0 22px; border-radius: 6px; background: #f0f0f3; color: #6b6b76; font: 400 11px JetBrains Mono, ui-monospace, monospace; display: inline-flex; align-items: center; justify-content: center; } .ds-option:hover { border-color: #1f1f24; } .ds-option[aria-pressed=\"true\"] { border-color: #1f1f24; background: #1f1f24; color: #f3f3f5; } .ds-option[aria-pressed=\"true\"] .ds-option-mark { background: #fff; color: #1f1f24; } .ds-option:focus-visible { outline: 2px solid #1f1f24; outline-offset: 2px; }"
+    },
+    {
+      "name": "Prompt Card",
+      "kind": "card",
+      "refersTo": "prompt-card",
+      "description": "A bordered prompt container with an independently copyable header.",
+      "html": "<article class=\"ds-prompt\"><header class=\"ds-prompt-head\"><strong>System prompt</strong><button class=\"ds-prompt-copy\">COPY</button></header><p class=\"ds-prompt-body\">Adapt your explanations to my VARK learning profile.</p></article>",
+      "css": ".ds-prompt { width: 360px; overflow: hidden; border: 1.5px solid #dedee3; border-radius: 12px; background: #fff; color: #1f1f24; font-family: Sora, -apple-system, BlinkMacSystemFont, system-ui, sans-serif; } .ds-prompt-head { padding: 10px 14px; border-bottom: 1px solid #ececf0; display: flex; align-items: center; justify-content: space-between; font-size: 13px; } .ds-prompt-copy { height: 30px; padding: 0 10px; border: 1.5px solid #dedee3; border-radius: 8px; background: #fff; color: #1f1f24; font: 600 12px Sora, sans-serif; cursor: pointer; transition: border-color 200ms, background 200ms, color 200ms; } .ds-prompt-copy:hover { border-color: #1f1f24; } .ds-prompt-copy:active { background: #1f1f24; color: #fff; } .ds-prompt-copy:focus-visible { outline: 2px solid #1f1f24; outline-offset: 2px; } .ds-prompt-body { margin: 0; padding: 12px 14px; color: #3a3a42; font-size: 13px; line-height: normal; }"
+    },
+    {
+      "name": "Score Row",
+      "kind": "custom",
+      "description": "A VARK score label, measured value, and animated semantic bar.",
+      "html": "<div class=\"ds-score\"><div class=\"ds-score-name\"><span class=\"ds-score-dot\"></span>Visual</div><div class=\"ds-score-value\">8 · 42%</div><div class=\"ds-score-track\"><div class=\"ds-score-fill\"></div></div></div>",
+      "css": ".ds-score { width: 360px; display: grid; grid-template-columns: 1fr auto; align-items: baseline; gap: 10px 14px; color: #1f1f24; font-family: Sora, sans-serif; font-size: 14px; } .ds-score-name { display: flex; align-items: center; gap: 10px; font-weight: 500; } .ds-score-dot { width: 10px; height: 10px; border-radius: 9999px; background: #af52de; } .ds-score-value { color: #5b5b66; font: 400 13px JetBrains Mono, monospace; } .ds-score-track { grid-column: 1 / -1; height: 10px; overflow: hidden; border-radius: 5px; background: #e2e2e7; } .ds-score-fill { width: 42%; height: 100%; border-radius: 5px; background: #af52de; transition: width 600ms cubic-bezier(.4,0,.2,1); }"
+    },
+    {
+      "name": "Progress Navigation",
+      "kind": "nav",
+      "description": "Compact mono progress text paired with a thin measured track.",
+      "html": "<nav class=\"ds-progress\" aria-label=\"Quiz progress\"><span>Question 06 / 13</span><div class=\"ds-progress-track\" role=\"progressbar\" aria-valuenow=\"43\" aria-valuemin=\"0\" aria-valuemax=\"100\"><div class=\"ds-progress-fill\"></div></div></nav>",
+      "css": ".ds-progress { display: flex; align-items: center; gap: 20px; color: #6b6b76; font: 400 13px JetBrains Mono, ui-monospace, monospace; } .ds-progress-track { width: 120px; height: 3px; overflow: hidden; border-radius: 2px; background: #dedee3; } .ds-progress-fill { width: 43%; height: 100%; border-radius: 2px; background: #1f1f24; transition: width 500ms cubic-bezier(.4,0,.2,1); }"
+    },
+    {
+      "name": "Editorial Panel",
+      "kind": "custom",
+      "refersTo": "editorial-panel",
+      "description": "The rounded, expanding rail unit with measured sequence labeling.",
+      "html": "<button class=\"ds-panel\" aria-current=\"step\"><span class=\"ds-panel-number\">06 / 14</span><strong class=\"ds-panel-title\">Meeting</strong></button>",
+      "css": ".ds-panel { width: 260px; min-height: 420px; padding: 24px; border: 0; border-radius: 20px; overflow: hidden; background: linear-gradient(to bottom, rgba(20,20,26,0) 30%, rgba(20,20,26,.78)), #1a1a20; color: #fff; display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-end; text-align: left; cursor: pointer; transition: flex 550ms cubic-bezier(.4,0,.2,1), filter 550ms cubic-bezier(.4,0,.2,1); } .ds-panel-number { opacity: .7; font: 400 12px JetBrains Mono, ui-monospace, monospace; letter-spacing: .08em; } .ds-panel-title { margin-top: 8px; font: 600 36px/1 Sora, -apple-system, BlinkMacSystemFont, system-ui, sans-serif; letter-spacing: -.03em; } .ds-panel:hover { filter: saturate(1.08); } .ds-panel:active { filter: saturate(.95); } .ds-panel:focus-visible { outline: 2px solid #1f1f24; outline-offset: 2px; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Navigable Editorial Rail",
+    "overview": "VARK Panels is a restrained assessment workspace set on a cool light-slate field. Dark ink controls and white utility surfaces keep the reading and decision layer quiet, while a fourteen-image rail supplies the color, pace, and sense of progression. The artifact is intentionally light-only.\n\nThe visual system serves a stateless thirteen-scenario path from orientation through results and prompt copying. Its distinctive behavior is spatial: one stable instructional column works beside a rail whose images move between overview, active detail, and completed-state saturation.\n\nThe fourteen shipping WebP rasters are derived from the owner-approved design PNG sequence, preserved in source order by `src/data/panels.ts`, and optimized to 720×1201 WebP files with the recorded build command `cwebp -q 78 -resize 720 0`. They are repository-owned build assets; no external stock provider or generative source is asserted by the shipped code.",
+    "keyCharacteristics": [
+      "Light slate canvas with near-black ink and white working surfaces.",
+      "Saturated editorial imagery is concentrated in the navigable rail.",
+      "Sora carries reading and action; JetBrains Mono carries measurements and progress.",
+      "One active panel expands while the surrounding sequence remains visible.",
+      "States remain explicit through fill, border, saturation, labels, and copy feedback."
+    ],
+    "rules": [
+      {
+        "name": "The Color Lives in Evidence Rule",
+        "body": "Keep the assessment chrome achromatic; use saturated hues for VARK data and shipped editorial images, not decorative interface accents.",
+        "section": "colors"
+      },
+      {
+        "name": "The State Is Never Color Alone Rule",
+        "body": "Pair color changes with fill, border, checkmark, text, saturation, or explicit labels.",
+        "section": "colors"
+      },
+      {
+        "name": "The Two-Family Rule",
+        "body": "Sora owns reading and actions; JetBrains Mono is reserved for quantities, sequence, progress, and keyboard notation.",
+        "section": "typography"
+      },
+      {
+        "name": "The Tight Heading Rule",
+        "body": "Display and headline type use semibold weight with negative tracking; body copy returns to regular weight and comfortable leading.",
+        "section": "typography"
+      },
+      {
+        "name": "The Contextual Eyebrow Rule",
+        "body": "Keep the small uppercase JetBrains Mono eyebrow above each panels-view heading. This is a user-pinned part of the VARK Panels direction; use it for route, question, and score context within this screen rather than as a generic site-wide decoration.",
+        "section": "typography"
+      },
+      {
+        "name": "The Stable Action Rule",
+        "body": "Changing questions must not move the primary navigation controls at desktop widths.",
+        "section": "layout"
+      },
+      {
+        "name": "The Topology Switch Rule",
+        "body": "Desktop is a side-by-side editorial rail; mobile is an aside followed by stacked strips. Do not compress the desktop rail into unusable slivers.",
+        "section": "layout"
+      },
+      {
+        "name": "The Flat Workspace Rule",
+        "body": "Do not add ambient card shadows; use borders, surface contrast, and motion to separate interactive layers.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Radius by Scale Rule",
+        "body": "Small internal marks are tighter, controls are 12px, and image panels are 20px. Larger radius communicates larger physical scale, not increased decoration.",
+        "section": "shapes"
+      }
+    ],
+    "dos": [
+      "Do preserve the achromatic workspace and let editorial images and score data carry saturation.",
+      "Do keep the full fourteen-step rail legible while one panel expands.",
+      "Do use Sora for prose/actions and JetBrains Mono for measurable state.",
+      "Do expose selected, disabled, progress, current-step, and copied states semantically.",
+      "Do retain the 1100px topology switch and reduced-motion behavior.",
+      "Do preserve raster order, 720×1201 dimensions, and owner-approved image subjects when replacing encoded assets; record any new source and transformation provenance."
+    ],
+    "donts": [
+      "Don't add dark mode, ambient shadows, or decorative interface gradients to this light-only flat workspace.",
+      "Don't use VARK colors as generic brand accents or rely on hue alone to communicate state.",
+      "Don't hide the rail sequence when a panel expands or force vertical desktop labels onto mobile.",
+      "Don't introduce additional display or monospace families.",
+      "Don't remove, restyle, or relocate the user-pinned contextual eyebrows in the VARK Panels screen; outside that screen, do not apply them as generic decoration."
+    ]
+  }
+}

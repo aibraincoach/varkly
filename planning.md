@@ -10,6 +10,8 @@ Actions is disabled. [CI_POLICY.md](CI_POLICY.md) records the owner ruling,
 repository evidence, retained checks and outstanding provider blockers. This
 entry does not mark unverified replacement checks as passed or completed.
 
+---
+
 ## 1. Vision
 
 Varkly is the fastest, most frictionless way to discover your VARK learning style and immediately apply it to every AI tool you use. The experience is instant, playful, and genuinely useful — not another academic form. Every person who completes the quiz leaves with two copy-ready AI prompts that make every AI tool they use smarter about how they learn.
@@ -23,16 +25,18 @@ Varkly is the fastest, most frictionless way to discover your VARK learning styl
 ```
 Browser (React SPA)
     │
-    ├── Quiz state           → sessionStorage (ephemeral, cleared on tab close)
-    ├── Theme preference     → localStorage
-    ├── Score calculation    → in-memory (QuizContext.calculateScores)
-    ├── AI prompt generation → in-memory (src/utils/aiPrompts.ts)
-    ├── Results sharing      → URL encoding (btoa/atob, no server involved)
-    ├── Google Analytics     → owner account G-QCPTM267KD
-    └── Cloudflare Analytics → owner account beacon configured in index.html
+    ├── PanelsScreen (route-aware)  → one screen, four views (landing, question, results, prompts)
+    ├── Quiz state                  → sessionStorage key `quizState` (ephemeral, tab-scoped)
+    ├── Score calculation           → pure helpers in src/utils/scores.ts
+    ├── AI prompt generation        → pure helpers in src/utils/aiPrompts.ts
+    ├── Results sharing             → URL encoding (btoa/atob, no server lookup)
+    ├── Google Analytics            → owner account G-QCPTM267KD (index.html)
+    └── Cloudflare Web Analytics    → owner account beacon (index.html)
 ```
 
-The application is a client-side SPA with no Varkly API, server, or database. It is deployed as static files on Vercel. The two analytics scripts in `index.html` make intentional third-party network requests; this does not make quiz answers or results server-persisted by the application.
+The application is a client-side SPA with no Varkly API, server, or database. It is deployed as static files on Vercel. Google Fonts (Sora, JetBrains Mono) and the two analytics scripts in `index.html` make intentional third-party network requests; this does not make quiz answers or results server-persisted by the application.
+
+There is no theme system. The UI is light-only (slate ground, ink controls).
 
 ### Quiz state transitions
 
@@ -41,7 +45,7 @@ The application is a client-side SPA with no Varkly API, server, or database. It
 | Transition | Effect on state |
 |---|---|
 | `startQuiz()` | Reopens at index 0, **preserves every previous answer**, clears completion |
-| `goToQuestion(i)` | Clamps `i` to 0–12, clears completion |
+| `goToQuestion(i)` | Clamps `i` via `clampQuestionIndex(i, questions.length)` (helper max index is `questions.length - 1`), clears completion |
 | `completeQuiz()` | Keeps answers and index, sets completion, navigates to `/results` |
 | `toggleOption()` | Adds or removes one option id for one question |
 | `resetQuiz()` | Restores the default state and removes the storage key |
@@ -61,6 +65,10 @@ Reaching the landing view — through the logo, a browser back, or a shared link
 
 An invalid share hash replaces to `/`. While a guard is redirecting the screen renders only the spinner, so prompts never flash for an invalid or empty profile. Personalized prompts are nullable and are never generated, rendered, or copied for an all-zero profile.
 
+### Keyboard contract
+
+`PanelsScreen` registers stable window `keydown`/`keyup`/`blur` listeners. Recognized shortcuts on question views take precedence over focused buttons and links; on landing, results, and prompts, Enter/Space activate a focused button and Enter follows a focused link. When a shortcut fires, the handler records an owned key identifier as `event.code` with `event.key` fallback (`event.code || event.key`) and `preventDefault`s repeat `keydown` events until matching `keyup`, window `blur`, or unmount clears ownership — so held keys cannot double-fire or leak to Retake after route/view changes. Copy feedback uses a generation ID and disposes window timers on newer copy attempts, navigation, and unmount.
+
 ---
 
 ## 3. Current Tech Stack
@@ -76,7 +84,6 @@ These package names and version ranges match `package.json`.
 | `react` | `^18.3.1` | UI framework |
 | `react-dom` | `^18.3.1` | Browser rendering |
 | `react-router-dom` | `^6.22.2` | Client-side routing |
-| `recharts` | `^2.12.7` | Results visualization |
 
 ### Development dependencies
 
@@ -99,12 +106,14 @@ These package names and version ranges match `package.json`.
 | `vite` | `^5.4.2` |
 | `vitest` | `^4.1.0` |
 
+`recharts` was removed in PR B (`feat/panels-screen`). Results are rendered as score rows, not charts.
+
 ### External platform services
 
 - **Vercel** hosts the static Vite SPA.
-- **Google Analytics** measurement ID `G-QCPTM267KD` is loaded intentionally from `index.html` and reports to the owner's Google account.
-- **Cloudflare Web Analytics** is loaded intentionally by the beacon in `index.html` and reports to the owner's Cloudflare account.
-- **Google Fonts** serves Plus Jakarta Sans from `fonts.googleapis.com` and `fonts.gstatic.com` on every page.
+- **Google Analytics** measurement ID `G-QCPTM267KD` is loaded intentionally from `index.html`.
+- **Cloudflare Web Analytics** is loaded intentionally by the beacon in `index.html`.
+- **Google Fonts** serves Sora and JetBrains Mono from `fonts.googleapis.com` and `fonts.gstatic.com` on every page.
 
 Neither analytics service is part of the application package dependency graph or a replacement for the removed Supabase persistence layer.
 
@@ -115,170 +124,228 @@ Neither analytics service is part of the application package dependency graph or
 ```text
 .
 ├── AGENTS.md                       Canonical agent rules
+├── BRANDING.md                     Brand style guide (panels palette)
 ├── CLAUDE.md                       Pointer to AGENTS.md for Claude Code
+├── COPY.md                         Customer-facing copy extraction
 ├── cursor.md                       Pointer to AGENTS.md for Cursor
+├── DESIGN.md                       Impeccable design-world record (shipped panels)
 ├── PRD.md                          Product requirements
-├── planning.md                     Architecture and technical reality
+├── PRODUCT.md                      Impeccable product schema
+├── README.md                       Developer onboarding
+├── planning.md                     Architecture and technical reality (this file)
 ├── tasks.md                        Living implementation roadmap and session log
 ├── WALL_OF_STUPID.md               PM and agent failure record
-├── index.html                      SPA shell, metadata, and intentional analytics
+├── .impeccable/
+│   └── design.json                 Impeccable design sidecar (tokens, components)
+├── index.html                      SPA shell, metadata, OG/Twitter, analytics
 ├── package.json                    Scripts and package declarations
 ├── package-lock.json               npm lockfile
 ├── vercel.json                     Vercel SPA rewrite
 ├── vite.config.ts                  Vite configuration
 ├── playwright.config.ts            Playwright Chromium E2E configuration
+├── scripts/
+│   ├── measure-assets.mjs          Reproducible dist asset measurement CLI
+│   ├── lib/measureAssets.mjs         Build-based budget estimate library
+│   └── __tests__/measureAssets.test.mjs  Node tests for measurement tooling
 ├── eslint.config.js                ESLint configuration
-├── tailwind.config.js              Tailwind theme and content paths
+├── tailwind.config.js              Sora/JetBrains, ink/ground tokens, panels breakpoint
 ├── postcss.config.js               PostCSS configuration
 ├── tsconfig*.json                  TypeScript configurations
-├── e2e/                            Playwright keyboard, state, route, and layout specs
+├── e2e/                            Playwright: keyboard, clipboard, state, routes, layout, panel-images
 ├── public/
 │   ├── manifest.json               PWA manifest
-│   ├── varkly-icon.svg             Primary app icon
-│   └── brain-icon.svg              Supporting brand asset
+│   ├── og-image.png                Open Graph / Twitter card image (1200×630)
+│   ├── varkly-icon.svg             Primary app icon (grayscale in header)
+│   └── panels/                     14 WebP editorial panel images (01–14)
 └── src/
-    ├── App.tsx                     Providers, lazy routes, and app shell
+    ├── App.tsx                     Providers, lazy routes, six panel routes + 404
     ├── main.tsx                    Browser entry point
-    ├── index.css                   Global Tailwind layers and styles
+    ├── index.css                   Global foundation + approved panel primitives
     ├── components/
-    │   ├── landing/                Landing page
-    │   ├── layout/                 Shared navigation, footer, and layout
-    │   ├── quiz/                   Quiz intro, questions, progress, orchestration
-    │   ├── results/                Results, chart, explanations, and AI prompts
-    │   └── shared/                 Error boundary, 404, theme toggle, and toast
-    ├── constants/app.ts            Branding, routes, and storage keys
-    ├── contexts/                   Quiz, theme, and toast state providers
-    ├── data/questions.ts           Thirteen VARK questions
-    ├── hooks/usePageMeta.ts        Route-level title and description updates
+    │   ├── layout/                 AppLayout, AppFooter
+    │   ├── panels/                 PanelsScreen, four views, rail, logic, copy feedback
+    │   │   ├── copyFeedback.ts       Copy-feedback controller (generation ID, timers)
+    │   │   ├── useCopyFeedback.ts    Hook wiring copyToClipboard + toast feedback
+    │   │   └── __tests__/          Vitest: panelsLogic, copyFeedback
+    │   └── shared/                 ErrorBoundary, NotFoundPage, Toast
+    ├── constants/app.ts            Branding, routes, storage keys
+    ├── contexts/
+    │   ├── QuizContext.tsx         QuizProvider
+    │   ├── quiz-context.ts         Context object, defaultQuizState, normalizeQuizState, getQuizStartState
+    │   ├── __tests__/              Vitest: quizState (start-state transitions)
+    │   ├── ToastContext.tsx        ToastProvider
+    │   ├── toast-context.ts        Toast context object
+    │   └── toastTypes.ts           Toast types
+    ├── data/
+    │   ├── questions.ts            Thirteen VARK questions (`QUESTION_COUNT`)
+    │   ├── panels.ts               Panel index 01–14 titles and image slugs
+    │   └── __tests__/              Vitest: productInvariants (13 questions, 14 panels)
+    ├── hooks/
+    │   ├── usePageMeta.ts          Route-level title and description
+    │   ├── useQuiz.ts              Quiz context hook
+    │   └── useToast.ts             Toast context hook
     ├── types/index.ts              Shared application types
     └── utils/
         ├── aiPrompts.ts            Deterministic prompt generation
-        └── __tests__/              Vitest coverage for prompt generation
+        ├── copyToClipboard.ts      Clipboard API first, execCommand fallback
+        ├── navigation.ts           clampQuestionIndex(index, questionCount) — max index questionCount − 1
+        ├── scores.ts               Pure score/share helpers
+        └── __tests__/              Vitest: aiPrompts, scores, navigation, copyToClipboard
 ```
 
-`BRANDING.md`, `COPY.md`, and `README.md` are supporting documentation but are outside this session's synchronization scope.
+Removed in the panels redesign (no longer present): `ThemeContext`, `ThemeToggle`, `LandingPage`, `QuizIntro`, `Question`, `QuizContainer`, `ProgressBar`, `ResultsPage`, `ResultsChart`, `ResultsExplanation`, `AIPromptsCard`, `AppNav`, `public/brain-icon.svg`, and all `dark:` styling.
 
 ---
 
-## 5. Shareable Results URL Encoding
+## 5. Routing and Views
 
-Results are encoded entirely client-side. No server lookup is required to view a shared result.
+`PanelsScreen` is mounted on six routes and derives view state from the URL plus `QuizContext`.
+
+| Route | Active panel | View | Guard |
+|---|---|---|---|
+| `/` | `-1` (landing) | landing | — |
+| `/quiz` | `0–12` (from `currentQuestionIndex`) | question | — |
+| `/results` | `13` | results | Redirect to `/` if not completed and no selections |
+| `/prompts` | `13` | prompts | Redirect to `/results` if completed with no selections; to `/` if not completed |
+| `/r/:hash` | `13` | results (shared) | Invalid hash → redirect `/`; previous/review disabled |
+| `/r/:hash/prompts` | `13` | prompts (shared) | Invalid hash → redirect `/`; no selections → replace `/r/:hash` |
+| `*` | — | 404 (`NotFoundPage`) | — |
+
+Shared routes decode scores from the hash only. Question panels are desaturated; the user cannot navigate back through answered questions on a shared link.
+
+---
+
+## 6. Quiz State and sessionStorage
+
+**Storage key:** `quizState` (`STORAGE_KEYS.quizState` in `src/constants/app.ts`)
+
+**Fields:**
+
+| Field | Type | Purpose |
+|---|---|---|
+| `currentQuestionIndex` | `number` | `-1` landing; `0–12` during quiz; `13` implied on results/prompts routes |
+| `answers` | `Record<number, string[]>` | Multi-select option IDs per question |
+| `isCompleted` | `boolean` | Set by `completeQuiz()`; cleared by `startQuiz()` and `goToQuestion()` |
+
+**Persistence:** Written on every state change; restored on load via `normalizeQuizState()`.
+
+**Fresh start:** `startQuiz()` calls `getQuizStartState()` — preserves every previous answer, sets `currentQuestionIndex` to `0`, and clears `isCompleted`. Only `resetQuiz()` clears answers. Mid-quiz refresh still restores in-progress answers.
+
+**Reset:** `resetQuiz()` clears state to `defaultQuizState`, removes `sessionStorage`, navigates to `/`.
+
+**Legacy tolerance:** `normalizeQuizState()` ignores unknown fields (including removed `userIntent`) from older blobs.
+
+---
+
+## 7. Shareable Results URL Encoding
+
+Results are encoded entirely client-side in `src/utils/scores.ts`. No server lookup is required.
 
 ```
 scores string: "V-A-R-K"  (e.g. "9-2-1-1")
 base64 encode: btoa("9-2-1-1") = "OS0yLTEtMQ=="
 strip padding: "OS0yLTEtMQ"
-final URL:     https://varkly.app/r/OS0yLTEtMQ
+final URL:     https://varkly-eight.vercel.app/r/OS0yLTEtMQ
 ```
 
-`PanelsScreen` decodes `atob(hash)` during render, splits on `-`, and validates each value is a number between 0 and 13. Decoding is deliberately synchronous and unstored so no shared profile survives into a later route. Invalid hashes replace to `/`.
+`PanelsScreen` decodes `atob(hash)` during render via `decodeScores()`, splits on `-`, and validates each value is a number between 0 and 13. Decoding is deliberately synchronous and unstored so no shared profile survives into a later route. Invalid hashes replace to `/`.
 
-**Implication:** The results URL is fully self-contained. Anyone with the link can view the results and generate the same AI prompts without any server request. The URL encodes scores only — not the full answer breakdown.
+**Compatibility:** Legacy share links such as `OS0yLTEtMQ` round-trip correctly (verified in `scores.test.ts`).
+
+**Limitation:** The hash encodes aggregate VARK scores only — not which questions were answered or individual selections. Shared result/prompt eyebrows therefore use neutral labels (`Shared VARK profile`, `Shared AI prompts`) instead of `N of 13 answered`.
 
 ---
 
-## 6. AI Prompts — Generation Design
+## 8. AI Prompts — Generation Design
 
-### Approach
-All prompts are generated entirely client-side from the `VarkScores` object. No API calls. No templates stored server-side. The generation function lives in `src/utils/aiPrompts.ts` and is pure — given the same scores, it always produces the same output.
+All prompts are generated client-side from `VarkScores` by `generateAIPrompts()` in `src/utils/aiPrompts.ts`. The function is pure and deterministic — identical scores always produce identical output.
 
-### Dominant Style Determination
-```typescript
-const dominantScore = Math.max(V, A, R, K);
-const dominantStyles = (['V', 'A', 'R', 'K'] as const).filter(k => scores[k] === dominantScore);
-```
+Rendered in `PromptsView` via two `PromptCard` components (System prompt, Conversation prompt) plus a "Copy both prompts" action that joins them with `\n\n---\n\n`.
 
-### System Prompt Template Structure
-```
-"I am a [style description] learner (VARK: V=[V], A=[A], R=[R], K=[K]).
-
-[Style-specific communication instructions — 2–3 sentences]
-
-[Style-specific structure instructions — 1–2 sentences]
-
-[Check-in instruction — 1 sentence]"
-```
-
-### Conversation Prompt Template Structure
-```
-"I'm a [dominant style] learner — [one-sentence style preference statement]. [One-sentence reorientation request]."
-```
-
-### Style Instruction Bank (per dimension)
-
-**Visual (V):**
-- Structure responses with headers, sub-headers, and bullet points over prose
-- Use diagrams, tables, flowcharts, and spatial metaphors wherever useful
-- Avoid dense unbroken paragraphs
-- Check-in: offer a diagram, visual analogy, or restructured layout
-
-**Auditory (A):**
-- Use conversational language, rhetorical questions, and verbal walkthroughs
-- Write as you'd speak — avoid dry bullet lists
-- Check-in: re-explain using a different verbal framing or analogy
-
-**Read/Write (R):**
-- Use precise written definitions, numbered lists, and labeled terminology
-- Provide structured summaries with headings and sub-points
-- Check-in: offer a written outline or definitions-first restatement
-
-**Kinesthetic (K):**
-- Lead with a concrete real-world example or scenario before any theory
-- Frame explanations around doing: "here's how you'd apply this"
-- Check-in: offer a different example or a step-by-step practical exercise
-
-### Multimodal Blending
-- Two dominant styles: merge instruction sets from both dimensions; check-in references both
-- Three or more: describe user as "highly multimodal"; instruct AI to vary format freely
-
-### Generation Constraints
-- System prompt: 100–150 words maximum
-- Conversation prompt: 25–40 words maximum
-- Both prompts must be copy-ready: no placeholders, no ellipsis, no user-facing formatting instructions
-- Both prompts must work pasted cold into a new AI session with no surrounding context
-
-### Component Placement
-`AIPromptsCard` is inserted in `ResultsPage` between `ResultsExplanation` and the "Retake Quiz" card. It renders on both fresh completions (`/results`) and shared result views (`/r/:hash`).
+Template structures, style instruction banks, and word-count constraints are documented in `COPY.md` §24–25. Prompt copy has not changed; only the presentation moved from `AIPromptsCard` to the panels prompts view.
 
 ---
 
-## 7. Deployment Target — Vercel
+## 9. Design System — Light-Only Panels
 
-The repository is configured for a static Vite deployment on Vercel. The current production homepage is `https://varkly-eight.vercel.app`. A custom domain is deferred in the Milestone 7 backlog. Vercel project metadata is not checked into the repository.
+**Typography:** Sora (`font-sans`) for UI copy; JetBrains Mono (`font-mono`) for measurement labels, progress keys, and score readouts.
+
+**Palette tokens** (Tailwind + `DESIGN.md`):
+
+| Token | Hex | Role |
+|---|---|---|
+| `ink` | `#1f1f24` | Primary text, buttons, focus ring |
+| `ground` | `#f3f3f5` | Page background |
+| `line` | `#dedee3` | Borders, dividers |
+| `panel` | `#1a1a20` | Collapsed panel fill |
+| `track` | `#e2e2e7` | Score bar track |
+| `muted-1`–`muted-4` | `#5b5b66` … `#9a9aa3` | Secondary text |
+| `vark-v` | `#af52de` | Visual accent |
+| `vark-a` | `#0071e3` | Auditory accent |
+| `vark-r` | `#34c759` | Read/Write accent |
+| `vark-k` | `#ff9f0a` | Kinesthetic accent |
+
+**Layout:** Two-column grid at `≥1100px` (`screens.panels`): fixed aside (~360–460px) + editorial image rail. Below 1100px, stacked layout with 56px collapsed strips and 260px active panel height.
+
+**Radii:** 20px panels (`rounded-panel` / `rounded-[20px]`); 12px controls (`rounded-xl`).
+
+**Motion:** Restrained `vkFade` keyframes and Framer Motion on 404/error surfaces. `prefers-reduced-motion` respected in `index.css`.
+
+**Assets:** 14 WebP images in `public/panels/`; raw total **492,034 bytes**. Authoritative app/tooling measurement via `npm run measure:assets`: build-based budget estimate **608,152 bytes** (JS/CSS gzip at level 6: 116,118 + panel WebP raw: 492,034) → strict `< 1,200,000` PASS. Excludes fonts, source maps, HTML, icons, and OG from the combined metric. `og-image.png` reported separately at **882,538 bytes** (862 KB). Observable app bundle introduced at merge `087e71f` (integrates PR #14 `4a6a774` lint fix); measured at integrated HEAD `c4848de`.
+
+Full design-world documentation: `DESIGN.md` and `.impeccable/design.json`.
+
+---
+
+## 10. Deployment Target — Vercel
+
+Production homepage: `https://varkly-eight.vercel.app`. Custom domain deferred.
 
 `vercel.json`:
+
 ```json
 {
   "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
 }
 ```
 
-The catch-all rewrite ensures that client-side routes `/`, `/quiz`, `/results`, `/r/:hash`, and the in-app 404 route are all served through `index.html`.
+The catch-all rewrite serves all client routes through `index.html`.
+
+**Open Graph / Twitter:** Static tags in `index.html` point to `og-image.png` on the Vercel URL. Per-hash dynamic OG previews are not implemented — shared links use the generic card.
 
 ### Environment Variables
-No application environment variables are required. Google Analytics and Cloudflare Web Analytics use identifiers embedded intentionally in `index.html`.
+
+No application environment variables are required. Analytics identifiers are embedded intentionally in `index.html`.
 
 ---
 
-## 8. Known Risks and Open Questions
+## 11. Known Risks and Open Questions
 
 | Risk | Severity | Notes |
 |---|---|---|
+| Image bundle weight | **Medium** | 14 WebP assets (492 KB raw) dominate the 608 KB build-based estimate; monitor if more images are added |
+| sessionStorage schema drift | **Low** | `normalizeQuizState()` tolerates removed fields; future field additions need the same tolerance |
+| Static generic OG previews | **Low** | `/r/:hash` shares use site-wide `og-image.png` (862 KB), not score-specific cards; OG compression and canonical domain deferred |
+| Aggregate share hashes | **Low** | URL encodes scores only; cannot show "N of 13 answered" on shared routes |
+| Clipboard fallback limitations | **Low** | `copyToClipboard` tries Clipboard API first, then offscreen textarea + `execCommand`; both paths can fail in restricted or deprecated contexts (non-secure origins, some embedded frames) |
 | `btoa`/`atob` not available in very old browsers | **Low** | Target modern browsers only; add polyfill if needed |
-| Shareable URL encodes scores only, not full answer breakdown | **Low** | Accepted tradeoff — scores are sufficient to generate prompts and render results |
-| Analytics coverage is not documented at the event level | **Medium** | Google Analytics and Cloudflare Web Analytics are installed intentionally, but the repository does not prove that prompt-copy and quiz-completion success metrics have dedicated events |
-| Partial unit-test coverage | **Low** | Vitest covers the pure score, prompt, and panels logic; React components have no React Testing Library coverage and are exercised through Playwright instead |
-| E2E runs Chromium only | **Low** | Playwright covers the keyboard contract, quiz continuation, route guards, and responsive layout on a single Chromium worker against the built preview; WebKit and Firefox regressions would not be caught |
+| Partial unit-test coverage | **Low** | Vitest (134) + Node measurement tests (9) = 143 unit tests covering pure score, prompt, navigation, clipboard, and panels logic; React components have no React Testing Library coverage and are exercised through Playwright instead |
+| E2E runs Chromium only | **Low** | Playwright (55 tests) covers keyboard ownership (K1–K19), clipboard K9 matrix (`e2e/clipboard.spec.ts`), quiz continuation (S1–S4), route guards including R10 same-document transitions (R1–R10, `e2e/routes.spec.ts`), responsive layout (U1, `e2e/layout.spec.ts`), and panel image hints (I1–I6, `e2e/panel-images.spec.ts`) on a single Chromium worker; WebKit and Firefox regressions deferred |
+| Analytics event coverage | **Medium** | GA and Cloudflare are installed; dedicated prompt-copy / quiz-completion events are not proven in-repo |
 
 ---
 
-## 9. Current Repository and Work State
+## 12. Current Repository and Work State
 
-- GitHub repository: `aibraincoach/varkly`.
-- GitHub description: "Discover your VARK learning style and generate personalized AI prompts tailored to how you learn."
-- As verified on 2026-09-08, `main` is 39 commits behind and 4 commits ahead of the parent fork's `main`. This divergence is intentional; do not use GitHub's **Sync fork** action or merge the parent branch without explicit authorization.
-- PR #10 established the canonical memory bank and was merged with merge commit `837f4b0`.
-- PR #11 captured the Milestone 7 backlog and was merged with merge commit `19eda64`.
-- Nine stale merged `cursor/*` branches were deleted after ancestry verification.
-- The only preserved feature branch is `voice-UI` at `2e97507`. It is unmerged by design and must not be merged as the conversational voice implementation.
-- The panels redesign remains in planning. Its revised plan is awaiting approval, and no redesign implementation is in flight.
+**Verified directly against GitHub on 2026-09-08 (`gh pr list --state all`, `gh api .../comments`). This section is the source of truth; where any other document in this repo states an older head or an open review-loop status, this section wins.**
+
+- GitHub repository: `aibraincoach/varkly` (fork of `tanvirahamed2001/ZooTech-Hackathon-2026`, renamed from `ZooTech-Hackathon-2026`). Intentionally kept behind upstream — **never run "sync fork,"** it would pull in unwanted upstream work. Because this is a fork, a PR's base defaults to the upstream repo on creation; **every PR base must be set explicitly to `aibraincoach/varkly`.**
+- **PR #12** (`docs/state-sync` → `main`) — head `9ad4a50ad2306dd7085ccc99d01a202aca066686`. Grounded PPLX review posted at this exact head; no blockers, docs-only. Open, unmerged.
+- **PR #13** (`feat/panels-foundation` → `docs/state-sync`) — head `8a4a411b23a155717ec94ac571816ed81f84a234` (unchanged across the whole session). Grounded PPLX review posted at this head; no blockers. Open, unmerged.
+- **PR #14** (`feat/panels-screen` → `feat/panels-foundation`) — head `723508f6e6c73e120059cd966d601f5651466619`. History: four review rounds on four different heads (`8bc976f1` → `f9b419be` → `4a6a774` → `bf68ae7`), each fixed forward. The `a1497a9` commit's `tabIndex={isActive || isLanding ? 0 : -1}` fix (previously the current state) was itself **superseded**: it caused a rail-keyboard-navigation regression (only the active panel and landing view were reachable by Tab at all), so it was replaced by a different approach — the `tabIndex` override was removed entirely, restoring native browser tab order (the `disabled` prop alone excludes ineligible panels), and a `data-panel-index`-keyed keyboard handler now lets Enter/Space on a focused, enabled rail button open that panel, overriding the page-level question shortcut for that key press only. A dedicated `e2e/rail-navigation.spec.ts` regression matrix (14 cases: 2 surfaces x 2 tab directions x 2 activation keys, plus held-key and focus-trap cases) was added and proven RED-then-GREEN against the fix; an independent advanced review of the event-order logic (ownership/repeat handling, preventDefault-vs-rerender timing, cross-target key ownership) returned PASS with no confirmed bugs. `bf68ae7` also fixed a separate Vercel build failure (`tsconfig.e2e.json` typechecked Node built-ins without `@types/node`). **Zero un-triaged blockers as of this head** — a fourth PPLX pass flagged one non-blocking `useCopyFeedback.ts` stale-closure observation, independently verified not to be a live bug (the captured `addToast` reference is provably stable for the app's lifetime). Open, unmerged.
+- **PR #15** (`docs/panels-sync` → `feat/panels-screen`, this branch) — head `eee78bdca2f2bf062490b660ee64fb5ad4eff777`. Contains the full PR #14 head as an ancestor (`git merge-base --is-ancestor` verified) and an empty `git diff -- src e2e` against it, confirming no source drift between the branches. Also carries the CI policy, AGY/PPLX review-gate procedure docs, the merge-authority ruling, and the accumulated `WALL_OF_STUPID.md` entries brought in for PM handoff. Grounded PPLX review posted at this head; no blockers. Open, unmerged.
+- **PR #16** (`docs/no-actions-2026-09-08` → `main`, unrelated to the panels stack) — **MERGED** 2026-09-08T21:49:23Z. Adds `CI_POLICY.md`; disables GitHub Actions repo-wide per owner ruling (exhausted shared Actions allowance, no additional CI spend authorized); required checks now run on Vercel/Cloudflare only. Owner explicitly authorized this as a standalone cross-repository migration PR, direct-to-`main` — this is not a precedent for merging other open work directly.
+- Stack order preserved: #12 → #13 → #14 → #15. **Nothing in the panels stack is deployed to production or merged to `main`** as of the writing of this section. Zero un-triaged blockers across all four — merge-ready. **Per the 2026-09-08 merge-authority ruling (`AGENTS.md`), merging this stack is the PM's own call, not something pending owner authorization.**
+- All four PRs carry fresh, grounded PPLX reviews at their reviewed heads (see `tasks.md` session log for exact comment IDs and timestamps). AGY has not been run on this stack in the sessions recorded here — PPLX has served as the sole review gate for the panels stack to date.
+- The preserved `voice-UI` branch at `2e97507` remains unmerged by design.
+- Deferred, unchanged: OG image compression, canonical custom domain, Firefox/WebKit E2E, dynamic question-count support (explicitly **ruled out**, not merely deferred — the product is fixed at 13 questions).
