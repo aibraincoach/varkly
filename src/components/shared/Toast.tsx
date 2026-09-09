@@ -11,9 +11,9 @@ const iconMap = {
 };
 
 const styleMap = {
-  success: 'bg-ink text-ground border border-ink',
-  error: 'bg-white text-ink border-2 border-vark-k ring-2 ring-vark-k/30',
-  info: 'bg-white text-ink border border-line',
+  success: 'bg-ink text-on-ink border border-ink',
+  error: 'bg-surface text-ink border-2 border-vark-k ring-2 ring-vark-k/30',
+  info: 'bg-surface text-ink border border-line',
 };
 
 const liveRegionMap = {

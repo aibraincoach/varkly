@@ -27,14 +27,14 @@ const ActionRow: React.FC<ActionRowProps> = ({
         onClick={onPrevious}
         disabled={previousDisabled}
         aria-label="Previous"
-        className="h-11 w-11 rounded-xl border-[1.5px] border-line bg-white cursor-pointer text-ink flex items-center justify-center disabled:opacity-40 hover:border-ink"
+        className="h-11 w-11 rounded-xl border-[1.5px] border-line bg-surface cursor-pointer text-ink flex items-center justify-center disabled:opacity-40 hover:border-ink"
       >
         <ArrowLeft className="w-4 h-4" strokeWidth={2.5} aria-hidden />
       </button>
       <button
         type="button"
         onClick={onNext}
-        className="h-11 px-5 rounded-xl border-none bg-ink text-ground cursor-pointer font-sans text-sm font-semibold flex items-center gap-2 hover:bg-ink/90"
+        className="h-11 px-5 rounded-xl border-none bg-ink text-on-ink cursor-pointer font-sans text-sm font-semibold flex items-center gap-2 hover:bg-ink-hover"
       >
         {nextLabel}
         <ArrowRight className="w-4 h-4 opacity-60" strokeWidth={2.5} aria-hidden />
