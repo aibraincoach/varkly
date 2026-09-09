@@ -110,7 +110,7 @@ test('K4: with an option focused each digit toggles its own option and reverses'
   expect((await readQuizState(page))?.answers).toEqual({ '1': [] });
 });
 
-test('K5: on a question the shortcuts win over a focused Next, Previous or rail button', async ({
+test('K5: on a question the shortcuts win over a focused Next or Previous, but a focused rail button opens its panel', async ({
   page,
 }) => {
   await seedQuizState(page, { currentQuestionIndex: 2, answers: {}, isCompleted: false }, '/quiz');
@@ -133,9 +133,9 @@ test('K5: on a question the shortcuts win over a focused Next, Previous or rail 
   const railPanel = page.getByRole('button', { name: 'Question 08: Trip' });
   await railPanel.focus();
   await expect(railPanel).toBeFocused();
-  // Enter is the next shortcut, so it must not open panel 8.
+  // A focused, enabled rail button overrides the question shortcut: Enter opens that panel.
   await page.keyboard.press('Enter');
-  await expectQuestion(page, 5);
+  await expectQuestion(page, 8);
 });
 
 test('K6: arrow keys step one question at a time and respect both boundaries', async ({ page }) => {
@@ -430,7 +430,7 @@ test('K14: Previous focused on question 2 + held Space ends on question 3 after 
   await expectQuestion(page, 3);
 });
 
-test('K15: focused rail button + held Enter advances one question without opening the rail destination', async ({
+test('K15: focused rail button + held Enter opens that panel once and does not retrigger while held', async ({
   page,
 }) => {
   await seedQuizState(page, { currentQuestionIndex: 2, answers: {}, isCompleted: false }, '/quiz');
@@ -441,14 +441,19 @@ test('K15: focused rail button + held Enter advances one question without openin
   await expect(railPanel).toBeFocused();
 
   await page.keyboard.down('Enter');
-  await expectQuestion(page, 4);
+  await expectQuestion(page, 8);
 
+  // Held Enter must not fire a second navigation once ownership is registered.
   await page.keyboard.down('Enter');
   await page.keyboard.down('Enter');
-  await expectQuestion(page, 4);
+  await expectQuestion(page, 8);
 
   await page.keyboard.up('Enter');
-  await expectQuestion(page, 4);
+  await expectQuestion(page, 8);
+
+  // After release, a fresh press performs its normal action again (Next, since focus left the rail).
+  await page.keyboard.press('Enter');
+  await expectQuestion(page, 9);
 });
 
 test('K16: See results focused on question 13 + held Enter ends on results without prompts or copy', async ({

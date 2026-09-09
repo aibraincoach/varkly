@@ -30,6 +30,7 @@ import {
   resolveQuestionAction,
   scoresHaveSelections,
   KEYBOARD_FOCUS_NOTE,
+  RAIL_FOCUS_NOTE,
 } from './panelsLogic';
 import type { FocusRole, KeyboardCommand, PageAction, QuestionAction } from './panelsLogic';
 
@@ -68,6 +69,17 @@ function isModifiedOrComposing(event: KeyboardEvent): boolean {
 
 function getKeyIdentifier(event: KeyboardEvent): string {
   return event.code || event.key;
+}
+
+function getEnabledRailPanelIndex(target: EventTarget | null): number | null {
+  if (!(target instanceof Element)) return null;
+  const button = target.closest('button[data-panel-index]');
+  if (!(button instanceof HTMLButtonElement) || button.disabled) return null;
+  const raw = button.dataset.panelIndex;
+  if (raw === undefined) return null;
+  const index = Number(raw);
+  if (!Number.isInteger(index) || index < 0 || index >= panels.length) return null;
+  return index;
 }
 
 const PanelsScreen: React.FC = () => {
@@ -300,12 +312,14 @@ const PanelsScreen: React.FC = () => {
     active,
     isRedirecting,
     runCommand,
+    activatePanel: handlePanelActivate,
   });
   keyboardContextRef.current = {
     surface,
     active,
     isRedirecting,
     runCommand,
+    activatePanel: handlePanelActivate,
   };
 
   useEffect(() => {
@@ -319,12 +333,28 @@ const PanelsScreen: React.FC = () => {
         return;
       }
 
-      const { surface: currentSurface, active: currentActive, isRedirecting: redirecting, runCommand: execute } =
-        keyboardContextRef.current;
+      const {
+        surface: currentSurface,
+        active: currentActive,
+        isRedirecting: redirecting,
+        runCommand: execute,
+        activatePanel,
+      } = keyboardContextRef.current;
       if (redirecting) return;
       if (event.defaultPrevented) return;
       if (isModifiedOrComposing(event)) return;
       if (isEditableTarget(event.target)) return;
+
+      if (event.key === 'Enter' || event.key === ' ') {
+        const railPanelIndex = getEnabledRailPanelIndex(event.target);
+        if (railPanelIndex !== null) {
+          event.preventDefault();
+          if (event.repeat) return;
+          ownedKeys.add(keyId);
+          activatePanel(railPanelIndex);
+          return;
+        }
+      }
 
       if (event.repeat) return;
 
@@ -479,6 +509,11 @@ const PanelsScreen: React.FC = () => {
           {!isQuestion && (
             <p className="mt-1.5 mb-0 max-w-[46ch] font-mono text-[11px] leading-[1.5] text-muted-4">
               {KEYBOARD_FOCUS_NOTE}
+            </p>
+          )}
+          {isQuestion && (
+            <p className="mt-1.5 mb-0 max-w-[46ch] font-mono text-[11px] leading-[1.5] text-muted-4">
+              {RAIL_FOCUS_NOTE}
             </p>
           )}
         </aside>

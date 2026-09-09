@@ -180,6 +180,39 @@ export async function navigateSameDocument(page: Page, pathname: string): Promis
   }, pathname);
 }
 
+const MAX_TAB_STEPS = 40;
+
+/** The panel index of the focused rail button, or null if focus is elsewhere or on a disabled button. */
+export async function focusedRailPanelIndex(page: Page): Promise<number | null> {
+  return page.evaluate(() => {
+    const el = document.activeElement;
+    if (!(el instanceof HTMLButtonElement)) return null;
+    if (el.disabled) return null;
+    const raw = el.dataset.panelIndex;
+    if (raw === undefined) return null;
+    const index = Number(raw);
+    return Number.isInteger(index) ? index : null;
+  });
+}
+
+/**
+ * Presses real Tab/Shift+Tab keyboard events (never .focus()) until the given rail
+ * panel index is focused, or throws if it isn't reached within one bounded traversal.
+ */
+export async function tabToRailPanel(
+  page: Page,
+  targetIndex: number,
+  direction: 'Tab' | 'Shift+Tab'
+): Promise<void> {
+  for (let step = 0; step < MAX_TAB_STEPS; step += 1) {
+    await page.keyboard.press(direction);
+    if ((await focusedRailPanelIndex(page)) === targetIndex) return;
+  }
+  throw new Error(
+    `Could not reach rail panel ${targetIndex} via ${direction} within ${MAX_TAB_STEPS} presses`
+  );
+}
+
 export async function expectNoHorizontalOverflow(page: Page): Promise<void> {
   const metrics = await page.evaluate(() => ({
     scrollWidth: document.documentElement.scrollWidth,
