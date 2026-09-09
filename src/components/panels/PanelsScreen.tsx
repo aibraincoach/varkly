@@ -11,6 +11,7 @@ import { calculateScores, decodeScores, encodeScores, summarizeScores } from '..
 import type { VarkScores } from '../../types';
 import PanelsHeader from './PanelsHeader';
 import LandingView from './LandingView';
+import AboutView from './AboutView';
 import QuestionView from './QuestionView';
 import ResultsView from './ResultsView';
 import PromptsView from './PromptsView';
@@ -108,6 +109,7 @@ const PanelsScreen: React.FC = () => {
   });
 
   const isLanding = surface === 'landing';
+  const isAbout = surface === 'about';
   const isQuestion = surface === 'question';
   const isResults = surface === 'results';
   const isPrompts = surface === 'prompts';
@@ -143,19 +145,23 @@ const PanelsScreen: React.FC = () => {
 
   const pageTitle = isLanding
     ? 'VARK Learning Style Quiz'
-    : isQuestion
-      ? `Question ${String(active + 1).padStart(2, '0')}`
-      : isPrompts
-        ? 'Your AI Prompts'
-        : 'Your VARK Profile';
+    : isAbout
+      ? 'About VARK'
+      : isQuestion
+        ? `Question ${String(active + 1).padStart(2, '0')}`
+        : isPrompts
+          ? 'Your AI Prompts'
+          : 'Your VARK Profile';
 
   const pageDescription = isLanding
     ? 'Take the 90-second VARK quiz and discover how your brain learns best.'
-    : isQuestion
-      ? 'Answer each scenario to build your VARK learning profile.'
-      : isPrompts
-        ? 'Copy personalized AI prompts built from your VARK scores.'
-        : 'View your VARK learning style results and share your profile.';
+    : isAbout
+      ? 'What VARK measures, what it does not, and why Varkly uses it anyway.'
+      : isQuestion
+        ? 'Answer each scenario to build your VARK learning profile.'
+        : isPrompts
+          ? 'Copy personalized AI prompts built from your VARK scores.'
+          : 'View your VARK learning style results and share your profile.';
 
   usePageMeta(pageTitle, pageDescription);
 
@@ -214,6 +220,9 @@ const PanelsScreen: React.FC = () => {
     }
   }, [isShared, hash, navigate]);
 
+  const goToLanding = useCallback(() => navigate(ROUTES.home), [navigate]);
+  const goToAbout = useCallback(() => navigate(ROUTES.about), [navigate]);
+
   const handleToggleOption = useCallback(
     (optionIndex: number) => {
       if (!isQuestion) return;
@@ -254,6 +263,12 @@ const PanelsScreen: React.FC = () => {
         case 'start-quiz':
           startQuiz();
           return;
+        case 'open-landing':
+          goToLanding();
+          return;
+        case 'open-about':
+          goToAbout();
+          return;
         case 'open-prompts':
           goToPrompts();
           return;
@@ -276,7 +291,7 @@ const PanelsScreen: React.FC = () => {
           return;
       }
     },
-    [goToPrompts, goToQuestion, goToResults, handleCopyBoth, resetQuiz, startQuiz]
+    [goToAbout, goToLanding, goToPrompts, goToQuestion, goToResults, handleCopyBoth, resetQuiz, startQuiz]
   );
 
   const runCommand = useCallback(
@@ -293,6 +308,14 @@ const PanelsScreen: React.FC = () => {
   const handleNext = useCallback(() => runCommand('next'), [runCommand]);
   const handlePrevious = useCallback(() => runCommand('previous'), [runCommand]);
   const handleSkip = useCallback(() => runCommand('skip'), [runCommand]);
+
+  const handleTertiary = useCallback(() => {
+    if (isLanding) {
+      runPageAction('open-about');
+      return;
+    }
+    handleSkip();
+  }, [handleSkip, isLanding, runPageAction]);
 
   const handlePanelActivate = useCallback(
     (panelIndex: number) => {
@@ -397,13 +420,15 @@ const PanelsScreen: React.FC = () => {
 
   const progressLabel = isLanding
     ? 'Varkly · VARK quiz'
-    : active === 13
-      ? 'Results'
-      : `Question ${String(active + 1).padStart(2, '0')} / 13`;
+    : isAbout
+      ? 'About VARK'
+      : active === 13
+        ? 'Results'
+        : `Question ${String(active + 1).padStart(2, '0')} / 13`;
 
   const emptyResultsPrimaryLabel = isShared ? 'Take quiz' : 'Answer questions';
 
-  const nextLabel = isLanding
+  const nextLabel = isLanding || isAbout
     ? "Let's begin"
     : isPrompts
       ? copiedKey === 'both'
@@ -417,17 +442,19 @@ const PanelsScreen: React.FC = () => {
           ? 'See results'
           : 'Next';
 
-  const skipLabel = isLanding ? '' : active === 13 ? 'Retake' : 'Skip';
+  const skipLabel = isLanding ? 'About VARK' : active === 13 ? 'Retake' : 'Skip';
 
   const helperLine = isLanding
     ? "Your brain already knows how it works best. Let's teach your AI the same thing."
-    : isPrompts
-      ? 'Paste into ChatGPT, Claude, Gemini or any other AI tool.'
-      : isResults
-        ? hasAnswers
-          ? 'Share of all selections, across every answered scenario.'
-          : 'Choose at least one answer to get your AI prompts.'
-        : 'Select all that apply, or skip if none do.';
+    : isAbout
+      ? 'VARK is a preference inventory, not a diagnosis. Treat your result as a starting point.'
+      : isPrompts
+        ? 'Paste into ChatGPT, Claude, Gemini or any other AI tool.'
+        : isResults
+          ? hasAnswers
+            ? 'Share of all selections, across every answered scenario.'
+            : 'Choose at least one answer to get your AI prompts.'
+          : 'Select all that apply, or skip if none do.';
 
   const keysHint = getKeysHint(surface, isShared, hasAnswers);
 
@@ -460,6 +487,7 @@ const PanelsScreen: React.FC = () => {
       >
         <aside className={isMobile ? 'pt-2 max-w-[600px]' : 'pt-[clamp(8px,2vh,24px)]'}>
           {isLanding && <LandingView />}
+          {isAbout && <AboutView />}
           {isQuestion && currentQuestion && (
             <QuestionView
               question={currentQuestion}
@@ -498,11 +526,11 @@ const PanelsScreen: React.FC = () => {
           <ActionRow
             onPrevious={handlePrevious}
             onNext={handleNext}
-            onSkip={handleSkip}
+            onSkip={handleTertiary}
             nextLabel={nextLabel}
             skipLabel={skipLabel}
             previousDisabled={previousDisabled}
-            showSkip={!isLanding}
+            showSkip={!isAbout}
           />
 
           <p className="mt-4 mb-0 font-mono text-[11px] text-muted-4">{keysHint}</p>
@@ -520,7 +548,7 @@ const PanelsScreen: React.FC = () => {
 
         <PanelRail
           active={active}
-          isLanding={isLanding}
+          isLanding={active === -1}
           isMobile={isMobile}
           panelGap={panelGap}
           answers={quizState.answers}

@@ -334,3 +334,28 @@ describe('KEYBOARD_FOCUS_NOTE', () => {
     );
   });
 });
+
+describe('about view', () => {
+  it('maps /about to landing index with the about view', () => {
+    expect(parseRouteState('/about', 5)).toEqual({ active: -1, view: 'about', isShared: false });
+  });
+
+  it('resolves the about surface', () => {
+    expect(getPanelsSurface(-1, 'about')).toBe('about');
+    expect(getPanelsSurface(-1, 'quiz')).toBe('landing');
+  });
+
+  it('Enter starts the quiz, ← returns to landing, Space does nothing', () => {
+    expect(resolvePageAction('about', false, false, 'next')).toBe('start-quiz');
+    expect(resolvePageAction('about', false, false, 'previous')).toBe('open-landing');
+    expect(resolvePageAction('about', false, false, 'skip')).toBe('none');
+  });
+
+  it('keeps Space inert on landing', () => {
+    expect(resolvePageAction('landing', false, false, 'skip')).toBe('none');
+  });
+
+  it('has its own keys hint', () => {
+    expect(getKeysHint('about', false, false)).toBe('← back · enter to start');
+  });
+});

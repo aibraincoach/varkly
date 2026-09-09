@@ -33,6 +33,7 @@ function App() {
           <Suspense fallback={<PageLoader />}>
             <Routes>
               <Route path={ROUTES.home} element={panelsRoute} />
+              <Route path={ROUTES.about} element={panelsRoute} />
               <Route path={ROUTES.quiz} element={panelsRoute} />
               <Route path={ROUTES.results} element={panelsRoute} />
               <Route path={ROUTES.prompts} element={panelsRoute} />

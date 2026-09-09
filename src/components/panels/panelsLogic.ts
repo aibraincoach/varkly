@@ -2,7 +2,7 @@ import { QUESTION_COUNT, questions } from '../../data/questions';
 import type { VarkScores } from '../../types';
 import { clampQuestionIndex as clampQuestionIndexFromCount } from '../../utils/navigation';
 
-export type PanelsView = 'quiz' | 'prompts';
+export type PanelsView = 'quiz' | 'prompts' | 'about';
 
 export type RouteState = {
   active: number;
@@ -20,7 +20,7 @@ export type KeyboardCommand =
   | 'previous'
   | 'skip';
 
-export type PanelsSurface = 'landing' | 'question' | 'results' | 'prompts';
+export type PanelsSurface = 'landing' | 'about' | 'question' | 'results' | 'prompts';
 
 export type PageSurface = Exclude<PanelsSurface, 'question'>;
 
@@ -34,6 +34,8 @@ export type QuestionAction =
 
 export type PageAction =
   | 'start-quiz'
+  | 'open-landing'
+  | 'open-about'
   | 'open-prompts'
   | 'open-results'
   | 'open-first-question'
@@ -79,6 +81,10 @@ export function parseRouteState(pathname: string, questionIndex: number): RouteS
     };
   }
 
+  if (pathname === '/about') {
+    return { active: -1, view: 'about', isShared: false };
+  }
+
   if (pathname === '/prompts') {
     return { active: 13, view: 'prompts', isShared: false };
   }
@@ -115,7 +121,10 @@ export function getPanelsSurface(active: number, view: PanelsView): PanelsSurfac
   if (active === 13) {
     return view === 'prompts' ? 'prompts' : 'results';
   }
-  return active < 0 ? 'landing' : 'question';
+  if (active < 0) {
+    return view === 'about' ? 'about' : 'landing';
+  }
+  return 'question';
 }
 
 export function resolveQuestionAction(command: KeyboardCommand, active: number): QuestionAction {
@@ -149,6 +158,12 @@ export function resolvePageAction(
 
   if (surface === 'landing') {
     return command === 'next' ? 'start-quiz' : 'none';
+  }
+
+  if (surface === 'about') {
+    if (command === 'next') return 'start-quiz';
+    if (command === 'previous') return 'open-landing';
+    return 'none';
   }
 
   if (surface === 'prompts') {
@@ -186,6 +201,10 @@ export function getKeysHint(
 ): string {
   if (surface === 'landing') {
     return 'enter to start';
+  }
+
+  if (surface === 'about') {
+    return '← back · enter to start';
   }
 
   if (surface === 'question') {
