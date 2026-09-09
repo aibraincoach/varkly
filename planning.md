@@ -330,7 +330,7 @@ No application environment variables are required. Analytics identifiers are emb
 | Clipboard fallback limitations | **Low** | `copyToClipboard` tries Clipboard API first, then offscreen textarea + `execCommand`; both paths can fail in restricted or deprecated contexts (non-secure origins, some embedded frames) |
 | `btoa`/`atob` not available in very old browsers | **Low** | Target modern browsers only; add polyfill if needed |
 | Partial unit-test coverage | **Low** | Vitest (134) + Node measurement tests (9) = 143 unit tests covering pure score, prompt, navigation, clipboard, and panels logic; React components have no React Testing Library coverage and are exercised through Playwright instead |
-| E2E runs Chromium only | **Low** | Playwright (41 tests) covers keyboard ownership (K1–K19), clipboard K9 matrix (`e2e/clipboard.spec.ts`), quiz continuation (S1–S4), route guards including R10 same-document transitions (R1–R10, `e2e/routes.spec.ts`), responsive layout (U1, `e2e/layout.spec.ts`), and panel image hints (I1–I6, `e2e/panel-images.spec.ts`) on a single Chromium worker; WebKit and Firefox regressions deferred |
+| E2E runs Chromium only | **Low** | Playwright (55 tests) covers keyboard ownership (K1–K19), clipboard K9 matrix (`e2e/clipboard.spec.ts`), quiz continuation (S1–S4), route guards including R10 same-document transitions (R1–R10, `e2e/routes.spec.ts`), responsive layout (U1, `e2e/layout.spec.ts`), and panel image hints (I1–I6, `e2e/panel-images.spec.ts`) on a single Chromium worker; WebKit and Firefox regressions deferred |
 | Analytics event coverage | **Medium** | GA and Cloudflare are installed; dedicated prompt-copy / quiz-completion events are not proven in-repo |
 
 ---
