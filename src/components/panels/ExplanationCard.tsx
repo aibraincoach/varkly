@@ -15,11 +15,11 @@ const ExplanationCard: React.FC<ExplanationCardProps> = ({ explanation }) => {
         {explanation.title}
       </h2>
       {explanation.description && (
-        <p className="m-0 mb-2 text-[13px] leading-[1.45] text-text-2 text-pretty">
+        <p className="m-0 mb-2 text-[13px] leading-[1.45] text-body text-pretty">
           {explanation.description}
         </p>
       )}
-      <ol className="m-0 p-0 list-none grid gap-1.5 text-[13px] leading-[1.45] text-text-2">
+      <ol className="m-0 p-0 list-none grid gap-1.5 text-[13px] leading-[1.45] text-body">
         {explanation.tips.map((tip, index) => (
           <li key={tip} className="flex gap-2.5">
             <span className="pt-0.5 text-muted-3 font-mono text-[11px]">

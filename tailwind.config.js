@@ -15,7 +15,7 @@ export default {
         surface: 'rgb(var(--surface) / <alpha-value>)',
         line: 'rgb(var(--line) / <alpha-value>)',
         'line-2': 'rgb(var(--line-2) / <alpha-value>)',
-        'text-2': 'rgb(var(--text-2) / <alpha-value>)',
+        body: 'rgb(var(--body) / <alpha-value>)',
         track: 'rgb(var(--track) / <alpha-value>)',
         box: 'rgb(var(--box) / <alpha-value>)',
         panel: '#1a1a20',

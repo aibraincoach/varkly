@@ -32,7 +32,7 @@ const PromptCard: React.FC<PromptCardProps> = ({
           {copyLabel}
         </button>
       </div>
-      <pre className="m-0 px-3.5 py-3 overflow-auto whitespace-pre-wrap font-sans text-[13px] leading-normal text-text-2 flex-1 min-h-0">
+      <pre className="m-0 px-3.5 py-3 overflow-auto whitespace-pre-wrap font-sans text-[13px] leading-normal text-body flex-1 min-h-0">
         {prompt}
       </pre>
     </div>

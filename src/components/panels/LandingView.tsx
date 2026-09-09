@@ -20,7 +20,7 @@ const LandingView: React.FC = () => {
         </span>
       </h1>
       <div className="panels-aside-body content-between">
-        <ul className="m-0 p-0 list-none grid gap-2 text-sm text-text-2">
+        <ul className="m-0 p-0 list-none grid gap-2 text-sm text-body">
           <li className="flex gap-2.5">
             <span className="text-muted-3 font-mono text-xs">01</span>
             Select all answers that apply to each scenario

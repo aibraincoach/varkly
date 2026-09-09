@@ -17,7 +17,7 @@ const AboutView: React.FC = () => {
         </span>
       </h1>
       <div className="panels-aside-body content-between gap-3">
-        <div className="grid gap-3 text-sm leading-[1.55] text-text-2">
+        <div className="grid gap-3 text-sm leading-[1.55] text-body">
           <p className="m-0 text-pretty">
             <strong className="font-semibold text-ink">It measures preference, not ability.</strong> A
             high Visual score means you reach for diagrams first, not that you can&apos;t learn from a
