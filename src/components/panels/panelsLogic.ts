@@ -47,6 +47,9 @@ export type FocusRole = 'button' | 'link' | 'none';
 export const KEYBOARD_FOCUS_NOTE =
   'With a button focused, Enter or Space activates it. With a link focused, Enter follows it.';
 
+export const RAIL_FOCUS_NOTE =
+  'With a panel button focused, Enter or Space opens that panel.';
+
 export function countAnsweredQuestions(answers: Record<number, string[]>): number {
   return Object.values(answers).filter((selections) => selections.length > 0).length;
 }
