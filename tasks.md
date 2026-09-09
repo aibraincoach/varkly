@@ -1,6 +1,6 @@
 # Tasks — Varkly
 
-**Last updated:** 2026-09-08 (Milestone 7 backlog captured)
+**Last updated:** 2026-09-08 (Milestone 8 panels redesign planning)
 
 Tasks are organized by milestone. Check off items as they are completed and add the date: `[x] Task description [2026-03-14]`.
 
@@ -169,6 +169,51 @@ Remove all code that depends on Supabase, email delivery, or application-side se
 
 ---
 
+## Milestone 8 — VARK Panels Redesign
+
+The approved panels redesign replaces the multi-page violet UI with one screen and four views (landing, question, results, prompts) in a fixed two-column layout. Presentation replacement only — product scope, scoring, share-hash encoding, and prompt generation are unchanged. Delivery is three PRs (A → B → C), each reviewed before merge.
+
+### PR A — `feat/panels-foundation`
+
+- [ ] Add `PRODUCT.md` with Impeccable product schema and confirmed product truth (no palette, fonts, or component details)
+- [ ] Verify `COPY.md` §16–22 against `ResultsExplanation.tsx`; add any missing strings before the component is deleted in PR B
+- [ ] Convert 14 design PNGs to WebP (`public/panels/NN-slug.webp`) with `cwebp -q 78 -resize 720 0`; record raw image total (`du -ch`) and landing transfer weight (DevTools Network on `/`, target under 1.2 MB)
+- [ ] Create `src/data/panels.ts` mapping panel index 01–14 to title and image slug (preserve design source order)
+- [ ] Foundation styling: Sora + JetBrains Mono fonts, slate light-only tokens in `tailwind.config.js` and `index.css`; remove gradients, `.card`, `.btn-*`, `.quiz-option`; add `vkFade` keyframes and `screens.panels = '1100px'`
+- [ ] Update `index.html`: swap Google Fonts link, remove dark-mode inline script, set `theme-color` to `#f3f3f5`, add Open Graph and Twitter card meta tags with `public/og-image.png` (1200×630)
+- [ ] Remove `ThemeContext`, `ThemeToggle`, `STORAGE_KEYS.theme`, and all `dark:` styling rules from AGENTS.md
+- [ ] Rewrite `AppFooter` to `© 2026 AI Brain Coach, All Rights Reserved` on every route including 404
+- [ ] Extract pure score/share utilities to `src/utils/scores.ts` (`calculateScores`, `getDominantStyles`, `summarizeScores`, `encodeScores`, `decodeScores`) with `src/utils/__tests__/scores.test.ts` including share-link compatibility (`OS0yLTEtMQ` round-trip, 0–13 validation)
+- [ ] `QuizContext` cleanup: delegate `calculateScores` to util, remove `userIntent`/`setUserIntent`/`UserIntent` type, remove `isCompleted → navigate('/results')` effect (explicit navigation in PR B)
+- [ ] `ResultsPage` temporarily uses `decodeScores` from util; keep incumbent quiz → results → copy-prompt flow operational through PR A
+- [ ] Keep `recharts` through PR A (removed in PR B alongside `ResultsChart.tsx`) so the intermediate app still builds
+- [ ] Intermediate verification: `npm run lint`, `npm test` (existing 37 + new scores tests), `npm run build` green; record landing-weight evidence in PR description and session log
+
+### PR B — `feat/panels-screen`
+
+- [ ] Build `PanelsScreen` route-aware container with `PanelsHeader`, aside views, `ActionRow`, and keyboard handler (window-level: 1–4 toggle, Enter/ArrowRight next, ArrowLeft prev, Space skip)
+- [ ] Implement routing: `/` landing (`active === -1`), `/quiz` (0–12), `/results` and `/prompts` (13, guard redirect if no answers), `/r/:hash` and `/r/:hash/prompts` (decoded scores, review disabled)
+- [ ] Build `LandingView`, `QuestionView`, `ResultsView`, `PromptsView` with fixed-height aside block so action row never moves
+- [ ] Build responsive `PanelRail` and `Panel`: desktop flex rail (≥1100px) with expand/collapse, saturate filter, vertical labels; mobile stacked 56px strips with active `min-height:260px`
+- [ ] Results view: headline/blurb per dominant style, score rows with pct/bar, "Copy link" via toast, shared-link `/r/:hash` renders decoded scores with question panels desaturated
+- [ ] Prompts view: System and Conversation prompt cards with individual Copy and "Copy both" action; prompts text equals `generateAIPrompts` output
+- [ ] Delete superseded components: `LandingPage`, `QuizIntro`, `Question`, `QuizContainer`, `ProgressBar`, `ResultsPage`, `ResultsChart`, `ResultsExplanation`, `ResultsLoadingSkeleton`, `AIPromptsCard`, `AppNav`, `ThemeToggle`, `ThemeContext`
+- [ ] Restyle retained shared UI: `NotFoundPage`, `Toast`/`ToastContext`, `ErrorBoundary` to ink/ground tokens
+- [ ] Remove `recharts` from `package.json`; confirm build output has no recharts chunk
+- [ ] PR B verification: `npm run lint`, `npm test`, `npm run build` green; manual flow (landing → quiz → results → prompts → copy → shared link → mobile rail); landing weight under 1.2 MB
+
+### PR C — `docs/panels-sync`
+
+- [ ] Synchronize `planning.md` (single-screen architecture, routes, no theme, file tree, tech stack minus recharts, image-weight risks)
+- [ ] Synchronize `AGENTS.md` (light-only styling rule, new tokens, updated tech-stack table)
+- [ ] Synchronize `BRANDING.md` (new palette and fonts)
+- [ ] Synchronize `COPY.md` (new in-app copy; keep §16–22 as preserved explanation copy)
+- [ ] Synchronize `README.md` (remove dark-mode claims, update architecture description)
+- [ ] Add `DESIGN.md` via Impeccable design-world workflow from shipped PR B artifact
+- [ ] Mark Milestone 8 implementation tasks complete with dates; append final session log entry
+
+---
+
 ## Session Log
 
 ### 2026-09-07 — Memory-bank synchronization
@@ -195,3 +240,11 @@ Remove all code that depends on Supabase, email delivery, or application-side se
 - Confirmed `voice-UI` remains intentionally unmerged at `2e97507`.
 - Recorded that the panels redesign plan was revised and is awaiting approval; no redesign application code was changed in this session.
 - Updated the GitHub description to "Discover your VARK learning style and generate personalized AI prompts tailored to how you learn." and confirmed the homepage as `https://varkly-eight.vercel.app`.
+
+### 2026-09-08 — PR A documentation preparation
+
+- Created `PRODUCT.md` with Impeccable product schema and confirmed product truth from `PRD.md` and existing architecture docs.
+- Added Milestone 8 — VARK Panels Redesign with unchecked PR A, PR B, and PR C tasks covering all Revision 2 delivery items.
+- Verified deferred Milestone 7 items (About VARK entry point, condensed results explanation, COPY preservation) already exist; did not duplicate them.
+- Diffed `ResultsExplanation.tsx` against `COPY.md` §16–22; all heading, empty state, multimodal paragraph, RayRayRay quote, V/A/R/K/Balanced titles, descriptions, tips, and closing quote are preserved — no COPY changes required.
+- No application code, analytics code, or implementation tasks marked complete.

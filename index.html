@@ -2,31 +2,28 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <script>
-      (function() {
-        var t = localStorage.getItem('varkly-theme'); // keep key in sync with STORAGE_KEYS.theme
-        if (t === 'dark' || (t !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches))
-          document.documentElement.classList.add('dark');
-        else
-          document.documentElement.classList.remove('dark');
-      })();
-    </script>
     <link rel="icon" type="image/svg+xml" href="/varkly-icon.svg" />
     <link rel="manifest" href="/manifest.json" />
-    <meta name="theme-color" content="#7c3aed" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#1e1b4b" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#f3f3f5" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <title>Varkly — VARK Learning Style Quiz</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet" />
-    <style>
-      /* SF-style: tight letter-spacing on headings when not using system font */
-      body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
-    </style>
+    <link rel="preload" href="/panels/01-furniture.webp" as="image" />
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
     <meta name="description" content="Take the 90-second VARK quiz and get a personalized prompt that makes ChatGPT, Claude, or any AI adapt to how your brain actually works.">
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Varkly" />
+    <meta property="og:title" content="Varkly — VARK Learning Style Quiz" />
+    <meta property="og:description" content="Take the 90-second VARK quiz and get a personalized prompt that makes ChatGPT, Claude, or any AI adapt to how your brain actually works." />
+    <meta property="og:image" content="https://varkly-eight.vercel.app/og-image.png" />
+    <meta property="og:url" content="https://varkly-eight.vercel.app/" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Varkly — VARK Learning Style Quiz" />
+    <meta name="twitter:description" content="Take the 90-second VARK quiz and get a personalized prompt that makes ChatGPT, Claude, or any AI adapt to how your brain actually works." />
+    <meta name="twitter:image" content="https://varkly-eight.vercel.app/og-image.png" />
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-QCPTM267KD"></script>
     <script>
@@ -39,6 +36,14 @@
     <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "b6ee41d82cf54f4484e261c70d4e1c04"}'></script><!-- End Cloudflare Web Analytics -->
   </head>
   <body>
+    <!--
+      THESIS: VARK learning modes become a navigable editorial image rail, replacing the category-standard form-card sequence.
+      OWN-WORLD: Light slate ground, dark ink controls, Sora copy, JetBrains Mono measurement labels, and fourteen saturated editorial panels.
+      STORY: Start in one view, answer thirteen familiar scenarios, read the score distribution, then copy deterministic AI prompts.
+      FIRST VIEWPORT: A compact instructional aside and stable actions sit left; all fourteen equal image panels fill the right rail until one expands.
+      FORM: User-pinned VARK Panels Revision 2; seed `pinned-vark-panels-r2-2026-09-08`.
+      FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance
+    -->
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

@@ -10,23 +10,33 @@ export type Question = {
   options: QuestionOption[];
 };
 
-export type UserIntent = {
-  reason: string;
-  customReason?: string;
-};
-
 export type QuizState = {
   currentQuestionIndex: number;
   answers: Record<number, string[]>;
-  userIntent?: UserIntent;
   isCompleted: boolean;
 };
+
+export type VarkStyle = 'V' | 'A' | 'R' | 'K';
 
 export type VarkScores = {
   V: number;
   A: number;
   R: number;
   K: number;
+};
+
+export type ScoreStyleSummary = {
+  code: VarkStyle;
+  name: string;
+  value: number;
+  pct: number;
+  barPct: number;
+};
+
+export type ScoreSummary = {
+  headline: string;
+  blurb: string;
+  styles: ScoreStyleSummary[];
 };
 
 export type AIPrompts = {
@@ -45,5 +55,4 @@ export type QuizContextType = {
   skipQuestion: () => void;
   calculateScores: () => VarkScores;
   resetQuiz: () => void;
-  setUserIntent: (intent: UserIntent) => void;
 };

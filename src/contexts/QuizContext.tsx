@@ -1,13 +1,32 @@
-import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { QuizContextType, QuizState, VarkScores, UserIntent } from '../types';
+import { QuizContextType, QuizState, VarkScores } from '../types';
 import { questions } from '../data/questions';
+import { calculateScores as calculateScoresFromAnswers } from '../utils/scores';
 
 const defaultQuizState: QuizState = {
   currentQuestionIndex: -1,
   answers: {},
   isCompleted: false,
 };
+
+function normalizeQuizState(saved: unknown): QuizState {
+  if (typeof saved !== 'object' || saved === null) {
+    return defaultQuizState;
+  }
+
+  const parsed = saved as Record<string, unknown>;
+
+  return {
+    currentQuestionIndex:
+      typeof parsed.currentQuestionIndex === 'number' ? parsed.currentQuestionIndex : -1,
+    answers:
+      typeof parsed.answers === 'object' && parsed.answers !== null && !Array.isArray(parsed.answers)
+        ? (parsed.answers as Record<number, string[]>)
+        : {},
+    isCompleted: typeof parsed.isCompleted === 'boolean' ? parsed.isCompleted : false,
+  };
+}
 
 const QuizContext = createContext<QuizContextType | null>(null);
 
@@ -24,7 +43,7 @@ export const QuizProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const saved = sessionStorage.getItem('quizState');
       if (saved) {
-        return JSON.parse(saved);
+        return normalizeQuizState(JSON.parse(saved));
       }
     } catch (error) {
       console.warn('Could not restore quiz state:', error);
@@ -33,7 +52,6 @@ export const QuizProvider: React.FC<{ children: React.ReactNode }> = ({ children
   });
 
   const navigate = useNavigate();
-  const prevCompletedRef = useRef(quizState.isCompleted);
 
   useEffect(() => {
     try {
@@ -42,13 +60,6 @@ export const QuizProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.warn('Could not save quiz state:', error);
     }
   }, [quizState]);
-
-  useEffect(() => {
-    if (quizState.isCompleted && !prevCompletedRef.current) {
-      navigate('/results');
-    }
-    prevCompletedRef.current = quizState.isCompleted;
-  }, [quizState.isCompleted, navigate]);
 
   const startQuiz = useCallback(() => {
     setQuizState(defaultQuizState);
@@ -60,13 +71,6 @@ export const QuizProvider: React.FC<{ children: React.ReactNode }> = ({ children
     sessionStorage.removeItem('quizState');
     navigate('/');
   }, [navigate]);
-
-  const setUserIntent = useCallback((intent: UserIntent) => {
-    setQuizState(prevState => ({
-      ...prevState,
-      userIntent: intent,
-    }));
-  }, []);
 
   const goToNextQuestion = useCallback(() => {
     setQuizState(prevState => {
@@ -136,21 +140,7 @@ export const QuizProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const calculateScores = useCallback((): VarkScores => {
-    const scores: VarkScores = { V: 0, A: 0, R: 0, K: 0 };
-
-    Object.entries(quizState.answers).forEach(([questionId, selectedOptionIds]) => {
-      const question = questions.find(q => q.id === parseInt(questionId));
-      if (question) {
-        selectedOptionIds.forEach(optionId => {
-          const option = question.options.find(o => o.id === optionId);
-          if (option) {
-            scores[option.type] += 1;
-          }
-        });
-      }
-    });
-
-    return scores;
+    return calculateScoresFromAnswers(quizState.answers);
   }, [quizState.answers]);
 
   const value: QuizContextType = {
@@ -164,7 +154,6 @@ export const QuizProvider: React.FC<{ children: React.ReactNode }> = ({ children
     skipQuestion,
     calculateScores,
     resetQuiz,
-    setUserIntent,
   };
 
   return <QuizContext.Provider value={value}>{children}</QuizContext.Provider>;

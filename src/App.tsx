@@ -1,6 +1,5 @@
 import React, { Suspense, lazy } from 'react';
 import { Routes, Route } from 'react-router-dom';
-import { ThemeProvider } from './contexts/ThemeContext';
 import { QuizProvider } from './contexts/QuizContext';
 import { ToastProvider } from './contexts/ToastContext';
 import AppLayout from './components/layout/AppLayout';
@@ -14,10 +13,10 @@ const ResultsPage = lazy(() => import('./components/results/ResultsPage'));
 const NotFoundPage = lazy(() => import('./components/shared/NotFoundPage'));
 
 const PageLoader: React.FC = () => (
-  <div className="min-h-screen flex items-center justify-center bg-gray-50/80 dark:bg-gray-900/80">
+  <div className="min-h-screen flex items-center justify-center bg-ground">
     <div className="flex flex-col items-center gap-4">
-      <div className="w-10 h-10 border-2 border-violet-500 border-t-transparent rounded-full animate-spin" />
-      <p className="text-sm text-gray-500 dark:text-gray-400">Loading…</p>
+      <div className="w-10 h-10 border-2 border-vark-v border-t-transparent rounded-full animate-spin" />
+      <p className="text-sm text-muted-2">Loading…</p>
     </div>
   </div>
 );
@@ -25,57 +24,55 @@ const PageLoader: React.FC = () => (
 function App() {
   return (
     <ErrorBoundary>
-      <ThemeProvider>
-        <ToastProvider>
-          <QuizProvider>
-            <Suspense fallback={<PageLoader />}>
-              <Routes>
-                <Route
-                  path={ROUTES.home}
-                  element={
-                    <AppLayout showFooter>
-                      <LandingPage />
-                    </AppLayout>
-                  }
-                />
-                <Route
-                  path={ROUTES.quiz}
-                  element={
-                    <AppLayout showFooter={false}>
-                      <QuizContainer />
-                    </AppLayout>
-                  }
-                />
-                <Route
-                  path={ROUTES.results}
-                  element={
-                    <AppLayout showFooter={false}>
-                      <ResultsPage />
-                    </AppLayout>
-                  }
-                />
-                <Route
-                  path="/r/:hash"
-                  element={
-                    <AppLayout showFooter={false}>
-                      <ResultsPage />
-                    </AppLayout>
-                  }
-                />
-                <Route
-                  path="*"
-                  element={
-                    <AppLayout showFooter>
-                      <NotFoundPage />
-                    </AppLayout>
-                  }
-                />
-              </Routes>
-            </Suspense>
-            <Toast />
-          </QuizProvider>
-        </ToastProvider>
-      </ThemeProvider>
+      <ToastProvider>
+        <QuizProvider>
+          <Suspense fallback={<PageLoader />}>
+            <Routes>
+              <Route
+                path={ROUTES.home}
+                element={
+                  <AppLayout>
+                    <LandingPage />
+                  </AppLayout>
+                }
+              />
+              <Route
+                path={ROUTES.quiz}
+                element={
+                  <AppLayout>
+                    <QuizContainer />
+                  </AppLayout>
+                }
+              />
+              <Route
+                path={ROUTES.results}
+                element={
+                  <AppLayout>
+                    <ResultsPage />
+                  </AppLayout>
+                }
+              />
+              <Route
+                path="/r/:hash"
+                element={
+                  <AppLayout>
+                    <ResultsPage />
+                  </AppLayout>
+                }
+              />
+              <Route
+                path="*"
+                element={
+                  <AppLayout>
+                    <NotFoundPage />
+                  </AppLayout>
+                }
+              />
+            </Routes>
+          </Suspense>
+          <Toast />
+        </QuizProvider>
+      </ToastProvider>
     </ErrorBoundary>
   );
 }
