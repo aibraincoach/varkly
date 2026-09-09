@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { expectQuestion } from './helpers';
 
 async function htmlTheme(page: Page): Promise<string | null> {
   return page.evaluate(() => document.documentElement.getAttribute('data-theme'));
@@ -43,17 +44,28 @@ test('T3: a stored preference is applied before first paint (no light flash)', a
     document.addEventListener(
       'DOMContentLoaded',
       () => {
-        (window as unknown as { __firstTheme: string | null }).__firstTheme =
-          document.documentElement.getAttribute('data-theme');
+        const w = window as unknown as {
+          __firstTheme: string | null;
+          __firstThemeColor: string | null;
+        };
+        w.__firstTheme = document.documentElement.getAttribute('data-theme');
+        w.__firstThemeColor = document
+          .querySelector('meta[name="theme-color"]')
+          ?.getAttribute('content') ?? null;
       },
       { once: true }
     );
   });
   await page.goto('/');
-  const firstTheme = await page.evaluate(
-    () => (window as unknown as { __firstTheme: string | null }).__firstTheme
-  );
-  expect(firstTheme).toBe('dark');
+  const first = await page.evaluate(() => {
+    const w = window as unknown as {
+      __firstTheme: string | null;
+      __firstThemeColor: string | null;
+    };
+    return { theme: w.__firstTheme, themeColor: w.__firstThemeColor };
+  });
+  expect(first.theme).toBe('dark');
+  expect(first.themeColor).toBe('#121216');
 });
 
 test('T4: an explicit preference wins over a later system change', async ({ page }) => {
@@ -64,4 +76,18 @@ test('T4: an explicit preference wins over a later system change', async ({ page
   await page.emulateMedia({ colorScheme: 'dark' });
   await page.emulateMedia({ colorScheme: 'light' });
   expect(await htmlTheme(page)).toBe('dark');
+});
+
+test('T5: a focused toggle answers Enter and Space on a question surface', async ({ page }) => {
+  await page.emulateMedia({ colorScheme: 'light' });
+  await page.goto('/');
+  await page.getByRole('button', { name: "Let's begin" }).click();
+  await expectQuestion(page, 1);
+  await page.getByRole('button', { name: 'Switch to dark mode' }).focus();
+  await page.keyboard.press('Enter');
+  expect(await htmlTheme(page)).toBe('dark');
+  await expectQuestion(page, 1);
+  await page.keyboard.press('Space');
+  expect(await htmlTheme(page)).toBe('light');
+  await expectQuestion(page, 1);
 });
