@@ -4,7 +4,8 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/varkly-icon.svg" />
     <link rel="manifest" href="/manifest.json" />
-    <meta name="theme-color" content="#f3f3f5" />
+    <meta name="theme-color" content="#f3f3f5" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#121216" media="(prefers-color-scheme: dark)" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -36,6 +37,15 @@
     <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "b6ee41d82cf54f4484e261c70d4e1c04"}'></script><!-- End Cloudflare Web Analytics -->
   </head>
   <body>
+    <script>
+      (function () {
+        var key = 'varkly-theme';
+        var stored = null;
+        try { stored = localStorage.getItem(key); } catch (e) {}
+        var dark = stored === 'dark' || (stored !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+      })();
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
