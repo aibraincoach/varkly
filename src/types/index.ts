@@ -61,3 +61,10 @@ export type VarkStyleTile = {
   blurb: string;
   dotClass: string;
 };
+
+export type ResultsExplanation = {
+  title: string;
+  /** Null for the empty state; otherwise the COPY.md description paragraph. */
+  description: string | null;
+  tips: string[];
+};
