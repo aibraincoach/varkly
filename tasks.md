@@ -262,7 +262,7 @@ Review of the shipped panels branch found the branch does not typecheck, the key
 
 ### PR #17 follow-up — rail exit proof and documentation consistency
 
-- [ ] Replace the weak rail-exit checks with the eight-case surface × direction × viewport matrix, reconcile the maintained Enter/Space contract and current test/asset evidence, and route the validated PR #17 head through review. Starting SHA: `7f04384d5471248e6934b05778a7e634435c5b03`.
+- [x] Replace the weak rail-exit checks with the eight-case surface × direction × viewport matrix, reconcile the maintained Enter/Space contract and current test/asset evidence, and prepare the validated PR #17 head for the required review gate. Starting SHA: `7f04384d5471248e6934b05778a7e634435c5b03`. [2026-09-08]
 
 ---
 
@@ -507,3 +507,13 @@ Review of the shipped panels branch found the branch does not typecheck, the key
 - Full validation re-run on `main` at `f0851bd`: lint 0/0, typecheck clean, 143 unit tests, **55/55 Playwright Chromium**, `git diff --check` clean.
 - Confirmed via `gh api .../commits/f0851bd.../status`: **Vercel deployment completed successfully** — the panels redesign is live in production. This is the first production deploy of the panels stack.
 - Zero open PRs remain. This documentation update (`tasks.md`, `planning.md`) is itself delivered as a new PR (`docs/merged-state-sync`) since there is no longer an open docs PR to carry it, per instruction to hold this sync until after the merge.
+
+### 2026-09-08 — PR #17 rail-exit proof and documentation consistency
+
+- Continued directly on PR #17's existing `docs/merged-state-sync` branch from starting head `7f04384d5471248e6934b05778a7e634435c5b03`; no separate follow-up PR was opened.
+- Replaced the two weak rail-exit checks with eight cases covering question/results surfaces, Tab/Shift+Tab, and 1280×900/390×900 viewports. Every case reaches an enabled interior rail button through real Tab input, bounds exit traversal at 40 presses, rejects a loop to the starting rail button, and requires focus on the expected enabled visible control outside the rail: Skip to content forward, Skip or Retake backward. Route, current question, answers, and completion state remain unchanged.
+- Reconciled the current Enter/Space exception in `AGENTS.md`, `README.md`, `planning.md`, and `DESIGN.md`; maintained historical records and runtime copy were not rewritten. Updated the current E2E count from 55 to 61 only after a complete suite run.
+- Rebuilt and ran `npm run measure:assets` at source `8492836afe8a9af52d5200709bbf62c76523ffb6`: **608,329 bytes** (JS/CSS gzip 116,295 + 14 panel WebPs raw 492,034), strict `< 1,200,000` PASS; OG 882,538 bytes excluded.
+- Fetched advancing `main` (`7a9f9652fd192b11463c0969242b188d1ac3ad21`) and merged it as `8492836`, preserving its duplicate-CI-banner cleanup and all PR #17 changes.
+- Verification at `8492836`: focused rail spec 20/20; lint 0 errors/0 warnings; typecheck pass; 134 Vitest + 9 Node = 143/143; build pass; Playwright 61/61 Chromium; asset budget PASS; `git diff --check` clean. Existing non-blocking tool notices remained: 23 npm audit advisories, stale Browserslist data, and Vite's esbuild-option deprecation warning.
+- Required PPLX review and PM triage remain assigned to the subsequent review session. Any commit after that review must trigger a fresh gate under the one-commit rule.

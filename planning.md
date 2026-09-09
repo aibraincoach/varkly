@@ -291,7 +291,7 @@ Template structures, style instruction banks, and word-count constraints are doc
 
 **Motion:** Restrained `vkFade` keyframes and Framer Motion on 404/error surfaces. `prefers-reduced-motion` respected in `index.css`.
 
-**Assets:** 14 WebP images in `public/panels/`; raw total **492,034 bytes**. Fresh authoritative app/tooling measurement from `npm run build && npm run measure:assets` at source `a04618502085e92a6bdd161fc1cac0022db90fd8`: build-based budget estimate **608,329 bytes** (JS/CSS gzip at level 6: 116,295 + panel WebP raw: 492,034) → strict `< 1,200,000` PASS. Excludes fonts, source maps, HTML, icons, and OG from the combined metric. `og-image.png` is reported separately at **882,538 bytes** (862 KB).
+**Assets:** 14 WebP images in `public/panels/`; raw total **492,034 bytes**. Fresh authoritative app/tooling measurement from `npm run build && npm run measure:assets` at source `8492836afe8a9af52d5200709bbf62c76523ffb6`: build-based budget estimate **608,329 bytes** (JS/CSS gzip at level 6: 116,295 + panel WebP raw: 492,034) → strict `< 1,200,000` PASS. Excludes fonts, source maps, HTML, icons, and OG from the combined metric. `og-image.png` is reported separately at **882,538 bytes** (862 KB).
 
 Full design-world documentation: `DESIGN.md` and `.impeccable/design.json`.
 

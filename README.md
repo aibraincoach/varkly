@@ -174,7 +174,7 @@ Vitest (134 tests in `src/`) plus Node measurement tests (9 in `scripts/__tests_
 
 Playwright E2E (**61 Chromium tests** in `e2e/`) covers keyboard ownership (K1–K19), clipboard K9 matrix, quiz continuation (S1–S4), route guards and same-document shared transitions (R1–R10), responsive empty-layout checks (U1), panel image hints (I1–I6), and the rail-navigation activation and eight-case exit-proof matrices (`e2e/rail-navigation.spec.ts`). Install browsers with `npx playwright install chromium`, then run `npm run test:e2e` after `npm run build`.
 
-Production `dist/` contains no Playwright or Vitest references. Asset budget: `npm run build && npm run measure:assets` at source `a04618502085e92a6bdd161fc1cac0022db90fd8` — authoritative build-based estimate **608,329 bytes** (JS/CSS gzip 116,295 + panel WebP raw 492,034) → strict `< 1,200,000` PASS. Gzip level 6; OG **882,538** excluded.
+Production `dist/` contains no Playwright or Vitest references. Asset budget: `npm run build && npm run measure:assets` at source `8492836afe8a9af52d5200709bbf62c76523ffb6` — authoritative build-based estimate **608,329 bytes** (JS/CSS gzip 116,295 + panel WebP raw 492,034) → strict `< 1,200,000` PASS. Gzip level 6; OG **882,538** excluded.
 
 ---
 
