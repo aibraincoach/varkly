@@ -33,6 +33,19 @@ type Surface = {
   verify: (page: Page) => Promise<void>;
 };
 
+type Viewport = {
+  name: string;
+  width: number;
+  height: number;
+};
+
+const VIEWPORTS: Viewport[] = [
+  { name: 'desktop', width: 1280, height: 900 },
+  { name: 'mobile', width: 390, height: 900 },
+];
+
+const MAX_EXIT_TAB_PRESSES = 40;
+
 const SURFACES: Surface[] = [
   {
     name: 'question 3 with an existing answer',
@@ -60,6 +73,58 @@ async function expectSurfaceForTarget(page: Page, target: number): Promise<void>
   } else {
     await expectQuestion(page, target + 1);
   }
+}
+
+async function tabUntilOutsideRailControl(
+  page: Page,
+  startingRailIndex: number,
+  direction: 'Tab' | 'Shift+Tab'
+): Promise<void> {
+  for (let step = 0; step < MAX_EXIT_TAB_PRESSES; step += 1) {
+    await page.keyboard.press(direction);
+
+    const focus = await page.evaluate(() => {
+      const element = document.activeElement;
+      if (!(element instanceof HTMLElement)) {
+        return { isOutsideControl: false, railIndex: null };
+      }
+
+      const rail = element.closest('section[aria-label="Questions"]');
+      const rawRailIndex =
+        element instanceof HTMLButtonElement ? element.dataset.panelIndex : undefined;
+      const railIndex =
+        rail && rawRailIndex !== undefined && Number.isInteger(Number(rawRailIndex))
+          ? Number(rawRailIndex)
+          : null;
+
+      const isEnabledControl =
+        (element instanceof HTMLButtonElement && !element.disabled) ||
+        (element instanceof HTMLAnchorElement && element.hasAttribute('href'));
+      const style = window.getComputedStyle(element);
+      const rect = element.getBoundingClientRect();
+      const isVisible =
+        style.display !== 'none' &&
+        style.visibility !== 'hidden' &&
+        rect.width > 0 &&
+        rect.height > 0;
+
+      return {
+        isOutsideControl: !rail && isEnabledControl && isVisible,
+        railIndex,
+      };
+    });
+
+    if (focus.railIndex === startingRailIndex) {
+      throw new Error(
+        `Focus returned to starting rail panel ${startingRailIndex} via ${direction} before exiting`
+      );
+    }
+    if (focus.isOutsideControl) return;
+  }
+
+  throw new Error(
+    `Focus did not reach an enabled visible control outside the Questions rail via ${direction} within ${MAX_EXIT_TAB_PRESSES} presses`
+  );
 }
 
 for (const surface of SURFACES) {
@@ -111,16 +176,42 @@ for (const surface of SURFACES) {
     }
   }
 
-  test(`rail matrix: ${surface.name}, keyboard traversal can leave the rail`, async ({ page }) => {
-    await seedQuizState(page, surface.state, surface.destination);
-    await surface.verify(page);
+  for (const direction of ['Tab', 'Shift+Tab'] as const) {
+    for (const viewport of VIEWPORTS) {
+      test(`rail exit: ${surface.name}, ${direction}, ${viewport.name}`, async ({ page }) => {
+        await page.setViewportSize(viewport);
+        await seedQuizState(page, surface.state, surface.destination);
+        await surface.verify(page);
 
-    await tabToRailPanel(page, surface.target, 'Tab');
-    expect(await focusedRailPanelIndex(page)).toBe(surface.target);
+        const pathnameBefore = new URL(page.url()).pathname;
+        const stateBefore = await readQuizState(page);
 
-    await page.keyboard.press('Tab');
-    expect(await focusedRailPanelIndex(page)).not.toBe(surface.target);
-  });
+        await tabToRailPanel(page, surface.target, 'Tab');
+        expect(await focusedRailPanelIndex(page)).toBe(surface.target);
+
+        await tabUntilOutsideRailControl(page, surface.target, direction);
+
+        const expectedExit =
+          direction === 'Tab'
+            ? page.getByRole('link', { name: 'Skip to content' })
+            : page.getByRole('button', {
+                name: surface.destination === '/quiz' ? 'Skip' : 'Retake',
+                exact: true,
+              });
+        await expect(expectedExit).toBeVisible();
+        await expect(expectedExit).toBeEnabled();
+        await expect(expectedExit).toBeFocused();
+
+        expect(new URL(page.url()).pathname).toBe(pathnameBefore);
+        await surface.verify(page);
+
+        const stateAfter = await readQuizState(page);
+        expect(stateAfter?.currentQuestionIndex).toBe(stateBefore?.currentQuestionIndex);
+        expect(stateAfter?.answers).toEqual(stateBefore?.answers);
+        expect(stateAfter?.isCompleted).toBe(stateBefore?.isCompleted);
+      });
+    }
+  }
 
   for (const activationKey of ['Enter', ' '] as const) {
     const keyLabel = activationKey === ' ' ? 'Space' : 'Enter';

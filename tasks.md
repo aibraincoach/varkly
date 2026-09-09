@@ -260,6 +260,10 @@ Review of the shipped panels branch found the branch does not typecheck, the key
 - [ ] Separately integrate the dirty review-procedure/governance files from the original worktree checkout.
 - [ ] Preserve About VARK and expanded results explanations (see Milestone 7 product backlog).
 
+### PR #17 follow-up — rail exit proof and documentation consistency
+
+- [x] Replace the weak rail-exit checks with the eight-case surface × direction × viewport matrix, reconcile the maintained Enter/Space contract and current test/asset evidence, and prepare the validated PR #17 head for the required review gate. Starting SHA: `7f04384d5471248e6934b05778a7e634435c5b03`. [2026-09-08]
+
 ---
 
 ## Session Log
@@ -490,3 +494,26 @@ Review of the shipped panels branch found the branch does not typecheck, the key
 - Ran a fresh PPLX pass on the two changed heads (PR #12 and #13 heads were unchanged from the prior round, no re-run needed): PR #14 at `723508f` — no blockers, one non-blocking `useCopyFeedback.ts` "stale addToast closure" observation independently verified not to be a live bug (`ToastContext.tsx`'s `addToast` is `useCallback([removeToast])`-wrapped and `removeToast` has an empty dependency array, so the reference is stable for the app's lifetime). PR #15 at `eee78bd` — no blockers; the reviewer additionally flagged (correctly) that `planning.md` still described the superseded `a1497a9` tabIndex approach as current — corrected in this same pass (see below). Posted as PR comments `issuecomment-5593997014` (#14) and pending (#15, posted after this documentation correction).
 - Corrected `planning.md` §12 (stale PR #14 head/approach description referencing `a1497a9`'s tabIndex fix, which no longer reflects the current `723508f` rail-navigation approach) and this `tasks.md` entry to the verified current state.
 - Not merged, not deployed. Merge remains the PM's own call per the standing ruling above, not yet exercised in this session.
+
+### 2026-09-09 — Closing PPLX pass, merge of the full panels stack to `main`
+
+- Ran a final PPLX pass on PR #14 (head `723508f`, unchanged): no blockers, one non-blocking `useCopyFeedback.ts` stale-`addToast`-closure observation independently verified not a live bug (`ToastContext.tsx`'s `addToast` reference is stable for the app's lifetime via `useCallback([removeToast])` with `removeToast` on an empty dependency array). Posted `issuecomment-5593997014`.
+- Ran a first PPLX pass on PR #15 at head `eee78bd`; it correctly flagged that `planning.md` still described the superseded `a1497a9` tabIndex approach as current, and that README/planning still cited 41 E2E tests instead of the real 55. Fixed both (commits `82136c3`, `edaa6d8`) and re-ran PPLX on the corrected head — **LGTM, zero blockers**, posted `issuecomment-5594073751`.
+- With all four PRs at zero un-triaged blockers, verified all four heads live against GitHub immediately before merging (matched exactly what had been last reported: `9ad4a50`, `8a4a411`, `723508f`, `edaa6d8` — no drift). Merged in stack order, each PR's base retargeted to `main` immediately before merging (a normal, non-squash merge, matching this repo's existing convention):
+  - PR #12 → merge commit `9ed2ba0e8a4e27ac317322f8f9901c42ca75c991`
+  - PR #13 → merge commit `3fc1ae6c5311acfbe3dede583b8539f7f5522bda`
+  - PR #14 → merge commit `20e5d573d694fb05205fbf133e8fcbbf45986129`
+  - PR #15 → merge commit `f0851bd9d44b924e5add916d76138e458b0fe12b` (GitHub reported this merge as `CONFLICTING` after the base retarget — `WALL_OF_STUPID.md` and `planning.md` each had one real conflict hunk, both resolved by taking PR #15's side in full: `WALL_OF_STUPID.md` confirmed byte-for-byte an exact prefix relationship, no content lost; `planning.md` was `main`'s stale pre-redesign architecture text against PR #15's full current rewrite. Resolved and validated — lint/typecheck/143 unit tests/build all clean — before pushing the merge commit directly to `main`, since GitHub's merge button cannot resolve conflicts itself.)
+- Full validation re-run on `main` at `f0851bd`: lint 0/0, typecheck clean, 143 unit tests, **55/55 Playwright Chromium**, `git diff --check` clean.
+- Confirmed via `gh api .../commits/f0851bd.../status`: **Vercel deployment completed successfully** — the panels redesign is live in production. This is the first production deploy of the panels stack.
+- Zero open PRs remain. This documentation update (`tasks.md`, `planning.md`) is itself delivered as a new PR (`docs/merged-state-sync`) since there is no longer an open docs PR to carry it, per instruction to hold this sync until after the merge.
+
+### 2026-09-08 — PR #17 rail-exit proof and documentation consistency
+
+- Continued directly on PR #17's existing `docs/merged-state-sync` branch from starting head `7f04384d5471248e6934b05778a7e634435c5b03`; no separate follow-up PR was opened.
+- Replaced the two weak rail-exit checks with eight cases covering question/results surfaces, Tab/Shift+Tab, and 1280×900/390×900 viewports. Every case reaches an enabled interior rail button through real Tab input, bounds exit traversal at 40 presses, rejects a loop to the starting rail button, and requires focus on the expected enabled visible control outside the rail: Skip to content forward, Skip or Retake backward. Route, current question, answers, and completion state remain unchanged.
+- Reconciled the current Enter/Space exception in `AGENTS.md`, `README.md`, `planning.md`, and `DESIGN.md`; maintained historical records and runtime copy were not rewritten. Updated the current E2E count from 55 to 61 only after a complete suite run.
+- Rebuilt and ran `npm run measure:assets` at source `8492836afe8a9af52d5200709bbf62c76523ffb6`: **608,329 bytes** (JS/CSS gzip 116,295 + 14 panel WebPs raw 492,034), strict `< 1,200,000` PASS; OG 882,538 bytes excluded.
+- Fetched advancing `main` (`7a9f9652fd192b11463c0969242b188d1ac3ad21`) and merged it as `8492836`, preserving its duplicate-CI-banner cleanup and all PR #17 changes.
+- Verification at `8492836`: focused rail spec 20/20; lint 0 errors/0 warnings; typecheck pass; 134 Vitest + 9 Node = 143/143; build pass; Playwright 61/61 Chromium; asset budget PASS; `git diff --check` clean. Existing non-blocking tool notices remained: 23 npm audit advisories, stale Browserslist data, and Vite's esbuild-option deprecation warning.
+- Required PPLX review and PM triage remain assigned to the subsequent review session. Any commit after that review must trigger a fresh gate under the one-commit rule.

@@ -217,7 +217,7 @@ Controls use gently rounded 12px corners; compact copy controls use 8px; answer 
 ### Navigation
 - **Header:** A 72px row pairs a compact Varkly home link with mono progress text and a 3px animated progress track.
 - **Action row:** Previous, primary next-state action, and optional skip/retake remain left-aligned with 8px gaps.
-- **Keyboard:** 1–4 select answers, Enter or Right Arrow advances, Left Arrow returns, and Space skips. On question views, recognized shortcuts outrank focused buttons and links. On landing, results, and prompts, Enter/Space activate a focused button and Enter follows a focused link. Shortcuts are suppressed while editing editable fields. Owned keys are tracked from shortcut `keydown` through matching `keyup`, window `blur`, or unmount so held keys cannot double-fire across route/view changes.
+- **Keyboard:** 1–4 select answers, Enter or Right Arrow advances, Left Arrow returns, and Space skips. On question views, Enter/Space activates the focused enabled rail destination once per press. Other recognized quiz shortcuts retain their existing precedence. Outside question views, existing native button/link activation remains supported. Shortcuts are suppressed while editing editable fields. Owned keys suppress repeat actions until `keyup`, `blur`, or unmount.
 
 ### Editorial Panel Rail
 
