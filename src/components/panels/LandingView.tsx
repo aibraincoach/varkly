@@ -7,7 +7,7 @@ const LandingView: React.FC = () => {
       <div className="font-mono text-[11px] tracking-[0.08em] uppercase text-muted-3">
         VARK learning style · 13 scenarios · 90 seconds
       </div>
-      <h1 className="mt-3.5 mb-[22px] min-h-[5.4em] text-[clamp(18px,1.5vw,23px)] leading-[1.35] font-semibold tracking-[-0.02em]">
+      <h1 className="mt-3.5 mb-[22px] h-[5.4em] max-h-[5.4em] overflow-hidden text-[clamp(18px,1.5vw,23px)] leading-[1.35] font-semibold tracking-[-0.02em]">
         <span className="block text-[clamp(28px,2.4vw,38px)] leading-[1.1] tracking-[-0.035em] mb-2.5">
           See. Hear.
           <br />
@@ -53,6 +53,14 @@ const LandingView: React.FC = () => {
           ))}
         </ul>
       </div>
+      <button
+        type="button"
+        tabIndex={-1}
+        aria-hidden="true"
+        className="mt-3 text-sm font-semibold underline underline-offset-2 invisible pointer-events-none text-left"
+      >
+        Copy link
+      </button>
     </>
   );
 };

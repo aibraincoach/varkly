@@ -26,7 +26,7 @@ const ResultsView: React.FC<ResultsViewProps> = ({
       <div className="font-mono text-[11px] tracking-[0.08em] uppercase text-muted-3">
         {getResultsEyebrow(isShared, answeredCount)}
       </div>
-      <h1 className="mt-3.5 mb-[22px] min-h-[5.4em] text-[clamp(18px,1.5vw,23px)] leading-[1.35] font-semibold tracking-[-0.02em] text-pretty">
+      <h1 className="mt-3.5 mb-[22px] h-[5.4em] max-h-[5.4em] overflow-hidden text-[clamp(18px,1.5vw,23px)] leading-[1.35] font-semibold tracking-[-0.02em] text-pretty">
         <span className="block text-[clamp(28px,2.4vw,38px)] leading-[1.1] tracking-[-0.035em] mb-2.5">
           {summary.headline}
         </span>
@@ -34,8 +34,8 @@ const ResultsView: React.FC<ResultsViewProps> = ({
           {summary.blurb}
         </span>
       </h1>
-      <div className="panels-aside-body content-between">
-        <div className="grid gap-2">
+      <div className="panels-aside-body content-between gap-1">
+        <div className="grid gap-1.5">
           <ScoreRows styles={summary.styles} />
         </div>
         <ExplanationCard explanation={explanation} />
@@ -43,7 +43,7 @@ const ResultsView: React.FC<ResultsViewProps> = ({
       <button
         type="button"
         onClick={onCopyLink}
-        className="mt-3 text-sm font-semibold text-ink underline underline-offset-2 hover:text-muted-1"
+        className="mt-3 text-sm font-semibold text-ink underline underline-offset-2 hover:text-muted-1 text-left"
         aria-live="polite"
       >
         {copyLinkLabel}

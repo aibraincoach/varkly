@@ -524,7 +524,7 @@ const PanelsScreen: React.FC = () => {
             />
           )}
 
-          <p className="mt-3 mb-0 text-xs leading-[15px] text-muted-3">{helperLine}</p>
+          <p className="mt-3 mb-0 min-h-[30px] text-xs leading-[15px] text-muted-3">{helperLine}</p>
 
           <ActionRow
             onPrevious={handlePrevious}
