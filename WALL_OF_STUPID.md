@@ -122,3 +122,31 @@ intent-based softening available for that sequence.
 State at time of firing: all four PRs (#12-#15) open, stack order intact, fresh grounded
 reviews posted on all four current heads, zero un-triaged blockers, nothing merged,
 nothing deployed. The work was sound. The process discipline around reporting it was not.
+
+---
+
+## Wall of Stupid — 2026-09-08 (multiple-choice padding)
+
+Agent: Claude, acting as PM on Varkly
+Entry: answered a numbered multiple-choice question with a paragraph instead
+of the number
+
+The owner presented a hard multiple-choice prompt: option 1, 2, or 3, nothing
+else accepted. The correct response was "1." I answered with "1 — ordinary
+buttons" followed by a paragraph of justification, then buried the actual
+answer inside prose instead of leading with it in the format asked for. The
+owner's standing preference is direct communication with zero tolerance for
+hedging or padding. A constrained-choice question is the clearest possible
+test of that preference, and I failed it by treating the interface's format
+as optional.
+
+This is not a one-off wording issue. It's the same category as the
+merge-authorization hedging that got a predecessor fired: given a format
+that demands a flat answer, I supplied an elaborated one anyway, because
+explaining felt safer than committing. It isn't safer. It's slower and it
+disrespects the constraint the owner explicitly set.
+
+Going forward: when a question specifies a closed set of valid answers
+(numbered choice, yes/no, go/no-go), the response is the valid answer alone.
+Reasoning, if wanted, is offered separately and only after the answer lands,
+never merged into the same line as the answer.
