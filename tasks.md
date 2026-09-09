@@ -266,6 +266,28 @@ Review of the shipped panels branch found the branch does not typecheck, the key
 
 ---
 
+## Milestone 9 — Designer sync 2026-09-09 (VARK Panels)
+
+Source: `VARKLY Questionnaire Design.zip`, `github.md` sync 2026-09-09T12:14:29Z. Plan: `docs/superpowers/plans/2026-09-09-design-sync-vark-panels.md`. Two PRs, reviewed via AGY/PPLX before any merge consideration.
+
+### PR 1 — `feat/design-sync-content`
+
+- [ ] Landing: four VARK style tiles fill `.panels-aside-body`; auto-height below 1100px
+- [ ] About VARK: `/about` route, `AboutView`, tertiary landing button, Enter starts quiz, ← returns to landing
+- [ ] Results: `ExplanationCard` under score rows with COPY.md §16–21 description and tips (2+2 for two dominant styles, balanced for three or more)
+- [ ] Layout verification: `e2e/design-sync-layout.spec.ts` overflow and action-row invariants, screenshots at 1440/1100/390 for landing, about, results variants
+
+### PR 2 — `feat/dark-mode-reinstatement`
+
+- [ ] Tokens: single CSS-variable palette driving light and dark; no `dark:` variants
+- [ ] Theme provider, header toggle, system default, localStorage persistence, flash-prevention script
+- [ ] Layout verification repeated in dark mode
+
+### Deferred until owner review
+
+- [ ] Narrative docs: `DESIGN.md` light-only statements, `planning.md` §9 and line 39, `AGENTS.md` deleted-files line and file map, `COPY.md` About VARK and tile copy, `README.md` styling row
+- [ ] Hover states for new elements — open design question, owner to assign
+
 ## Session Log
 
 ### 2026-09-07 — Memory-bank synchronization
