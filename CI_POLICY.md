@@ -20,6 +20,7 @@ Owner ruling: 2026-09-08. Repository: `aibraincoach/varkly`.
   Markdown or other files that contribute to the deployed product.
 - Keep a release blocked if required provider checks or zero-additional-spend
   operation cannot be verified. Do not re-enable Actions to bypass the blocker.
+- A green automated check (lint/test/deploy) never substitutes for a required manual browser verification (see `docs/review-chain.md`); that verification must still be run and recorded.
 - This ruling supersedes contrary historical CI/spending instructions. Preserve
   incident history and unrelated product/review requirements.
 

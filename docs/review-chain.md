@@ -17,6 +17,8 @@ UNPROVEN. Full rule: `docs/agy-review-procedure.md` §1a. It binds PPLX equally.
 There is **no ruled ordering** among AGY, PPLX, Cursor Bugbot, and GitHub PR
 bots. They are distinct reviewers, not a sequence.
 
+**Manual verification is separate from and not satisfied by AGY/PPLX:** any PR-specific manual browser check the PM instructs must be run against the deployed preview and its pass/fail results recorded on the PR before merge.
+
 ---
 
 ## Reviewer types (do not conflate)
