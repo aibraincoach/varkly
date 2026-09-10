@@ -1,6 +1,7 @@
 import React, { Suspense, lazy } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { QuizProvider } from './contexts/QuizContext';
+import { ThemeProvider } from './contexts/ThemeProvider';
 import { ToastProvider } from './contexts/ToastContext';
 import AppLayout from './components/layout/AppLayout';
 import ErrorBoundary from './components/shared/ErrorBoundary';
@@ -28,30 +29,32 @@ const panelsRoute = (
 function App() {
   return (
     <ErrorBoundary>
-      <ToastProvider>
-        <QuizProvider>
-          <Suspense fallback={<PageLoader />}>
-            <Routes>
-              <Route path={ROUTES.home} element={panelsRoute} />
-              <Route path={ROUTES.about} element={panelsRoute} />
-              <Route path={ROUTES.quiz} element={panelsRoute} />
-              <Route path={ROUTES.results} element={panelsRoute} />
-              <Route path={ROUTES.prompts} element={panelsRoute} />
-              <Route path="/r/:hash" element={panelsRoute} />
-              <Route path="/r/:hash/prompts" element={panelsRoute} />
-              <Route
-                path="*"
-                element={
-                  <AppLayout>
-                    <NotFoundPage />
-                  </AppLayout>
-                }
-              />
-            </Routes>
-          </Suspense>
-          <Toast />
-        </QuizProvider>
-      </ToastProvider>
+      <ThemeProvider>
+        <ToastProvider>
+          <QuizProvider>
+            <Suspense fallback={<PageLoader />}>
+              <Routes>
+                <Route path={ROUTES.home} element={panelsRoute} />
+                <Route path={ROUTES.about} element={panelsRoute} />
+                <Route path={ROUTES.quiz} element={panelsRoute} />
+                <Route path={ROUTES.results} element={panelsRoute} />
+                <Route path={ROUTES.prompts} element={panelsRoute} />
+                <Route path="/r/:hash" element={panelsRoute} />
+                <Route path="/r/:hash/prompts" element={panelsRoute} />
+                <Route
+                  path="*"
+                  element={
+                    <AppLayout>
+                      <NotFoundPage />
+                    </AppLayout>
+                  }
+                />
+              </Routes>
+            </Suspense>
+            <Toast />
+          </QuizProvider>
+        </ToastProvider>
+      </ThemeProvider>
     </ErrorBoundary>
   );
 }

@@ -11,7 +11,7 @@ const NotFoundPage: React.FC = () => {
   return (
     <div className="flex items-center justify-center p-4 min-h-[calc(100vh-3.5rem)]">
       <motion.div
-        className="max-w-md w-full text-center rounded-2xl p-6 md:p-8 border border-line bg-white shadow-sm"
+        className="max-w-md w-full text-center rounded-2xl p-6 md:p-8 border border-line bg-surface shadow-sm"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
@@ -27,7 +27,7 @@ const NotFoundPage: React.FC = () => {
         </p>
         <Link
           to={ROUTES.home}
-          className="inline-flex items-center justify-center gap-2 px-6 py-3.5 font-semibold rounded-xl transition-colors duration-200 bg-ink text-ground border border-ink hover:bg-ink/90 active:scale-[0.98]"
+          className="inline-flex items-center justify-center gap-2 px-6 py-3.5 font-semibold rounded-xl transition-colors duration-200 bg-ink text-on-ink border border-ink hover:bg-ink-hover active:scale-[0.98]"
           aria-label="Back to home"
         >
           <Home className="w-4 h-4" strokeWidth={2.5} aria-hidden />

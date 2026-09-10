@@ -20,7 +20,7 @@ const LandingView: React.FC = () => {
         </span>
       </h1>
       <div className="panels-aside-body content-between">
-        <ul className="m-0 p-0 list-none grid gap-2 text-sm text-[#3a3a42]">
+        <ul className="m-0 p-0 list-none grid gap-2 text-sm text-body">
           <li className="flex gap-2.5">
             <span className="text-muted-3 font-mono text-xs">01</span>
             Select all answers that apply to each scenario
@@ -42,7 +42,7 @@ const LandingView: React.FC = () => {
           {VARK_STYLE_TILES.map((tile) => (
             <li
               key={tile.code}
-              className="border-[1.5px] border-line rounded-xl bg-white px-3.5 py-3 flex flex-col gap-1.5"
+              className="border-[1.5px] border-line rounded-xl bg-surface px-3.5 py-3 flex flex-col gap-1.5"
             >
               <span className="flex items-center gap-2 text-[13px] font-semibold">
                 <span className={`w-2 h-2 rounded-full ${tile.dotClass}`} aria-hidden="true" />

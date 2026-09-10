@@ -4,10 +4,43 @@
 
 @layer base {
   :root {
-    color-scheme: light only;
+    color-scheme: light;
     --panel-collapsed-width: 64px;
     --panel-gap: 10px;
     --panel-gap-total: calc(var(--panel-gap) * 13);
+
+    --ground: 243 243 245;
+    --ink: 31 31 36;
+    --on-ink: 255 255 255;
+    --ink-hover: 57 57 63;
+    --surface: 255 255 255;
+    --line: 222 222 227;
+    --line-2: 236 236 240;
+    --body: 58 58 66;
+    --muted-1: 91 91 102;
+    --muted-2: 107 107 118;
+    --muted-3: 138 138 148;
+    --muted-4: 154 154 163;
+    --box: 240 240 243;
+    --track: 226 226 231;
+  }
+
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --ground: 18 18 22;
+    --ink: 241 241 244;
+    --on-ink: 18 18 22;
+    --ink-hover: 214 214 220;
+    --surface: 27 27 32;
+    --line: 45 45 53;
+    --line-2: 37 37 43;
+    --body: 210 210 216;
+    --muted-1: 170 170 180;
+    --muted-2: 156 156 166;
+    --muted-3: 126 126 137;
+    --muted-4: 108 108 119;
+    --box: 42 42 49;
+    --track: 45 45 53;
   }
 
   html {
@@ -28,7 +61,7 @@
   }
 
   body {
-    @apply bg-ground text-ink font-sans antialiased;
+    @apply bg-ground text-ink font-sans antialiased transition-colors duration-300 motion-reduce:transition-none;
     font-feature-settings: "ss01", "ss02", "cv01", "cv02";
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -53,7 +86,7 @@
 
   * {
     scrollbar-width: thin;
-    scrollbar-color: #dedee3 #f3f3f5;
+    scrollbar-color: rgb(var(--line)) rgb(var(--ground));
   }
 
   *::-webkit-scrollbar {

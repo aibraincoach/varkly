@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { getProgressPct } from './panelsLogic';
+import ThemeToggle from './ThemeToggle';
 
 type PanelsHeaderProps = {
   progressLabel: string;
@@ -40,6 +41,7 @@ const PanelsHeader: React.FC<PanelsHeaderProps> = ({ progressLabel, active }) =>
             style={{ width: `${progressPct}%` }}
           />
         </div>
+        <ThemeToggle />
       </div>
     </header>
   );

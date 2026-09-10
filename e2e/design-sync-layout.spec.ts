@@ -77,53 +77,56 @@ async function snapshot(page: Page, name: string) {
   await page.screenshot({ path: `${E2E_ARTIFACT_DIR}/design-sync-${name}.png`, fullPage: true });
 }
 
-for (const viewport of VIEWPORTS) {
-  test(`L1: aside body never overflows and fixed-block height is shared on ${viewport.slug}`, async ({
-    page,
-  }) => {
-    await page.setViewportSize({ width: viewport.width, height: viewport.height });
-    const heights: Record<string, number> = {};
+for (const colorScheme of ['light', 'dark'] as const) {
+  for (const viewport of VIEWPORTS) {
+    test(`L1: aside body never overflows and fixed-block height is shared on ${viewport.slug} (${colorScheme})`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width: viewport.width, height: viewport.height });
+      await page.emulateMedia({ colorScheme });
+      const heights: Record<string, number> = {};
 
-    await page.goto('/');
-    await expect(page.getByText('See. Hear.')).toBeVisible();
-    await expectNoHorizontalOverflow(page);
-    let m = await asideMetrics(page);
-    expect(m.clipped, 'landing').toEqual([]);
-    expect(m.bodyScrollHeight, 'landing').toBeLessThanOrEqual(m.bodyClientHeight + 1);
-    heights.landing = m.bodyClientHeight;
-    await snapshot(page, `landing-${viewport.slug}`);
+      await page.goto('/');
+      await expect(page.getByText('See. Hear.')).toBeVisible();
+      await expectNoHorizontalOverflow(page);
+      let m = await asideMetrics(page);
+      expect(m.clipped, 'landing').toEqual([]);
+      expect(m.bodyScrollHeight, 'landing').toBeLessThanOrEqual(m.bodyClientHeight + 1);
+      heights.landing = m.bodyClientHeight;
+      await snapshot(page, `landing-${viewport.slug}-${colorScheme}`);
 
-    await page.goto('/about');
-    await expect(page.getByText('About VARK · Fleming, 1987')).toBeVisible();
-    await expectNoHorizontalOverflow(page);
-    m = await asideMetrics(page);
-    expect(m.clipped, 'about').toEqual([]);
-    expect(m.bodyScrollHeight, 'about').toBeLessThanOrEqual(m.bodyClientHeight + 1);
-    heights.about = m.bodyClientHeight;
-    await snapshot(page, `about-${viewport.slug}`);
-
-    for (const variant of RESULT_VARIANTS) {
-      await seedQuizState(page, variant.state, '/results');
-      await expectResultsSurface(page);
+      await page.goto('/about');
+      await expect(page.getByText('About VARK · Fleming, 1987')).toBeVisible();
       await expectNoHorizontalOverflow(page);
       m = await asideMetrics(page);
-      expect(m.clipped, variant.slug).toEqual([]);
-      expect(m.bodyScrollHeight, variant.slug).toBeLessThanOrEqual(m.bodyClientHeight + 1);
-      heights[variant.slug] = m.bodyClientHeight;
-      await snapshot(page, `${variant.slug}-${viewport.slug}`);
-    }
+      expect(m.clipped, 'about').toEqual([]);
+      expect(m.bodyScrollHeight, 'about').toBeLessThanOrEqual(m.bodyClientHeight + 1);
+      heights.about = m.bodyClientHeight;
+      await snapshot(page, `about-${viewport.slug}-${colorScheme}`);
 
-    await seedQuizState(page, ONE_DOMINANT_STATE, '/prompts');
-    await expect(page.getByText('Teach your AI how you learn.')).toBeVisible();
-    await expectNoHorizontalOverflow(page);
-    m = await asideMetrics(page);
-    expect(m.clipped, 'prompts').toEqual([]);
-    expect(m.bodyScrollHeight, 'prompts').toBeLessThanOrEqual(m.bodyClientHeight + 1);
-    heights.prompts = m.bodyClientHeight;
-    await snapshot(page, `prompts-${viewport.slug}`);
+      for (const variant of RESULT_VARIANTS) {
+        await seedQuizState(page, variant.state, '/results');
+        await expectResultsSurface(page);
+        await expectNoHorizontalOverflow(page);
+        m = await asideMetrics(page);
+        expect(m.clipped, variant.slug).toEqual([]);
+        expect(m.bodyScrollHeight, variant.slug).toBeLessThanOrEqual(m.bodyClientHeight + 1);
+        heights[variant.slug] = m.bodyClientHeight;
+        await snapshot(page, `${variant.slug}-${viewport.slug}-${colorScheme}`);
+      }
 
-    if (viewport.width >= 1100) {
-      expect(new Set(Object.values(heights)).size, JSON.stringify(heights)).toBe(1);
-    }
-  });
+      await seedQuizState(page, ONE_DOMINANT_STATE, '/prompts');
+      await expect(page.getByText('Teach your AI how you learn.')).toBeVisible();
+      await expectNoHorizontalOverflow(page);
+      m = await asideMetrics(page);
+      expect(m.clipped, 'prompts').toEqual([]);
+      expect(m.bodyScrollHeight, 'prompts').toBeLessThanOrEqual(m.bodyClientHeight + 1);
+      heights.prompts = m.bodyClientHeight;
+      await snapshot(page, `prompts-${viewport.slug}-${colorScheme}`);
+
+      if (viewport.width >= 1100) {
+        expect(new Set(Object.values(heights)).size, JSON.stringify(heights)).toBe(1);
+      }
+    });
+  }
 }

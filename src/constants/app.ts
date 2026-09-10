@@ -22,4 +22,5 @@ export const ROUTES = {
 
 export const STORAGE_KEYS = {
   quizState: 'quizState',
+  theme: 'varkly-theme',
 } as const;

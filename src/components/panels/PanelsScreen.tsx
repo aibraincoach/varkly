@@ -369,6 +369,7 @@ const PanelsScreen: React.FC = () => {
       if (event.defaultPrevented) return;
       if (isModifiedOrComposing(event)) return;
       if (isEditableTarget(event.target)) return;
+      if (event.target instanceof Element && event.target.closest('[data-theme-toggle]')) return;
 
       if (event.key === 'Enter' || event.key === ' ') {
         const railPanelIndex = getEnabledRailPanelIndex(event.target);
