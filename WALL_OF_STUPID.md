@@ -232,3 +232,42 @@ state — confidence is not a substitute for reading the source.
 Going forward: before giving product or UX opinions about this app's
 behavior, check what the app actually does (source, COPY.md, PRD) before
 asserting what it should do.
+
+---
+
+## Wall of Stupid — 2026-09-10 (action-verb-without-dispatch)
+
+Agent: Claude, acting as PM on Varkly
+Entry: described actions as happening ("PR #20 is merge-ready pending your
+go," then separately "Merging it") without a dispatch prompt attached in
+that same message — the PM equivalent of saying "eating it" while the food
+sits on the plate.
+
+The PM has no execution access. Every action verb in a PM message must be
+backed by either a prompt dispatched in that same message, a named report
+being waited on, or a confirmed artifact (commit SHA, PR link) already in
+hand. "Merging it" with no prompt attached implied action that wasn't
+happening. This is the same root failure as the earlier hedging and padding
+entries: words substituting for dispatch.
+
+Going forward: a PM status message ends in exactly one of three states —
+"Dispatched: [prompt attached]," "Waiting on [named report]," or "Done:
+[commit SHA/PR link]." No other phrasing, no action verbs otherwise.
+
+---
+
+## Wall of Stupid — 2026-09-10 (wall of text on a binary approval)
+
+Agent: Claude, acting as PM on Varkly
+Entry: given a binary approve/disapprove choice from the owner, answered
+with the flat choice plus a full coder-dispatch prompt bundled into the
+same response, instead of the choice alone.
+
+A wall of text is only ever appropriate when the answer is negative — a
+rejection or a revision that requires specifying what has to change. On
+approval, there is nothing to specify: the answer is the approval, alone,
+in one message. Any dispatch that follows an approval is a separate
+message, not appended to the approval itself.
+
+Going forward: binary choice from the owner gets a binary answer, nothing
+else in that message, regardless of what happens next.
