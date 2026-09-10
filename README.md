@@ -74,7 +74,7 @@ The URL encodes aggregate scores only. Legacy links such as `OS0yLTEtMQ` remain 
 | Styling | Tailwind CSS v3 (light-only tokens) |
 | Animation | Framer Motion v11 |
 | Icons | Lucide React |
-| Tests | Vitest (134 src tests) + Node measurement tests (9) + Playwright E2E (61 Chromium) |
+| Tests | Vitest (src) + Node measurement tests; browser behavior verified manually (no automated E2E suite) |
 | Asset budget | `npm run measure:assets` — build-based estimate, gzip level 6 |
 | Deployment | Vercel (static SPA) |
 
@@ -89,9 +89,9 @@ src/
 │   ├── layout/                 AppLayout, AppFooter
 │   ├── panels/                 PanelsScreen, views, PanelRail, panelsLogic
 │   └── shared/                 ErrorBoundary, NotFoundPage, Toast
-├── contexts/                   QuizContext, ToastContext (+ context modules)
+├── contexts/                   QuizContext, ToastContext, ThemeProvider (+ context modules)
 ├── data/                       questions.ts, panels.ts
-├── hooks/                      usePageMeta, useQuiz, useToast
+├── hooks/                      usePageMeta, useQuiz, useTheme, useToast
 ├── utils/                      scores.ts, aiPrompts.ts, navigation.ts, copyToClipboard.ts, __tests__/
 └── constants/app.ts            Routes, branding, storage keys
 ```
@@ -115,15 +115,7 @@ npm run dev
 
 No environment variables are required.
 
-### E2E tests (Playwright)
-
-```bash
-npx playwright install chromium
-npm run build
-npm run test:e2e
-```
-
-Playwright runs against the production preview on `127.0.0.1:4173` (single Chromium worker).
+Browser behavior is verified manually by the coder before reporting a PR ready; no automated E2E suite exists.
 
 ### Build for production
 
@@ -141,13 +133,12 @@ Output is in `dist/`. `vercel.json` rewrites all paths to `index.html` for SPA r
 | Command | Description |
 |---|---|
 | `npm run dev` | Start the local development server |
-| `npm run typecheck` | Run TypeScript (`tsc --noEmit`) on app, node, and e2e configs |
+| `npm run typecheck` | Run TypeScript (`tsc --noEmit`) on app and node configs |
 | `npm run build` | Typecheck, then build for production |
 | `npm run preview` | Preview the production build locally |
 | `npm run lint` | Run ESLint |
 | `npm test` | Run Vitest (`src/`) plus Node measurement tests (`scripts/__tests__/`) |
 | `npm run test:watch` | Vitest in watch mode |
-| `npm run test:e2e` | Playwright E2E (requires `npx playwright install chromium` first) |
 | `npm run measure:assets` | Reproducible build-based budget estimate (JS/CSS gzip + panel WebP raw) |
 
 ---
@@ -170,11 +161,11 @@ Visible hint on landing, results, and prompts: `With a button focused, Enter or 
 
 ## Tests
 
-Vitest (134 tests in `src/`) plus Node measurement tests (9 in `scripts/__tests__/`) cover pure utilities: `calculateScores`, `encodeScores`/`decodeScores`, `generateAIPrompts`, `clampQuestionIndex`, `copyToClipboard`, copy-feedback lifecycle, `panelsLogic`, product invariants (13 questions, 14 panels), and quiz start-state transitions. **143 unit tests total.**
+Vitest (in `src/`) plus Node measurement tests (in `scripts/__tests__/`) cover pure utilities: `calculateScores`, `encodeScores`/`decodeScores`, `generateAIPrompts`, `clampQuestionIndex`, `copyToClipboard`, copy-feedback lifecycle, `panelsLogic`, product invariants (13 questions, 14 panels), quiz start-state transitions, and theme preference helpers.
 
-Playwright E2E (**61 Chromium tests** in `e2e/`) covers keyboard ownership (K1–K19), clipboard K9 matrix, quiz continuation (S1–S4), route guards and same-document shared transitions (R1–R10), responsive empty-layout checks (U1), panel image hints (I1–I6), and the rail-navigation activation and eight-case exit-proof matrices (`e2e/rail-navigation.spec.ts`). Install browsers with `npx playwright install chromium`, then run `npm run test:e2e` after `npm run build`.
+Browser behavior is verified manually by the coder before reporting a PR ready; no automated E2E suite exists.
 
-Production `dist/` contains no Playwright or Vitest references. Asset budget: `npm run build && npm run measure:assets` at source `8492836afe8a9af52d5200709bbf62c76523ffb6` — authoritative build-based estimate **608,329 bytes** (JS/CSS gzip 116,295 + panel WebP raw 492,034) → strict `< 1,200,000` PASS. Gzip level 6; OG **882,538** excluded.
+Production `dist/` contains no Vitest references. Asset budget: `npm run build && npm run measure:assets` at source `8492836afe8a9af52d5200709bbf62c76523ffb6` — authoritative build-based estimate **608,329 bytes** (JS/CSS gzip 116,295 + panel WebP raw 492,034) → strict `< 1,200,000` PASS. Gzip level 6; OG **882,538** excluded.
 
 ---
 

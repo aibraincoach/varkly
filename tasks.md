@@ -1,6 +1,6 @@
 # Tasks — Varkly
 
-**Last updated:** 2026-09-08 (Milestone 8 panels redesign implementation)
+**Last updated:** 2026-09-10 (Playwright removed; cross-tab theme sync fixed)
 
 Tasks are organized by milestone. Check off items as they are completed and add the date: `[x] Task description [2026-03-14]`.
 
@@ -122,7 +122,8 @@ Remove all code that depends on Supabase, email delivery, or application-side se
 - [x] Add proper 404 page for unmatched routes [2026-03-14]
 - [x] Add `<meta>` Open Graph tags to `index.html` for better social sharing previews on the `/r/:hash` URL [2026-09-08]
 - [x] Audit and remove all `console.log` statements from production code [2026-09-07]
-- [ ] Add E2E test for the full quiz → results → copy prompt flow with Playwright (good-to-have)
+- [x] Remove Playwright E2E suite; browser behavior verified manually (no automated E2E) [2026-09-10]
+- [x] Fix cross-tab theme synchronization (persist on toggle only; storage listener without write-back) [2026-09-10]
 - [x] Fix dark mode flickering during quiz navigation (unstable useEffect deps) [2026-03-14]
 - [x] Fix scroll jump on answer selection (useEffect re-firing window.scrollTo) [2026-03-14]
 - [x] Add missing dark: variants across QuizIntro, QuizContainer, ResultsExplanation, ResultsChart [2026-03-14]
@@ -149,7 +150,7 @@ Remove all code that depends on Supabase, email delivery, or application-side se
 - [x] Fix 2 ESLint unused-variable errors and 3 Fast Refresh warnings. [2026-09-08]
 - [x] Add Open Graph and Twitter card meta tags to `index.html` for `/r/:hash` sharing. [2026-09-08]
 - [x] Add unit tests for `calculateScores` (`src/utils/scores.ts`). [2026-09-08]
-- [ ] Playwright E2E for quiz to results to copy-prompt flow.
+- [x] Remove Playwright E2E suite and automated-browser-coverage requirements; manual browser verification only. [2026-09-10]
 - [ ] Review 22 npm audit advisories. Low priority, static client app, do not upgrade packages speculatively.
 - [x] Remove dead `userIntent` state: `setUserIntent` writes to context, nothing reads it, and `aiPrompts.ts` never references it. Delete `setUserIntent`, the `userIntent` field on `QuizState`, and the `UserIntent` type. [2026-09-08]
 
@@ -567,3 +568,13 @@ Source: `VARKLY Questionnaire Design.zip`, `github.md` sync 2026-09-09T12:14:29Z
 - Fetched advancing `main` (`7a9f9652fd192b11463c0969242b188d1ac3ad21`) and merged it as `8492836`, preserving its duplicate-CI-banner cleanup and all PR #17 changes.
 - Verification at `8492836`: focused rail spec 20/20; lint 0 errors/0 warnings; typecheck pass; 134 Vitest + 9 Node = 143/143; build pass; Playwright 61/61 Chromium; asset budget PASS; `git diff --check` clean. Existing non-blocking tool notices remained: 23 npm audit advisories, stale Browserslist data, and Vite's esbuild-option deprecation warning.
 - Required PPLX review and PM triage remain assigned to the subsequent review session. Any commit after that review must trigger a fresh gate under the one-commit rule.
+
+### 2026-09-10 — Remove Playwright; fix cross-tab theme sync
+
+- Started from `origin/main` at `675f8bb` in an isolated worktree; preserved unrelated working-tree changes on other branches.
+- Removed `@playwright/test` and regenerated the lockfile (Playwright packages gone; Vitest optional `@vitest/browser-playwright` peer metadata intentionally retained).
+- Deleted `playwright.config.ts`, `e2e/`, and `tsconfig.e2e.json`; dropped the E2E typecheck step, `test:e2e` script, ESLint report ignores, and Playwright `.gitignore` entries.
+- Updated `AGENTS.md`, `README.md`, `planning.md`, and `tasks.md`: current commands/deps/requirements no longer require an automated E2E suite. Standing rule: browser behavior is verified manually by the coder before reporting a PR ready; no automated E2E suite exists. Historical session-log Playwright counts left as historical.
+- Fixed `ThemeProvider`: removed preference-persistence effect; persist only on explicit toggle; add `storage` listener for the theme key / localStorage clear (ignore unrelated keys and sessionStorage); read current stored value via `readStoredPreference` without write-back.
+- Automated verification on this revision: `npm ci` ok; `npm run lint` 0/0; `npm run typecheck` pass (app + node only); `npm test` **147 Vitest + 9 Node = 156/156**; `npm run build` pass; `npm run measure:assets` PASS at **611,313** bytes (JS/CSS gzip 119,279 + panel WebP raw 492,034); `git diff --check` clean.
+- Manual Claude-in-Chrome / browser confirmation of cross-tab theme sync: **blocked in this session** (no Claude-in-Chrome / interactive browser automation available here). Owner will verify in Chrome.
