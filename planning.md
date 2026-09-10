@@ -1,6 +1,6 @@
 # Planning — Varkly
 
-**Last updated:** 2026-09-08
+**Last updated:** 2026-09-10
 
 ---
 
@@ -25,8 +25,9 @@ Varkly is the fastest, most frictionless way to discover your VARK learning styl
 ```
 Browser (React SPA)
     │
-    ├── PanelsScreen (route-aware)  → one screen, four views (landing, question, results, prompts)
+    ├── PanelsScreen (route-aware)  → one screen, four views (landing, question, results, prompts) + About route
     ├── Quiz state                  → sessionStorage key `quizState` (ephemeral, tab-scoped)
+    ├── Theme preference            → localStorage key `varkly-theme` (ThemeProvider; explicit light/dark; missing/invalid → auto)
     ├── Score calculation           → pure helpers in src/utils/scores.ts
     ├── AI prompt generation        → pure helpers in src/utils/aiPrompts.ts
     ├── Results sharing             → URL encoding (btoa/atob, no server lookup)
@@ -36,7 +37,7 @@ Browser (React SPA)
 
 The application is a client-side SPA with no Varkly API, server, or database. It is deployed as static files on Vercel. Google Fonts (Sora, JetBrains Mono) and the two analytics scripts in `index.html` make intentional third-party network requests; this does not make quiz answers or results server-persisted by the application.
 
-There is no theme system. The UI is light-only (slate ground, ink controls).
+Theme preference was reinstated in PR #19 (`675f8bb`). On `main` as of the 2026-09-10 handover writeup, preference changes still persist via a React effect watching `preference`. Open PR #20 proposes persisting only on explicit toggle plus a `storage` listener without write-back — **not merged; cross-tab behavior not browser-verified.** Quiz questions are multi-select (`Select all that apply`); Next means done selecting.
 
 ### Quiz state transitions
 
@@ -337,13 +338,15 @@ No application environment variables are required. Analytics identifiers are emb
 
 ## 12. Current Repository and Work State
 
-**Verified directly against GitHub on 2026-09-09 (`gh pr list --state all`, `gh api .../comments`, `gh api .../status`). This section is the source of truth; where any other document in this repo states an older head or an open review-loop status, this section wins.**
+**Verified directly against GitHub on 2026-09-10 (`gh pr list --state all`, `gh api repos/aibraincoach/varkly`, `git fetch origin main`). Full narrative for the incoming PM: [`docs/pm-handover-2026-09-10.md`](docs/pm-handover-2026-09-10.md). This section is the short source of truth for live head / open PRs; where older session-log paragraphs disagree with this section on *current* state, this section wins.**
 
-- GitHub repository: `aibraincoach/varkly` (fork of `tanvirahamed2001/ZooTech-Hackathon-2026`, renamed from `ZooTech-Hackathon-2026`). Intentionally kept behind upstream — **never run "sync fork,"** it would pull in unwanted upstream work. Because this is a fork, a PR's base defaults to the upstream repo on creation; **every PR base must be set explicitly to `aibraincoach/varkly`.**
-- **The entire panels stack is merged to `main` and deployed.** PR #12 (`9ad4a50`, merge commit `9ed2ba0`), PR #13 (`8a4a411`, merge commit `3fc1ae6`), PR #14 (`723508f`, merge commit `20e5d57`), and PR #15 (`eee78bd`, merge commit `f0851bd`) were merged in that order on 2026-09-09, each retargeted to `main` immediately before merging. `main` is now at `f0851bd9d44b924e5add916d76138e458b0fe12b`.
-- Two real merge conflicts surfaced when merging PR #15 into `main` (its base, `feat/panels-screen`, diverged from `main`'s independent `WALL_OF_STUPID.md`/`planning.md` history via the docs/state-sync branch): `WALL_OF_STUPID.md` — `main`'s version was confirmed byte-for-byte an exact prefix of PR #15's version (a pure append, no content divergence); `planning.md` — `main` still held the pre-panels-redesign architecture description (PR #12's version) against PR #15's full current-state rewrite. Both resolved by taking PR #15's side in full — no content was lost or invented; verified `npm run build`, lint, typecheck, and 143 unit tests clean on the resolved merge commit before pushing.
-- Post-merge full validation on `main` at `f0851bd`: lint 0/0, typecheck clean, 143 unit tests (134 Vitest + 9 Node), **55/55 Playwright Chromium** (including the rail-navigation matrix), `git diff --check` clean.
-- **Vercel deployment on `f0851bd` completed successfully** (`gh api repos/aibraincoach/varkly/commits/f0851bd.../status` → `state: success`, `description: "Deployment has completed"`) — the panels redesign is live in production.
-- **PR #16** (`docs/no-actions-2026-09-08` → `main`, unrelated to the panels stack) — merged 2026-09-08T21:49:23Z, prior to the stack. Adds `CI_POLICY.md`; disables GitHub Actions repo-wide per owner ruling (exhausted shared Actions allowance, no additional CI spend authorized); required checks run on Vercel/Cloudflare only.
-- **Zero open PRs remain** as of this section. The preserved `voice-UI` branch at `2e97507` remains unmerged by design.
-- Deferred, unchanged: OG image compression, canonical custom domain, Firefox/WebKit E2E, dynamic question-count support (explicitly **ruled out**, not merely deferred — the product is fixed at 13 questions).
+- GitHub repository: `aibraincoach/varkly` (fork of `tanvirahamed2001/ZooTech-Hackathon-2026`). Intentionally kept behind upstream — **never run "sync fork."** Every PR base must be set explicitly to `aibraincoach/varkly`.
+- **Panels stack (PRs #12–#15)** merged 2026-09-09; stack tip merge `f0851bd9d44b924e5add916d76138e458b0fe12b`. Same-day `AGENTS.md` duplicate-banner fix: `7a9f9652fd192b11463c0969242b188d1ac3ad21`.
+- **PR #17** (rail-exit proof + keyboard-contract docs + asset measurement) merged at `8c24b526383804bdc3166f89e20e82c93412a1db`.
+- **Designer sync:** PR #18 (`cf2bcdb85b66a1104cff19aa332c407e8ff723ea`) and PR #19 (`675f8bb0fc49a9cb517e1af4daf54337db7a9240`) merged 2026-09-10 — landing tiles, About VARK, results explanation card, dark mode / `ThemeProvider`.
+- **PR #16** (`CI_POLICY.md`, Actions disabled) remains in history; required checks on Vercel/Cloudflare only.
+- **Owner scope cut (2026-09-10):** rejected a multi-PR remediation of a post-merge findings list. Authorized **only** (1) remove Playwright entirely, (2) fix cross-tab theme desync. All other items from that findings list are closed / not tracked.
+- **PR #20** (`chore/remove-playwright-fix-theme-sync`, head `017e195baa11061b45d8b217408167808698161f`) — **OPEN**, not merged. Implements the two authorized items. Automated checks reported clean on the PR; **manual Chrome confirmation of cross-tab theme sync was reported blocked and remains unconfirmed.** Do not treat the theme fix as working until those checks run.
+- **Default branch tip at handover writeup (pre-docs commit):** `a13aa55979096da6cb7128fe1f82d8fc7eafb401`. Playwright and the preference-persistence theme effect are **still on `main`** until PR #20 merges.
+- Outgoing PM fired 2026-09-10; process failures recorded in `WALL_OF_STUPID.md`. Incoming PM should start from `docs/pm-handover-2026-09-10.md`.
+- Deferred / still open outside the scope cut: OG compression, canonical custom domain, live prompt validation vs ChatGPT/Claude/Gemini, GA `/r/` path privacy decision, npm audit review. Dynamic question-count support remains **ruled out** (fixed 13 questions).

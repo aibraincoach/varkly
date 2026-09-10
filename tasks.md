@@ -1,6 +1,6 @@
 # Tasks — Varkly
 
-**Last updated:** 2026-09-08 (Milestone 8 panels redesign implementation)
+**Last updated:** 2026-09-10 (PM handover; scope cut; PR #20 open)
 
 Tasks are organized by milestone. Check off items as they are completed and add the date: `[x] Task description [2026-03-14]`.
 
@@ -122,7 +122,7 @@ Remove all code that depends on Supabase, email delivery, or application-side se
 - [x] Add proper 404 page for unmatched routes [2026-03-14]
 - [x] Add `<meta>` Open Graph tags to `index.html` for better social sharing previews on the `/r/:hash` URL [2026-09-08]
 - [x] Audit and remove all `console.log` statements from production code [2026-09-07]
-- [ ] Add E2E test for the full quiz → results → copy prompt flow with Playwright (good-to-have)
+- [x] Playwright E2E backlog closed by owner scope cut 2026-09-10 — removal authorized via open PR #20 (not yet merged to `main`) [2026-09-10]
 - [x] Fix dark mode flickering during quiz navigation (unstable useEffect deps) [2026-03-14]
 - [x] Fix scroll jump on answer selection (useEffect re-firing window.scrollTo) [2026-03-14]
 - [x] Add missing dark: variants across QuizIntro, QuizContainer, ResultsExplanation, ResultsChart [2026-03-14]
@@ -149,7 +149,7 @@ Remove all code that depends on Supabase, email delivery, or application-side se
 - [x] Fix 2 ESLint unused-variable errors and 3 Fast Refresh warnings. [2026-09-08]
 - [x] Add Open Graph and Twitter card meta tags to `index.html` for `/r/:hash` sharing. [2026-09-08]
 - [x] Add unit tests for `calculateScores` (`src/utils/scores.ts`). [2026-09-08]
-- [ ] Playwright E2E for quiz to results to copy-prompt flow.
+- [x] Playwright E2E for quiz → results → copy-prompt flow — closed by owner scope cut; removal in open PR #20 [2026-09-10]
 - [ ] Review 22 npm audit advisories. Low priority, static client app, do not upgrade packages speculatively.
 - [x] Remove dead `userIntent` state: `setUserIntent` writes to context, nothing reads it, and `aiPrompts.ts` never references it. Delete `setUserIntent`, the `userIntent` field on `QuizState`, and the `UserIntent` type. [2026-09-08]
 
@@ -160,8 +160,8 @@ Remove all code that depends on Supabase, email delivery, or application-side se
 - [ ] Custom domain on Vercel to replace `varkly-eight.vercel.app`.
 - [ ] Investigate JJ's conversational voice agent work: does it still exist, what state is it in, what is reusable.
 - [ ] Voice conversation rebuild. The `voice-UI` branch is a per-question TTS/STT bridge, not a conversation. Keep the branch, do not merge it. Reusable parts are the question content and the VARK classification logic only.
-- [ ] Restore an "About VARK" entry point on the landing view. Deferred pending a designer round and not part of the panels redesign. The design code hides the button, while the design screenshot shows it. On a one-screen app it is the only place the credibility argument can live, and VARK as a taxonomy is contested.
-- [ ] Reinstate a condensed results explanation. Deferred pending a designer round and not part of the panels redesign. The panels redesign reduces each VARK style to a single blurb, so a user who scores Kinesthetic learns little about what that means.
+- [x] Restore an "About VARK" entry point on the landing view. [2026-09-10] (PR #18 merge `cf2bcdb`)
+- [x] Reinstate a condensed results explanation. [2026-09-10] (PR #18 merge `cf2bcdb`)
 - [x] Preserve `ResultsExplanation.tsx` copy in `COPY.md` before the component is deleted in the panels redesign, so reinstating the deferred explanation is copy-paste work rather than git archaeology. [2026-09-08]
 
 ### Repo hygiene
@@ -258,7 +258,7 @@ Review of the shipped panels branch found the branch does not typecheck, the key
 - [ ] Review necessity of `WALL_OF_STUPID.md` and supporting design/product artifacts.
 - [ ] Optimize `og-image.png` and reconcile its domain with intended canonical deployment.
 - [ ] Separately integrate the dirty review-procedure/governance files from the original worktree checkout.
-- [ ] Preserve About VARK and expanded results explanations (see Milestone 7 product backlog).
+- [x] Preserve About VARK and expanded results explanations (see Milestone 7 product backlog). [2026-09-10] (PR #18)
 
 ### PR #17 follow-up — rail exit proof and documentation consistency
 
@@ -567,3 +567,11 @@ Source: `VARKLY Questionnaire Design.zip`, `github.md` sync 2026-09-09T12:14:29Z
 - Fetched advancing `main` (`7a9f9652fd192b11463c0969242b188d1ac3ad21`) and merged it as `8492836`, preserving its duplicate-CI-banner cleanup and all PR #17 changes.
 - Verification at `8492836`: focused rail spec 20/20; lint 0 errors/0 warnings; typecheck pass; 134 Vitest + 9 Node = 143/143; build pass; Playwright 61/61 Chromium; asset budget PASS; `git diff --check` clean. Existing non-blocking tool notices remained: 23 npm audit advisories, stale Browserslist data, and Vite's esbuild-option deprecation warning.
 - Required PPLX review and PM triage remain assigned to the subsequent review session. Any commit after that review must trigger a fresh gate under the one-commit rule.
+
+### 2026-09-10 — Owner scope cut, PR #20, PM change
+
+- Owner rejected a multi-PR remediation of a post-merge findings list as scope creep. Authorized exactly two items: remove Playwright entirely; fix cross-tab theme desync. All other findings-list items closed / not tracked.
+- PR #20 opened at head `017e195` (`chore/remove-playwright-fix-theme-sync` → `main`): Playwright removal + `ThemeProvider` storage-listener rewrite. Automated checks reported clean on the PR (147 Vitest + 9 Node). Manual Chrome verification of cross-tab theme sync reported **blocked / unconfirmed** — do not assume the fix works.
+- As of this writeup, PR #20 is **OPEN**; `main` still contains Playwright and the preference-persistence theme effect.
+- Outgoing PM fired 2026-09-10. Process failures recorded in `WALL_OF_STUPID.md`. Incoming PM package: `docs/pm-handover-2026-09-10.md` (also copied to AI Braintrust Documents for handoff).
+- Verified live GitHub during writeup: `origin/main` tip was `a13aa55` before this docs commit; only open PR was #20.
