@@ -139,6 +139,7 @@ Before ending any session, append a dated summary under the **Session Log** head
 - Commit messages must be descriptive: `feat: add AI prompts card to results page`, not `update stuff`.
 - Always run `git push -u origin <branch>` after committing.
 - Never force-push to the main branch.
+- All changes to this repository, including docs-only changes, go through a PR and required review gates before merging to main. No direct pushes to main, regardless of change size or type.
 
 ---
 
