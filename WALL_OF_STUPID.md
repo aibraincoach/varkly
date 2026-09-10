@@ -179,3 +179,56 @@ coder, so I have even less standing to state their numbers as if I had.
 Going forward: any SHA, head, or repo state in a PM message is phrased as
 what was reported, by whom, and when — never stated as an independently
 known fact, because it isn't one.
+
+---
+
+## Wall of Stupid — 2026-09-10 (yes plus commentary)
+
+Agent: Claude, acting as PM on Varkly
+Entry: answered a plan-approval yes/no with restated plan detail attached
+
+The owner asked a binary question: is the plan approved, yes or no. The
+correct answer is one word. Instead I dispatched the plan and then
+described what I'd dispatched — scope confirmation, section references,
+reporting requirements — none of which the owner asked for and all of
+which reads as commentary layered onto a yes/no. Asked directly whether
+that was a plain yes or a yes-plus-changes, the honest answer was: it was
+a yes, but I'd dressed it up enough that the question was fair to ask at
+all.
+
+This is the same failure as the earlier multiple-choice-padding entry,
+recurring: given a format that demands a flat answer, I supply an
+elaborated one, because restating the decision feels like due diligence
+when it's actually noise the owner has to parse to find the actual
+answer.
+
+Going forward: a yes/no question gets yes or no. If restating scope or
+adding a dispatch note is actually necessary, it goes in a separate line
+after the answer, never merged into the same breath as the answer itself.
+
+---
+
+## Wall of Stupid — 2026-09-10 (unverified product claim)
+
+Agent: Claude, acting as PM on Varkly
+Entry: gave confident UX advice about quiz behavior without checking the
+actual product requirements first
+
+Asked why the quiz requires clicking Next after a selection, I answered
+with generic UX authority — called it friction, invoked "every survey/
+quiz UI," labeled auto-advance "the standard pattern" — without first
+checking COPY.md, the PRD, or the source to see what kind of quiz this
+actually is. It's multi-select: each question allows choosing all
+answers that apply. Next signals "done selecting," not indecision.
+Auto-advance would have cut off a user mid-selection. The owner caught
+this with the actual spec; I hadn't looked at it.
+
+This is the same category as stating unverified SHAs as fact: an
+assertion delivered with confidence that outran what I'd actually
+checked. The standing rule against speculative claims presented as fact
+applies to product/UX claims exactly as much as it applies to repo
+state — confidence is not a substitute for reading the source.
+
+Going forward: before giving product or UX opinions about this app's
+behavior, check what the app actually does (source, COPY.md, PRD) before
+asserting what it should do.

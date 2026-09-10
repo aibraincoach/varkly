@@ -25,9 +25,9 @@ Varkly is the fastest, most frictionless way to discover your VARK learning styl
 ```
 Browser (React SPA)
     │
-    ├── PanelsScreen (route-aware)  → one screen, four views (landing, question, results, prompts)
+    ├── PanelsScreen (route-aware)  → one screen, four views (landing, question, results, prompts) + About route
     ├── Quiz state                  → sessionStorage key `quizState` (ephemeral, tab-scoped)
-    ├── Theme preference            → localStorage key `varkly-theme` (explicit light/dark; missing/invalid → auto)
+    ├── Theme preference            → localStorage key `varkly-theme` (ThemeProvider; explicit light/dark; missing/invalid → auto)
     ├── Score calculation           → pure helpers in src/utils/scores.ts
     ├── AI prompt generation        → pure helpers in src/utils/aiPrompts.ts
     ├── Results sharing             → URL encoding (btoa/atob, no server lookup)
@@ -37,7 +37,8 @@ Browser (React SPA)
 
 The application is a client-side SPA with no Varkly API, server, or database. It is deployed as static files on Vercel. Google Fonts (Sora, JetBrains Mono) and the two analytics scripts in `index.html` make intentional third-party network requests; this does not make quiz answers or results server-persisted by the application.
 
-Theme preference is toggled explicitly to `light` or `dark` and persisted only from the toggle action. Cross-tab sync uses the `storage` event (localStorage theme key or full localStorage clear); received changes update in-memory state without writing back. Missing or invalid stored values resolve to automatic mode (system preference).
+Theme preference was reinstated in PR #19 (`675f8bb`) and refined in PR #20 (`017e195`, merged `2026-09-10`): it is toggled explicitly to `light` or `dark` and persisted only from the toggle action (no write-back on receive). Cross-tab sync uses the `storage` event (localStorage theme key or full localStorage clear); received changes update in-memory state only. Missing or invalid stored values resolve to automatic mode (system preference). Cross-tab and persistence behavior was manually browser-verified against the PR #20 preview (3/3 checks PASS: reload persistence, two-tab live sync in both directions, unrelated-key write has no effect) — see PR #20 comment. Quiz questions are multi-select (`Select all that apply`); Next means done selecting.
+
 ### Quiz state transitions
 
 `QuizContext` owns the only mutable quiz state and mirrors it to `sessionStorage` under `quizState`.
@@ -337,13 +338,16 @@ No application environment variables are required. Analytics identifiers are emb
 
 ## 12. Current Repository and Work State
 
-**Verified directly against GitHub on 2026-09-09 (`gh pr list --state all`, `gh api .../comments`, `gh api .../status`). This section is the source of truth; where any other document in this repo states an older head or an open review-loop status, this section wins.**
+**Verified directly against GitHub on 2026-09-10 (`gh pr list --state all`, `gh api repos/aibraincoach/varkly`, `git fetch origin main`). Full narrative for the incoming PM: [`docs/pm-handover-2026-09-10.md`](docs/pm-handover-2026-09-10.md). This section is the short source of truth for live head / open PRs; where older session-log paragraphs disagree with this section on *current* state, this section wins.**
 
 - GitHub repository: `aibraincoach/varkly` (fork of `tanvirahamed2001/ZooTech-Hackathon-2026`, renamed from `ZooTech-Hackathon-2026`). Intentionally kept behind upstream — **never run "sync fork,"** it would pull in unwanted upstream work. Because this is a fork, a PR's base defaults to the upstream repo on creation; **every PR base must be set explicitly to `aibraincoach/varkly`.**
-- **The entire panels stack is merged to `main` and deployed.** PR #12 (`9ad4a50`, merge commit `9ed2ba0`), PR #13 (`8a4a411`, merge commit `3fc1ae6`), PR #14 (`723508f`, merge commit `20e5d57`), and PR #15 (`eee78bd`, merge commit `f0851bd`) were merged in that order on 2026-09-09, each retargeted to `main` immediately before merging. `main` is now at `f0851bd9d44b924e5add916d76138e458b0fe12b`.
+- **The entire panels stack is merged to `main` and deployed.** PR #12 (`9ad4a50`, merge commit `9ed2ba0`), PR #13 (`8a4a411`, merge commit `3fc1ae6`), PR #14 (`723508f`, merge commit `20e5d57`), and PR #15 (`eee78bd`, merge commit `f0851bd`) were merged in that order on 2026-09-09, each retargeted to `main` immediately before merging.
 - Two real merge conflicts surfaced when merging PR #15 into `main` (its base, `feat/panels-screen`, diverged from `main`'s independent `WALL_OF_STUPID.md`/`planning.md` history via the docs/state-sync branch): `WALL_OF_STUPID.md` — `main`'s version was confirmed byte-for-byte an exact prefix of PR #15's version (a pure append, no content divergence); `planning.md` — `main` still held the pre-panels-redesign architecture description (PR #12's version) against PR #15's full current-state rewrite. Both resolved by taking PR #15's side in full — no content was lost or invented; verified `npm run build`, lint, typecheck, and 143 unit tests clean on the resolved merge commit before pushing.
-- Post-merge full validation on `main` at `f0851bd` (historical, while Playwright still existed): lint 0/0, typecheck clean, 143 unit tests (134 Vitest + 9 Node), **55/55 Playwright Chromium** (including the rail-navigation matrix), `git diff --check` clean.
-- **Vercel deployment on `f0851bd` completed successfully** (`gh api repos/aibraincoach/varkly/commits/f0851bd.../status` → `state: success`, `description: "Deployment has completed"`) — the panels redesign is live in production.
-- **PR #16** (`docs/no-actions-2026-09-08` → `main`, unrelated to the panels stack) — merged 2026-09-08T21:49:23Z, prior to the stack. Adds `CI_POLICY.md`; disables GitHub Actions repo-wide per owner ruling (exhausted shared Actions allowance, no additional CI spend authorized); required checks run on Vercel/Cloudflare only.
+- **PR #17** (rail-exit proof + keyboard-contract docs + asset measurement) merged at `8c24b526383804bdc3166f89e20e82c93412a1db`.
+- **Designer sync:** PR #18 (`cf2bcdb85b66a1104cff19aa332c407e8ff723ea`) and PR #19 (`675f8bb0fc49a9cb517e1af4daf54337db7a9240`) merged 2026-09-10 — landing tiles, About VARK, results explanation card, dark mode / `ThemeProvider`.
+- **PR #16** (`docs/no-actions-2026-09-08` → `main`, unrelated to the panels stack) — merged 2026-09-08T21:49:23Z. Adds `CI_POLICY.md`; disables GitHub Actions repo-wide per owner ruling (exhausted shared Actions allowance, no additional CI spend authorized); required checks run on Vercel/Cloudflare only. Missing manual-verification requirement added to `CI_POLICY.md` and `docs/review-chain.md` in `81fcc9b` (2026-09-10).
+- **Owner scope cut (2026-09-10):** rejected a multi-PR remediation of a post-merge findings list. Authorized **only** (1) remove Playwright entirely, (2) fix cross-tab theme desync.
+- **PR #20** (`chore/remove-playwright-fix-theme-sync`, head `017e195baa11061b45d8b217408167808698161f`) — **merged 2026-09-10** after resolving a real conflict against `81fcc9b` in this file and `tasks.md`. Manual browser verification of cross-tab theme sync was run against the PR's Vercel preview and passed 3/3 (reload persistence, live two-tab sync both directions, unrelated-key write has no effect) — recorded as a PR comment.
 - **Zero open PRs remain** as of this section. The preserved `voice-UI` branch at `2e97507` remains unmerged by design.
-- Deferred, unchanged: OG image compression, canonical custom domain, dynamic question-count support (explicitly **ruled out**, not merely deferred — the product is fixed at 13 questions). Browser behavior is verified manually by the coder before reporting a PR ready; no automated E2E suite exists.
+- Outgoing PM fired 2026-09-10; process failures recorded in `WALL_OF_STUPID.md`. Incoming PM should start from `docs/pm-handover-2026-09-10.md`.
+- Deferred / still open: OG image compression, canonical custom domain, live prompt validation vs ChatGPT/Claude/Gemini, GA `/r/` path privacy decision, npm audit review. Dynamic question-count support remains **ruled out** (fixed 13 questions). Browser behavior is verified manually by the coder before reporting a PR ready; no automated E2E suite exists.

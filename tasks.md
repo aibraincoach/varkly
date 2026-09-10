@@ -1,6 +1,6 @@
 # Tasks — Varkly
 
-**Last updated:** 2026-09-10 (Playwright removed; cross-tab theme sync fixed)
+**Last updated:** 2026-09-10 (PR #20 merged: Playwright removed, cross-tab theme sync fixed and manually verified)
 
 Tasks are organized by milestone. Check off items as they are completed and add the date: `[x] Task description [2026-03-14]`.
 
@@ -123,7 +123,7 @@ Remove all code that depends on Supabase, email delivery, or application-side se
 - [x] Add `<meta>` Open Graph tags to `index.html` for better social sharing previews on the `/r/:hash` URL [2026-09-08]
 - [x] Audit and remove all `console.log` statements from production code [2026-09-07]
 - [x] Remove Playwright E2E suite; browser behavior verified manually (no automated E2E) [2026-09-10]
-- [x] Fix cross-tab theme synchronization (persist on toggle only; storage listener without write-back) [2026-09-10]
+- [x] Fix cross-tab theme synchronization (persist on toggle only; storage listener without write-back), manually verified 3/3 PASS on PR #20 preview [2026-09-10]
 - [x] Fix dark mode flickering during quiz navigation (unstable useEffect deps) [2026-03-14]
 - [x] Fix scroll jump on answer selection (useEffect re-firing window.scrollTo) [2026-03-14]
 - [x] Add missing dark: variants across QuizIntro, QuizContainer, ResultsExplanation, ResultsChart [2026-03-14]
@@ -161,8 +161,8 @@ Remove all code that depends on Supabase, email delivery, or application-side se
 - [ ] Custom domain on Vercel to replace `varkly-eight.vercel.app`.
 - [ ] Investigate JJ's conversational voice agent work: does it still exist, what state is it in, what is reusable.
 - [ ] Voice conversation rebuild. The `voice-UI` branch is a per-question TTS/STT bridge, not a conversation. Keep the branch, do not merge it. Reusable parts are the question content and the VARK classification logic only.
-- [ ] Restore an "About VARK" entry point on the landing view. Deferred pending a designer round and not part of the panels redesign. The design code hides the button, while the design screenshot shows it. On a one-screen app it is the only place the credibility argument can live, and VARK as a taxonomy is contested.
-- [ ] Reinstate a condensed results explanation. Deferred pending a designer round and not part of the panels redesign. The panels redesign reduces each VARK style to a single blurb, so a user who scores Kinesthetic learns little about what that means.
+- [x] Restore an "About VARK" entry point on the landing view. [2026-09-10] (PR #18 merge `cf2bcdb`)
+- [x] Reinstate a condensed results explanation. [2026-09-10] (PR #18 merge `cf2bcdb`)
 - [x] Preserve `ResultsExplanation.tsx` copy in `COPY.md` before the component is deleted in the panels redesign, so reinstating the deferred explanation is copy-paste work rather than git archaeology. [2026-09-08]
 
 ### Repo hygiene
@@ -259,7 +259,7 @@ Review of the shipped panels branch found the branch does not typecheck, the key
 - [ ] Review necessity of `WALL_OF_STUPID.md` and supporting design/product artifacts.
 - [ ] Optimize `og-image.png` and reconcile its domain with intended canonical deployment.
 - [ ] Separately integrate the dirty review-procedure/governance files from the original worktree checkout.
-- [ ] Preserve About VARK and expanded results explanations (see Milestone 7 product backlog).
+- [x] Preserve About VARK and expanded results explanations (see Milestone 7 product backlog). [2026-09-10] (PR #18)
 
 ### PR #17 follow-up — rail exit proof and documentation consistency
 
@@ -569,12 +569,12 @@ Source: `VARKLY Questionnaire Design.zip`, `github.md` sync 2026-09-09T12:14:29Z
 - Verification at `8492836`: focused rail spec 20/20; lint 0 errors/0 warnings; typecheck pass; 134 Vitest + 9 Node = 143/143; build pass; Playwright 61/61 Chromium; asset budget PASS; `git diff --check` clean. Existing non-blocking tool notices remained: 23 npm audit advisories, stale Browserslist data, and Vite's esbuild-option deprecation warning.
 - Required PPLX review and PM triage remain assigned to the subsequent review session. Any commit after that review must trigger a fresh gate under the one-commit rule.
 
-### 2026-09-10 — Remove Playwright; fix cross-tab theme sync
+### 2026-09-10 — Owner scope cut, PR #20 (remove Playwright; fix cross-tab theme sync), merged
 
-- Started from `origin/main` at `675f8bb` in an isolated worktree; preserved unrelated working-tree changes on other branches.
-- Removed `@playwright/test` and regenerated the lockfile (Playwright packages gone; Vitest optional `@vitest/browser-playwright` peer metadata intentionally retained).
-- Deleted `playwright.config.ts`, `e2e/`, and `tsconfig.e2e.json`; dropped the E2E typecheck step, `test:e2e` script, ESLint report ignores, and Playwright `.gitignore` entries.
-- Updated `AGENTS.md`, `README.md`, `planning.md`, and `tasks.md`: current commands/deps/requirements no longer require an automated E2E suite. Standing rule: browser behavior is verified manually by the coder before reporting a PR ready; no automated E2E suite exists. Historical session-log Playwright counts left as historical.
-- Fixed `ThemeProvider`: removed preference-persistence effect; persist only on explicit toggle; add `storage` listener for the theme key / localStorage clear (ignore unrelated keys and sessionStorage); read current stored value via `readStoredPreference` without write-back.
-- Automated verification on this revision: `npm ci` ok; `npm run lint` 0/0; `npm run typecheck` pass (app + node only); `npm test` **147 Vitest + 9 Node = 156/156**; `npm run build` pass; `npm run measure:assets` PASS at **611,313** bytes (JS/CSS gzip 119,279 + panel WebP raw 492,034); `git diff --check` clean.
-- Manual Claude-in-Chrome / browser confirmation of cross-tab theme sync: **blocked in this session** (no Claude-in-Chrome / interactive browser automation available here). Owner will verify in Chrome.
+- Owner rejected a multi-PR remediation of a post-merge findings list as scope creep. Authorized exactly two items: remove Playwright entirely; fix cross-tab theme desync. All other findings-list items closed / not tracked.
+- Coder work, started from `origin/main` at `675f8bb` in an isolated worktree: removed `@playwright/test` and regenerated the lockfile; deleted `playwright.config.ts`, `e2e/`, and `tsconfig.e2e.json`; dropped the E2E typecheck step, `test:e2e` script, ESLint report ignores, and Playwright `.gitignore` entries. Updated `AGENTS.md`, `README.md`, `planning.md`, and `tasks.md` so current commands/deps/requirements no longer require an automated E2E suite; standing rule is manual browser verification by the coder before a PR is reported ready. Historical session-log Playwright counts left as historical.
+- Fixed `ThemeProvider`: removed the preference-persistence effect; persist only on explicit toggle; added a `storage` listener for the theme key / localStorage clear (ignoring unrelated keys and sessionStorage); reads the current stored value via `readStoredPreference` without write-back.
+- Automated verification: `npm ci` ok; `npm run lint` 0/0; `npm run typecheck` pass (app + node only); `npm test` **147 Vitest + 9 Node = 156/156**; `npm run build` pass; `npm run measure:assets` PASS at **611,313** bytes (JS/CSS gzip 119,279 + panel WebP raw 492,034); `git diff --check` clean.
+- Outgoing PM fired 2026-09-10 with manual browser verification still unconfirmed. Process failures recorded in `WALL_OF_STUPID.md`. Incoming PM package: `docs/pm-handover-2026-09-10.md`.
+- Incoming PM: added the missing manual-verification requirement to `CI_POLICY.md` and `docs/review-chain.md` (`81fcc9b`), then ran the three manual browser checks against the PR #20 Vercel preview via claude-in-chrome — **3/3 PASS**: (1) theme persists across reload, (2) two-tab toggle syncs live in both directions with no reload, (3) writing an unrelated `localStorage` key changes neither theme state nor in-progress quiz state. Recorded as a PR comment on #20.
+- Resolved a real merge conflict against `main` (`81fcc9b` had advanced past PR #20's base) in `planning.md` §12/architecture-diagram and this file's header/checklist lines/this entry — reconciled to current fact rather than preserving either side's now-stale claim. Squash-merged PR #20 into `main`; branch deleted.
