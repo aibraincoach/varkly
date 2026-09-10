@@ -34,7 +34,10 @@ A written rule for this did not previously exist anywhere in the repo before thi
 - **action-verb-without-dispatch** — described actions as happening ("Merging it") without a dispatch prompt attached in the same message. This is the entry that was mistakenly pushed direct to `main` (§3 above) and is now correctly carried on this PR instead.
 - **wall of text on a binary approval** — given a binary approve/disapprove choice from RT, answered with the flat choice plus a full coder-dispatch prompt bundled into the same response, instead of the choice alone.
 
-Waiting on RT approval to merge.
+Waiting on the review gate. Merge is the PM's call per `AGENTS.md`
+§ "Merge authority, owner-confirmed, 2026-09-08". RT is not in the merge
+loop and does not authorize individual merges; a merge is reported to him
+after the fact.
 
 ## 5. Standing rule — status-message format
 
