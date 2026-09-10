@@ -26,7 +26,7 @@ const VIEWPORTS = [
 
 const ANSWERED = {
   currentQuestionIndex: 12,
-  answers: { '1': ['1V', '1R'], '2': ['2A'], '5': ['5K'] },
+  answers: { '1': ['1V', '1R'], '2': ['2V'], '5': ['5V'] },
   isCompleted: true,
 };
 
@@ -41,6 +41,14 @@ for (const viewport of VIEWPORTS) {
     await expect(page.getByText('enter to start')).toBeVisible();
     await expect(page.getByText(KEYBOARD_FOCUS_NOTE)).toBeVisible();
     await expect(page.getByRole('button', { name: "Let's begin" })).toBeVisible();
+    for (const blurb of [
+      'Charts, diagrams, seeing it demonstrated',
+      'Listening, discussion, verbal instructions',
+      'Words, lists, written materials',
+      'Doing, experiencing, hands-on practice',
+    ]) {
+      await expect(page.getByText(blurb)).toBeVisible();
+    }
     await expect(footer).toBeVisible();
     await expectNoHorizontalOverflow(page);
 
@@ -55,6 +63,8 @@ for (const viewport of VIEWPORTS) {
 
     await seedQuizState(page, ANSWERED, '/results');
     await expectResultsSurface(page);
+    await expect(page.getByText('Learning tips for Visual learners')).toBeVisible();
+    await expect(page.getByText('Use color-coding and highlighters in your notes')).toBeVisible();
     await expect(
       page.getByText('← review answers · enter get prompts · space retake')
     ).toBeVisible();
@@ -83,6 +93,7 @@ for (const viewport of VIEWPORTS) {
     await expectResultsSurface(page);
     await expect(page.getByRole('button', { name: 'Answer questions' })).toBeVisible();
     await expect(page.getByText(EMPTY_HELPER)).toBeVisible();
+    await expect(page.getByText('Complete more questions to see your results!')).toBeVisible();
     await expect(
       page.getByText('← review questions · enter answer questions · space retake')
     ).toBeVisible();

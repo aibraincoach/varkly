@@ -266,7 +266,39 @@ Review of the shipped panels branch found the branch does not typecheck, the key
 
 ---
 
+## Milestone 9 — Designer sync 2026-09-09 (VARK Panels)
+
+Source: `VARKLY Questionnaire Design.zip`, `github.md` sync 2026-09-09T12:14:29Z. Plan parked on `docs/design-sync-plan` (removed from feature PR diff). Two PRs, reviewed via AGY/PPLX before any merge consideration.
+
+### PR 1 — `feat/design-sync-content`
+
+- [x] Remediation 2026-09-09: unclamp h1, remove spacers, single-line score rows, Copy link inside fixed block, asideMetrics invariant [2026-09-09]
+
+- [x] Landing: four VARK style tiles fill `.panels-aside-body`; auto-height below 1100px [2026-09-09]
+- [x] About VARK: `/about` route, `AboutView`, tertiary landing button, Enter starts quiz, ← returns to landing [2026-09-09]
+- [x] Results: `ExplanationCard` under score rows with COPY.md §16–21 description and tips (2+2 for two dominant styles, balanced for three or more) [2026-09-09]
+- [x] Layout verification: `e2e/design-sync-layout.spec.ts` overflow and action-row invariants, screenshots at 1440/1100/390 for landing, about, results variants [2026-09-09]
+
+### PR 2 — `feat/dark-mode-reinstatement`
+
+- [ ] Tokens: single CSS-variable palette driving light and dark; no `dark:` variants
+- [ ] Theme provider, header toggle, system default, localStorage persistence, flash-prevention script
+- [ ] Layout verification repeated in dark mode
+
+### Deferred until owner review
+
+- [ ] Narrative docs: `DESIGN.md` light-only statements, `planning.md` §9 and line 39, `AGENTS.md` deleted-files line and file map, `COPY.md` About VARK and tile copy, `README.md` styling row
+- [ ] Hover states for new elements — open design question, owner to assign
+
 ## Session Log
+### 2026-09-09 — PR #18 remediation (layout clamp / Copy link / invariant)
+- Unclamped h1 (min-h-[5.4em]), removed invisible Copy link spacers and About empty spacer.
+- Single-line ScoreRows per design; Copy link moved inside `.panels-aside-body`; ExplanationCard design spacing restored.
+- Path taken: primary (no description-to-blurb fallback); layout e2e 3/3 pass.
+- asideMetrics: clip detector ignores overflow:visible false positives from leading-[1.1] title spans.
+- Plan file removed from feature branch; parked on docs/design-sync-plan.
+
+
 
 ### 2026-09-07 — Memory-bank synchronization
 

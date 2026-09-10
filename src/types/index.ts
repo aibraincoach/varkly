@@ -54,3 +54,17 @@ export type QuizContextType = {
   calculateScores: () => VarkScores;
   resetQuiz: () => void;
 };
+
+export type VarkStyleTile = {
+  code: VarkStyle;
+  name: string;
+  blurb: string;
+  dotClass: string;
+};
+
+export type ResultsExplanation = {
+  title: string;
+  /** Null for the empty state; otherwise the COPY.md description paragraph. */
+  description: string | null;
+  tips: string[];
+};

@@ -12,6 +12,7 @@ export const APP = {
 
 export const ROUTES = {
   home: '/',
+  about: '/about',
   quiz: '/quiz',
   results: '/results',
   prompts: '/prompts',
