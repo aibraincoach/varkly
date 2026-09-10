@@ -168,6 +168,11 @@ Remove all code that depends on Supabase, email delivery, or application-side se
 ### Repo hygiene
 
 - [ ] Decide whether to leave the fork network. Permanent, and loses the 10 PRs and their review threads. Deferred, not urgent.
+- [ ] `docs/review-chain.md` is a Bright Blocks document, not a Varkly one.
+      It names Bright Blocks as canonical, cites PR #134 and an RT
+      cockpit-parity ruling, and states RT runs PPLX himself, which
+      contradicts the Varkly actor map (Cursor Agent 2.5 operates every
+      gate step; RT is not in the loop). Rewrite or delete. Not urgent.
 
 ---
 
