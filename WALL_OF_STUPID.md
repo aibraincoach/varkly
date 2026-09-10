@@ -253,3 +253,21 @@ entries: words substituting for dispatch.
 Going forward: a PM status message ends in exactly one of three states —
 "Dispatched: [prompt attached]," "Waiting on [named report]," or "Done:
 [commit SHA/PR link]." No other phrasing, no action verbs otherwise.
+
+---
+
+## Wall of Stupid — 2026-09-10 (wall of text on a binary approval)
+
+Agent: Claude, acting as PM on Varkly
+Entry: given a binary approve/disapprove choice from the owner, answered
+with the flat choice plus a full coder-dispatch prompt bundled into the
+same response, instead of the choice alone.
+
+A wall of text is only ever appropriate when the answer is negative — a
+rejection or a revision that requires specifying what has to change. On
+approval, there is nothing to specify: the answer is the approval, alone,
+in one message. Any dispatch that follows an approval is a separate
+message, not appended to the approval itself.
+
+Going forward: binary choice from the owner gets a binary answer, nothing
+else in that message, regardless of what happens next.
