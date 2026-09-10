@@ -173,6 +173,11 @@ Remove all code that depends on Supabase, email delivery, or application-side se
       cockpit-parity ruling, and states RT runs PPLX himself, which
       contradicts the Varkly actor map (Cursor Agent 2.5 operates every
       gate step; RT is not in the loop). Rewrite or delete. Not urgent.
+- [ ] Branch protection on `main` is not configured. The no-direct-pushes
+      rule in `AGENTS.md` § Git Rules is policy only and unenforced by
+      GitHub. Decide whether to enable a protection rule requiring a PR
+      (and whether required approvals are workable given the agent
+      workflow). Raised by the AGY review of PR #22.
 
 ---
 
