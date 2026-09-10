@@ -114,7 +114,7 @@ Before ending any session, append a dated summary under the **Session Log** head
 
 ### Styling
 
-- Light-only UI — do not add `darkMode`, `dark:` variants, or theme toggles.
+- Theme preference is `auto` | `light` | `dark` via `ThemeProvider` / `useTheme` / `ThemeToggle`. Prefer `data-theme` tokens over Tailwind `dark:` variants for new UI surfaces.
 - Use Tailwind utility classes exclusively — do not add inline styles or new CSS files unless absolutely necessary.
 - Follow the panels palette tokens: `ink`, `ground`, `line`, `panel`, `track`, `muted-1` through `muted-4`, and `vark-v` / `vark-a` / `vark-r` / `vark-k` for VARK accents.
 - Typography: `font-sans` (Sora) for UI copy; `font-mono` (JetBrains Mono) for measurement labels, progress keys, and numeric readouts.
@@ -128,7 +128,8 @@ Before ending any session, append a dated summary under the **Session Log** head
 - Copy actions use `copyToClipboard` (Clipboard API first, `execCommand` textarea fallback) and `useCopyFeedback` (generation ID + timer cleanup on navigation/unmount). Both copy paths can fail in restricted contexts.
 - Score calculation (`src/utils/scores.ts`), AI prompt generation (`src/utils/aiPrompts.ts`), and results URL encoding are pure client-side operations with no application backend.
 - Google Analytics (`G-QCPTM267KD`) and the Cloudflare Web Analytics beacon in `index.html` are intentional owner-side analytics. Do not remove or treat them as leftover application persistence.
-- Vitest and Playwright are devDependencies only — production `dist/` must not contain test-framework code.
+- Vitest is a devDependency only — production `dist/` must not contain test-framework code.
+- Browser behavior is verified manually by the coder before reporting a PR ready; no automated E2E suite exists.
 
 ---
 
@@ -160,7 +161,7 @@ The package lists and version ranges below mirror `package.json` exactly.
 | Package | Version |
 |---|---|
 | `@eslint/js` | `^9.9.1` |
-| `@playwright/test` | `1.63.0` |
+| `@types/node` | `^22.20.1` |
 | `@types/react` | `^18.3.5` |
 | `@types/react-dom` | `^18.3.0` |
 | `@vitejs/plugin-react` | `^4.3.1` |
@@ -198,9 +199,9 @@ src/
 │   ├── panels/                 PanelsScreen, views, PanelRail, panelsLogic, tests
 │   └── shared/                 ErrorBoundary, NotFoundPage, Toast
 ├── constants/app.ts            APP, ROUTES, STORAGE_KEYS
-├── contexts/                   Quiz + Toast providers and context modules
+├── contexts/                   Quiz + Toast + Theme providers and context modules
 ├── data/                       questions.ts (QUESTION_COUNT), panels.ts
-├── hooks/                      usePageMeta, useQuiz, useToast
+├── hooks/                      usePageMeta, useQuiz, useTheme, useToast
 ├── types/index.ts
 └── utils/                      aiPrompts.ts, scores.ts, navigation.ts, copyToClipboard.ts, __tests__/
 ```

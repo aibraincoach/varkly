@@ -23,6 +23,18 @@ function readSystemPrefersDark(): boolean {
   return typeof window !== 'undefined' && window.matchMedia(DARK_QUERY).matches;
 }
 
+function persistPreference(preference: ThemePreference): void {
+  try {
+    if (preference === 'auto') {
+      localStorage.removeItem(STORAGE_KEYS.theme);
+    } else {
+      localStorage.setItem(STORAGE_KEYS.theme, preference);
+    }
+  } catch {
+    // Storage can be unavailable (private mode, blocked); the theme still applies for this visit.
+  }
+}
+
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [preference, setPreference] = useState<ThemePreference>(readInitialPreference);
   const [systemPrefersDark, setSystemPrefersDark] = useState<boolean>(readSystemPrefersDark);
@@ -43,19 +55,25 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   }, [theme]);
 
   useEffect(() => {
-    try {
-      if (preference === 'auto') {
-        localStorage.removeItem(STORAGE_KEYS.theme);
-      } else {
-        localStorage.setItem(STORAGE_KEYS.theme, preference);
+    const onStorage = (event: StorageEvent) => {
+      if (event.storageArea !== localStorage) return;
+      if (event.key !== null && event.key !== STORAGE_KEYS.theme) return;
+
+      try {
+        setPreference(readStoredPreference(localStorage.getItem(STORAGE_KEYS.theme)));
+      } catch {
+        // Storage can be unavailable; leave the in-memory preference alone.
       }
-    } catch {
-      // Storage can be unavailable (private mode, blocked); the theme still applies for this visit.
-    }
-  }, [preference]);
+    };
+
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, []);
 
   const toggleTheme = useCallback(() => {
-    setPreference(nextPreference(theme));
+    const next = nextPreference(theme);
+    setPreference(next);
+    persistPreference(next);
   }, [theme]);
 
   const value = useMemo(() => ({ theme, preference, toggleTheme }), [theme, preference, toggleTheme]);

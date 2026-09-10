@@ -1,6 +1,6 @@
 # Tasks — Varkly
 
-**Last updated:** 2026-09-10 (PM handover; scope cut; PR #20 open)
+**Last updated:** 2026-09-10 (PR #20 merged: Playwright removed, cross-tab theme sync fixed and manually verified)
 
 Tasks are organized by milestone. Check off items as they are completed and add the date: `[x] Task description [2026-03-14]`.
 
@@ -122,7 +122,8 @@ Remove all code that depends on Supabase, email delivery, or application-side se
 - [x] Add proper 404 page for unmatched routes [2026-03-14]
 - [x] Add `<meta>` Open Graph tags to `index.html` for better social sharing previews on the `/r/:hash` URL [2026-09-08]
 - [x] Audit and remove all `console.log` statements from production code [2026-09-07]
-- [x] Playwright E2E backlog closed by owner scope cut 2026-09-10 — removal authorized via open PR #20 (not yet merged to `main`) [2026-09-10]
+- [x] Remove Playwright E2E suite; browser behavior verified manually (no automated E2E) [2026-09-10]
+- [x] Fix cross-tab theme synchronization (persist on toggle only; storage listener without write-back), manually verified 3/3 PASS on PR #20 preview [2026-09-10]
 - [x] Fix dark mode flickering during quiz navigation (unstable useEffect deps) [2026-03-14]
 - [x] Fix scroll jump on answer selection (useEffect re-firing window.scrollTo) [2026-03-14]
 - [x] Add missing dark: variants across QuizIntro, QuizContainer, ResultsExplanation, ResultsChart [2026-03-14]
@@ -149,7 +150,7 @@ Remove all code that depends on Supabase, email delivery, or application-side se
 - [x] Fix 2 ESLint unused-variable errors and 3 Fast Refresh warnings. [2026-09-08]
 - [x] Add Open Graph and Twitter card meta tags to `index.html` for `/r/:hash` sharing. [2026-09-08]
 - [x] Add unit tests for `calculateScores` (`src/utils/scores.ts`). [2026-09-08]
-- [x] Playwright E2E for quiz → results → copy-prompt flow — closed by owner scope cut; removal in open PR #20 [2026-09-10]
+- [x] Remove Playwright E2E suite and automated-browser-coverage requirements; manual browser verification only. [2026-09-10]
 - [ ] Review 22 npm audit advisories. Low priority, static client app, do not upgrade packages speculatively.
 - [x] Remove dead `userIntent` state: `setUserIntent` writes to context, nothing reads it, and `aiPrompts.ts` never references it. Delete `setUserIntent`, the `userIntent` field on `QuizState`, and the `UserIntent` type. [2026-09-08]
 
@@ -568,10 +569,12 @@ Source: `VARKLY Questionnaire Design.zip`, `github.md` sync 2026-09-09T12:14:29Z
 - Verification at `8492836`: focused rail spec 20/20; lint 0 errors/0 warnings; typecheck pass; 134 Vitest + 9 Node = 143/143; build pass; Playwright 61/61 Chromium; asset budget PASS; `git diff --check` clean. Existing non-blocking tool notices remained: 23 npm audit advisories, stale Browserslist data, and Vite's esbuild-option deprecation warning.
 - Required PPLX review and PM triage remain assigned to the subsequent review session. Any commit after that review must trigger a fresh gate under the one-commit rule.
 
-### 2026-09-10 — Owner scope cut, PR #20, PM change
+### 2026-09-10 — Owner scope cut, PR #20 (remove Playwright; fix cross-tab theme sync), merged
 
 - Owner rejected a multi-PR remediation of a post-merge findings list as scope creep. Authorized exactly two items: remove Playwright entirely; fix cross-tab theme desync. All other findings-list items closed / not tracked.
-- PR #20 opened at head `017e195` (`chore/remove-playwright-fix-theme-sync` → `main`): Playwright removal + `ThemeProvider` storage-listener rewrite. Automated checks reported clean on the PR (147 Vitest + 9 Node). Manual Chrome verification of cross-tab theme sync reported **blocked / unconfirmed** — do not assume the fix works.
-- As of this writeup, PR #20 is **OPEN**; `main` still contains Playwright and the preference-persistence theme effect.
-- Outgoing PM fired 2026-09-10. Process failures recorded in `WALL_OF_STUPID.md`. Incoming PM package: `docs/pm-handover-2026-09-10.md` (also copied to AI Braintrust Documents for handoff).
-- Verified live GitHub during writeup: `origin/main` tip was `a13aa55` before this docs commit; only open PR was #20.
+- Coder work, started from `origin/main` at `675f8bb` in an isolated worktree: removed `@playwright/test` and regenerated the lockfile; deleted `playwright.config.ts`, `e2e/`, and `tsconfig.e2e.json`; dropped the E2E typecheck step, `test:e2e` script, ESLint report ignores, and Playwright `.gitignore` entries. Updated `AGENTS.md`, `README.md`, `planning.md`, and `tasks.md` so current commands/deps/requirements no longer require an automated E2E suite; standing rule is manual browser verification by the coder before a PR is reported ready. Historical session-log Playwright counts left as historical.
+- Fixed `ThemeProvider`: removed the preference-persistence effect; persist only on explicit toggle; added a `storage` listener for the theme key / localStorage clear (ignoring unrelated keys and sessionStorage); reads the current stored value via `readStoredPreference` without write-back.
+- Automated verification: `npm ci` ok; `npm run lint` 0/0; `npm run typecheck` pass (app + node only); `npm test` **147 Vitest + 9 Node = 156/156**; `npm run build` pass; `npm run measure:assets` PASS at **611,313** bytes (JS/CSS gzip 119,279 + panel WebP raw 492,034); `git diff --check` clean.
+- Outgoing PM fired 2026-09-10 with manual browser verification still unconfirmed. Process failures recorded in `WALL_OF_STUPID.md`. Incoming PM package: `docs/pm-handover-2026-09-10.md`.
+- Incoming PM: added the missing manual-verification requirement to `CI_POLICY.md` and `docs/review-chain.md` (`81fcc9b`), then ran the three manual browser checks against the PR #20 Vercel preview via claude-in-chrome — **3/3 PASS**: (1) theme persists across reload, (2) two-tab toggle syncs live in both directions with no reload, (3) writing an unrelated `localStorage` key changes neither theme state nor in-progress quiz state. Recorded as a PR comment on #20.
+- Resolved a real merge conflict against `main` (`81fcc9b` had advanced past PR #20's base) in `planning.md` §12/architecture-diagram and this file's header/checklist lines/this entry — reconciled to current fact rather than preserving either side's now-stale claim. Squash-merged PR #20 into `main`; branch deleted.
