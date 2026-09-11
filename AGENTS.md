@@ -6,13 +6,13 @@ Both **Cursor** and **Claude Code** are active agents on this project.
 
 ---
 
-<!-- BEGIN OWNER CI POLICY 2026-09-08 -->
 <!-- REVIEW POLICY 2026-09-11 -->
 ## Project-local review execution — 2026-09-11
 
 Read [REVIEW_POLICY.md](REVIEW_POLICY.md) for existing routes, local model/procedure authority, the per-route review ceiling, durable quota/attempt controls and this remediation's PM authority. This supersedes contrary older review-count, model, external-path and harness instructions without adding a route or removing a legitimate independent gate.
 <!-- END REVIEW POLICY 2026-09-11 -->
 
+<!-- BEGIN OWNER CI POLICY 2026-09-08 -->
 ## CI execution and spending — owner ruling, 2026-09-08
 
 Read [CI_POLICY.md](CI_POLICY.md) before changing verification or deployment.
@@ -28,7 +28,9 @@ deployment as proof that unconfigured tests ran. Other product rules remain.
 
 ## Review Gate — AGY + PPLX
 
-AGENTS.md requires both AGY and PPLX before merge: preserve each route once. AGY is not merely a fallback in this repository. Both require grounded captures and independent PM triage.
+This repository requires both AGY and PPLX before merge: preserve each route once. AGY is not merely a fallback in this repository. Both require grounded captures and independent PM triage.
+
+Manual verification is separate from and not satisfied by AGY/PPLX: any PR-specific manual browser check the PM instructs must run against the deployed preview, with pass/fail results recorded on the PR before merge. This preserves an existing requirement; it does not order a preview or browser check for every policy-only change.
 
 Follow REVIEW_POLICY.md and the complete project-local AGY/PPLX procedures. Material code changes invalidate required coverage; evidence-only commits need a source/base/stack delta check. Triage findings against source. There is no fixed pass count or confidence target. Browser operation belongs in the local Claude Code runbook. Existing PM merge authority remains in force.
 

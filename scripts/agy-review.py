@@ -15,6 +15,7 @@ import socket
 import subprocess
 import sys
 import tempfile
+import time
 import uuid
 
 
@@ -67,6 +68,33 @@ def choose_model(catalog, policy):
     return max(choices)[2]
 
 
+def process_identity(pid):
+    result = subprocess.run(['ps', '-p', str(pid), '-o', 'lstart=', '-o', 'comm='],
+                            capture_output=True, text=True, timeout=5,
+                            env=dict(os.environ, LC_ALL='C'))
+    return result.stdout.strip() if result.returncode == 0 else None
+
+
+def response_quota(text):
+    # A review may quote quota-handling code. Only diagnostic lines outside quoted code
+    # identify a successful wrapper whose response is actually a provider refusal.
+    fenced = False
+    for line in text.splitlines():
+        stripped = line.strip()
+        if stripped.startswith(('```', '~~~')):
+            fenced = not fenced
+            continue
+        if fenced or stripped.startswith('>'):
+            continue
+        plain = stripped.lstrip('-*# ').replace('**', '')
+        if re.match(r"(?i)^(?:error[: ]+)?(?:you(?: have|'ve) (?:reached|exceeded|exhausted)|"
+                    r"quota (?:exceeded|exhausted|limit reached)|resource_exhausted|"
+                    r"(?:http |status )?429\b|resets in \d|insufficient quota)", plain):
+            if quota_error(plain):
+                return True
+    return False
+
+
 def quota_error(text):
     # Search provider errors, not a successful review's quotation of source/policy.
     return bool(re.search(r'resource_exhausted|(?:http|status|code)\D{0,5}429\b|'
@@ -102,7 +130,14 @@ class Controller:
     def transaction(self):
         # The OS releases this short mutex on crash; durable running attempts remain blocked.
         with (self.state / 'ledger.lock').open('a') as lock:
-            fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            deadline = time.monotonic() + 2
+            while True:  # Bounded local mutex wait, never a reviewer retry.
+                try:
+                    fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                    break
+                except BlockingIOError:
+                    require(time.monotonic() < deadline, 'Review ledger busy; no dispatch occurred')
+                    time.sleep(0.02)
             db = read_json(self.db_path, {'schema_version': 1, 'sets': {}, 'events': [], 'quota': {}})
             yield db
             write_json(self.db_path, db)
@@ -140,12 +175,12 @@ class Controller:
         dispatch = self.evidence(args.dispatch)
         with self.transaction() as db:
             prior = [s for s in db['sets'].values() if s['head'] == head and s['route'] == args.route]
-            require(not any(p['status'] in ('running', 'pending', 'received', 'failed', 'quota')
+            require(not any(p['status'] in ('running', 'pending', 'received', 'failed', 'quota', 'needs-fix', 'ungrounded')
                             for s in prior for p in s['packets']),
                     'Existing unfinished set: inspect/resolve it; a new set cannot bypass its reservation')
             require(not prior or (args.question and args.question.strip()),
                     'Same-head same-route review requires a documented unresolved question')
-            require(not db['quota'].get(args.route), 'AGY quota stop is active')
+            require(not db['quota'].get(args.route), args.route.upper() + ' quota stop is active')
             set_id = digest(self.identity + head + args.route)[:16] + '-' + str(len(prior) + 1)
             folder = self.state / set_id
             folder.mkdir(mode=0o700)
@@ -167,7 +202,7 @@ class Controller:
         with self.transaction() as db:
             review = self.get_set(db, set_id)
             require(review['route'] == expected_route, 'Wrong route for this operation')
-            require(not db['quota'].get(expected_route), 'AGY quota stop is active')
+            require(not db['quota'].get(expected_route), expected_route.upper() + ' quota stop is active')
             packet = next((p for p in review['packets'] if p['id'] == packet_id), None)
             require(packet and packet['status'] == 'pending', 'Packet is not dispatchable; inspect status/recovery')
             index = review['packets'].index(packet)
@@ -175,7 +210,7 @@ class Controller:
                     'Triage prior packets successfully before dispatching the next')
             require(digest(Path(packet['path']).read_bytes()) == packet['sha256'], 'Packet changed after planning')
             attempt = {'id': uuid.uuid4().hex, 'started': now(), 'pid': os.getpid(),
-                       'host': socket.gethostname(), 'status': 'running'}
+                       'host': socket.gethostname(), 'process_identity': process_identity(os.getpid()), 'status': 'running'}
             packet['attempts'].append(attempt)
             packet['status'] = 'running'
             db['events'].append({'time': now(), 'event': 'reserved', 'set': set_id, 'attempt': attempt['id']})
@@ -242,9 +277,8 @@ class Controller:
             success = code == 0 and result.get('status') == 'SUCCESS' and bool(result.get('response', '').strip())
             # SUCCESS wrappers can still contain only a provider quota failure, with no review.
             response = str(result.get('response', ''))
-            provider_error = str(result.get('error', '')) + '\n' + stderr
-            quota = quota_error(provider_error) or (not success and quota_error(raw)) or (
-                len(response) < 4000 and quota_error(response))
+            provider_error = '\n'.join(str(result.get(k, '')) for k in ['error', 'error_message', 'errors']) + '\n' + stderr
+            quota = quota_error(provider_error) or (not success and quota_error(raw)) or response_quota(response)
             status = 'quota' if quota else ('received' if success else 'failed')
             self.finish(args.id, args.packet, attempt['id'], status, metadata)
             return {'status': status, 'set': args.id, 'packet': args.packet, **metadata}
@@ -282,17 +316,26 @@ class Controller:
                         'Recovery cannot erase accepted coverage or bypass pending triage')
                 if packet['status'] == 'running':
                     attempt = packet['attempts'][-1]
-                    require(attempt['host'] == socket.gethostname(), 'Other host ownership needs PM reconciliation')
-                    try:
-                        os.kill(attempt['pid'], 0)
-                    except ProcessLookupError:
-                        pass
+                    if review['route'] == 'pplx' or attempt['host'] != socket.gethostname():
+                        require(args.reconcile_owner, 'Explicit PM ownership reconciliation is required; no remote process is interrupted')
                     else:
-                        raise ValueError('Recorded dispatch owner is still running; do not interrupt it')
+                        current = process_identity(attempt['pid'])
+                        saved = attempt.get('process_identity')
+                        if saved and current == saved:
+                            raise ValueError('Recorded dispatch owner is still running; do not interrupt it')
+                        if not (saved and current and current != saved):
+                            try:
+                                os.kill(attempt['pid'], 0)
+                            except ProcessLookupError:
+                                pass
+                            except PermissionError:
+                                require(args.reconcile_owner, 'Process identity inaccessible; explicit PM reconciliation required')
+                            else:
+                                require(args.reconcile_owner, 'Process identity uncertain; explicit PM reconciliation required')
                 require(args.decision == 'abandon' or not db['quota'].get(review['route']), 'Resolve the quota condition before resuming')
                 db['events'].append({'event': 'attempt-resolved', 'time': now(), 'set': args.id,
                                      'packet': args.packet, 'previous': packet['status'],
-                                     'decision': args.decision, 'reason': args.reason, 'evidence': evidence})
+                                     'decision': args.decision, 'reason': args.reason, 'evidence': evidence, 'ownership_reconciled': args.reconcile_owner})
                 packet['status'] = 'pending' if args.decision == 'resume' else 'abandoned'
         return {'status': 'recorded; no reviewer called'}
 
@@ -328,6 +371,7 @@ def main():
             p.add_argument('--capture', required=True)
             p.add_argument('--status', choices=['received', 'failed', 'quota'], required=True)
         if name == 'resolve-attempt':
+            p.add_argument('--reconcile-owner', action='store_true', help='PM evidence confirms interrupted remote/unknown/PPLX ownership; never overrides a known live AGY owner')
             p.add_argument('--decision', choices=['resume', 'abandon'], required=True)
             p.add_argument('--reason', required=True)
             p.add_argument('--evidence', required=True)

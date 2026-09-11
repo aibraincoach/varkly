@@ -12,7 +12,7 @@ MODULE = Path(__file__).with_name('agy-review.py')
 spec = importlib.util.spec_from_file_location('review_controller', MODULE)
 review = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(review)
-CATALOG = 'gemini-3.1-pro-high\tGemini 3.1 Pro (High)\ngemini-3.8-flash-high\tGemini 3.8 Flash (High)\nclaude-sonnet-4-6\tClaude Sonnet 4.6 (Thinking)\n'
+CATALOG = 'gemini-3.8-flash-high\tGemini 3.8 Flash (High)\ngemini-3.8-flash-medium\tGemini 3.8 Flash (Medium)\ngemini-3.8-flash-low\tGemini 3.8 Flash (Low)\ngemini-3.7-flash-high\tGemini 3.7 Flash (High)\ngemini-3.7-flash-medium\tGemini 3.7 Flash (Medium)\ngemini-3.7-flash-low\tGemini 3.7 Flash (Low)\ngemini-3.6-flash-high\tGemini 3.6 Flash (High)\ngemini-3.6-flash-medium\tGemini 3.6 Flash (Medium)\ngemini-3.6-flash-low\tGemini 3.6 Flash (Low)\ngemini-3.1-pro-high\tGemini 3.1 Pro (High)\ngemini-3.1-pro-low\tGemini 3.1 Pro (Low)\nclaude-sonnet-4-6\tClaude Sonnet 4.6 (Thinking)\nclaude-opus-4-6-thinking\tClaude Opus 4.6 (Thinking)\ngpt-oss-120b-medium\tGPT-OSS 120B (Medium)\n'
 
 
 class Selection(unittest.TestCase):
@@ -59,7 +59,7 @@ if sys.argv[1:] == ['models']:
 else:
  with Path(os.environ['REVIEW_FIXTURE_CALLS']).open('a') as f:f.write(json.dumps(sys.argv[1:])+'\\n')
  if os.environ.get('REVIEW_FIXTURE_QUOTA'):
-  print(json.dumps({'status':'SUCCESS','response':'You have reached the quota limit. Resets in 44h11m15s'}))
+  print(json.dumps({'status':'SUCCESS','response':('explanation '*500+'\\n' if os.environ.get('REVIEW_FIXTURE_QUOTA')=='long' else '')+'You have reached the quota limit. Resets in 44h11m15s'}))
  else:
   print(json.dumps({'status':'SUCCESS','response':'Grounded fixture review: source contains REVIEW_SCOPE. No fixture findings.'}))
 ''')
@@ -146,6 +146,28 @@ else:
         attempt = self.cli('begin', '--id', pplx)
         self.cli('record', '--id', pplx, '--attempt', attempt['id'], '--capture', str(self.proof), '--status', 'received')
         self.assertEqual(len(self.calls.read_text().splitlines()), 2)
+
+    def test_long_quota_wrapper_and_quoted_code(self):
+        self.assertTrue(review.response_quota('explanation ' * 500 + '\nYou have reached the quota limit. Resets in 44h11m15s'))
+        self.assertFalse(review.response_quota('Finding in handler.py:\n```\nRESOURCE_EXHAUSTED\n```\nThis is a source quote, not a quota diagnostic.'))
+        set_id = self.plan()
+        self.env['REVIEW_FIXTURE_QUOTA'] = 'long'
+        self.cli('run', '--id', set_id, ok=False)
+        self.assertIn('agy', self.cli('status')['quota'])
+
+    def test_unresolved_triage_cannot_be_bypassed(self):
+        set_id = self.plan()
+        self.cli('run', '--id', set_id)
+        self.cli('triage', '--id', set_id, '--disposition', 'needs-fix', '--evidence', str(self.proof))
+        with self.assertRaises(AssertionError):
+            self.plan(question='A different question cannot bypass unfinished coverage')
+
+    def test_cross_host_recovery_is_explicit(self):
+        set_id = self.plan(route='pplx')
+        self.cli('begin', '--id', set_id)
+        self.cli('resolve-attempt', '--id', set_id, '--decision', 'abandon', '--reason', 'PM reconciled stopped browser owner', '--evidence', str(self.proof), ok=False)
+        self.cli('resolve-attempt', '--id', set_id, '--decision', 'abandon', '--reason', 'PM reconciled stopped browser owner', '--evidence', str(self.proof), '--reconcile-owner')
+        self.assertEqual(self.cli('status')['sets'][set_id]['packets'][0]['status'], 'abandoned')
 
     def test_manifest_tamper_and_missing_sentinel(self):
         set_id = self.plan()
