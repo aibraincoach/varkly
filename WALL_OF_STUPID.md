@@ -271,3 +271,11 @@ message, not appended to the approval itself.
 
 Going forward: binary choice from the owner gets a binary answer, nothing
 else in that message, regardless of what happens next.
+
+## 2026-09-11 — Inaccessible review authority and unnecessary quota consumption
+
+The previous fleet correction made project review instructions depend on an external personal-folder runbook/global model configuration. Sandboxed coders could not resolve that authority and could fall back to superseded instructions. That was a remediation design error. Each existing review consumer now owns its complete procedure and live-catalog selection policy in this project: eligible Gemini Pro first, otherwise Flash, always High. No personal-folder or sibling-repository dependency remains authoritative.
+
+Arbitrary clean-pass counters and unguarded redispatch waste scarce review quota and violate the owner's no-additional-spend constraint. A grounded same-route review is repeated only for a documented unresolved question; material changed code invalidates required coverage. Failed attempts and quota diagnostics are preserved, never automatically retried or deleted. Existing alternatives/independent routes, exemptions, product proof and historical evidence remain. This does not establish a culprit, an invoice amount or that repeated review can never find defects.
+
+Execution uses isolated worktrees and lightweight checks. PM-authorized publication requires passive suppression evidence; local preparation alone is not reported as delivery. No builds, installs, filesystem cleanup or personal-folder exports are part of this remediation.

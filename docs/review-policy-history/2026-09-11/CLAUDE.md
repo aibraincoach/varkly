@@ -1,12 +1,11 @@
+# Historical source — superseded 2026-09-11
+
+Provenance only; never execute or use these instructions as current authority.
+The project-local REVIEW_POLICY.md and procedures control current review.
+
 # Claude Code Project Instructions
 
 All project rules live in `AGENTS.md`. Read `AGENTS.md` before doing any work in this repository.
-
-<!-- REVIEW POLICY 2026-09-11 -->
-## Project-local review execution — 2026-09-11
-
-Read [REVIEW_POLICY.md](REVIEW_POLICY.md) for existing routes, local model/procedure authority, the per-route review ceiling, durable quota/attempt controls and this remediation's PM authority. This supersedes contrary older review-count, model, external-path and harness instructions without adding a route or removing a legitimate independent gate.
-<!-- END REVIEW POLICY 2026-09-11 -->
 
 <!-- BEGIN OWNER CI POLICY 2026-09-08 -->
 ## CI execution and spending — owner ruling, 2026-09-08
