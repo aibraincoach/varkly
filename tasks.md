@@ -1,5 +1,8 @@
 # Tasks — Varkly
 
+> Current review authority: REVIEW_POLICY.md and the project-local procedures. Dated session/merge records below preserve historical models, counts and capture locations; they do not authorize current dispatch, extra passes or external-folder writes.
+
+
 **Last updated:** 2026-09-10 (PR #20 merged: Playwright removed, cross-tab theme sync fixed and manually verified)
 
 Tasks are organized by milestone. Check off items as they are completed and add the date: `[x] Task description [2026-03-14]`.
@@ -583,3 +586,7 @@ Source: `VARKLY Questionnaire Design.zip`, `github.md` sync 2026-09-09T12:14:29Z
 - Outgoing PM fired 2026-09-10 with manual browser verification still unconfirmed. Process failures recorded in `WALL_OF_STUPID.md`. Incoming PM package: `docs/pm-handover-2026-09-10.md`.
 - Incoming PM: added the missing manual-verification requirement to `CI_POLICY.md` and `docs/review-chain.md` (`81fcc9b`), then ran the three manual browser checks against the PR #20 Vercel preview via claude-in-chrome — **3/3 PASS**: (1) theme persists across reload, (2) two-tab toggle syncs live in both directions with no reload, (3) writing an unrelated `localStorage` key changes neither theme state nor in-progress quiz state. Recorded as a PR comment on #20.
 - Resolved a real merge conflict against `main` (`81fcc9b` had advanced past PR #20's base) in `planning.md` §12/architecture-diagram and this file's header/checklist lines/this entry — reconciled to current fact rather than preserving either side's now-stale claim. Squash-merged PR #20 into `main`; branch deleted.
+
+## Review-policy remediation — 2026-09-11
+
+- [ ] Replace inaccessible review authority and stale dispatch instructions with project-local High-model selection, per-route attempt/receipt controls and local PPLX procedure where already used. Scope is the owner-approved remediation; implementation is isolated from active coder work. Publication/review outcome will be recorded when verified.

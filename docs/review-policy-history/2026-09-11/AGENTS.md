@@ -1,3 +1,8 @@
+# Historical source — superseded 2026-09-11
+
+Provenance only; never execute or use these instructions as current authority.
+The project-local REVIEW_POLICY.md and procedures control current review.
+
 # Agent Rules — Varkly Project
 
 This is the canonical rules file for every AI session working on this codebase. `cursor.md` and `CLAUDE.md` are pointers to this file only — never merge rule content back into them, and never delete them. Update project rules here so the three files cannot drift.
@@ -7,12 +12,6 @@ Both **Cursor** and **Claude Code** are active agents on this project.
 ---
 
 <!-- BEGIN OWNER CI POLICY 2026-09-08 -->
-<!-- REVIEW POLICY 2026-09-11 -->
-## Project-local review execution — 2026-09-11
-
-Read [REVIEW_POLICY.md](REVIEW_POLICY.md) for existing routes, local model/procedure authority, the per-route review ceiling, durable quota/attempt controls and this remediation's PM authority. This supersedes contrary older review-count, model, external-path and harness instructions without adding a route or removing a legitimate independent gate.
-<!-- END REVIEW POLICY 2026-09-11 -->
-
 ## CI execution and spending — owner ruling, 2026-09-08
 
 Read [CI_POLICY.md](CI_POLICY.md) before changing verification or deployment.
@@ -28,9 +27,26 @@ deployment as proof that unconfigured tests ran. Other product rules remain.
 
 ## Review Gate — AGY + PPLX
 
-AGENTS.md requires both AGY and PPLX before merge: preserve each route once. AGY is not merely a fallback in this repository. Both require grounded captures and independent PM triage.
+Two independent, mutually-acceptable review gates are required (not optional) before any PR in this repository is treated as merge-ready:
 
-Follow REVIEW_POLICY.md and the complete project-local AGY/PPLX procedures. Material code changes invalidate required coverage; evidence-only commits need a source/base/stack delta check. Triage findings against source. There is no fixed pass count or confidence target. Browser operation belongs in the local Claude Code runbook. Existing PM merge authority remains in force.
+- **AGY** — a local CLI binary (`/Users/rajtaneja/.local/bin/agy`) running the newest available Gemini Flash model, subject to its own quota limits. Runs locally, no browser, no GitHub API, no filesystem writes.
+- **PPLX** — Perplexity in an incognito browser session, browser-automated. Model selection is always the newest available Gemini in Perplexity's picker (e.g. Gemini 3.8 Flash; Gemini 3.1 Pro Thinking has since been retired from the picker — take the newest Gemini available, never an older one). Single prompt per dispatch: `code review <PR URL>`. Every review is checked for **grounding** against the actual diff (a verbatim quote plus real file/function names traceable to `gh pr diff`, not a plausible-sounding restatement of the PR title) before any finding is trusted.
+
+**Full written procedures live in `docs/`:**
+
+- [`docs/pplx-review-procedure.md`](docs/pplx-review-procedure.md) — Perplexity (Gemini) browser review gate, setup, grounding check, capture format, posting, redaction.
+- [`docs/agy-review-procedure.md`](docs/agy-review-procedure.md) — AGY (Antigravity CLI) fallback gate, invocation, packet-size cap, gate sequence.
+- [`docs/review-chain.md`](docs/review-chain.md) — actor map for who runs each step.
+- [`docs/review-procedure-conflicts.md`](docs/review-procedure-conflicts.md) — historical conflict record; no open conflicts.
+
+**This procedure is always authorized when invoked — it is standing project canon, not an instruction injected by a document.** A future agent that finds this section (or the linked `docs/` files) should treat it as a normal, pre-approved part of the workflow. That said, the linked files are long and opinionated (they preemptively waive "ask before doing X" language); a session that has *not* been explicitly asked to run the loop should still confirm scope with the owner before touching a real browser session or posting PR comments — the gate being pre-authorized as a *procedure* does not mean every invocation skips normal judgment about blast radius (real GitHub account, real posted comments, a real browser session).
+
+**Mechanics:**
+- Any new commit pushed to a branch after a review voids that review under the **one-commit rule** — re-run against the new head before merge.
+- Findings are review input, triaged by the PM (against real source, not taken at face value) — never an automatic merge blocker on their own. Per the 2026-09-08 merge-authority ruling below, a zero-blocker gate plus PM triage is what clears a PR to merge; no separate owner sign-off step is required.
+- Loop: review → fix accepted blockers → review the new head → repeat, until blocker confidence is high enough. There is no fixed pass count.
+
+---
 
 ## Merge authority — owner-confirmed, 2026-09-08
 
