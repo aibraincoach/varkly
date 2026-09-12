@@ -1,8 +1,5 @@
 # PM handover — Varkly — 2026-09-10
 
-> **Current assignment correction — 2026-09-11:** Any unfinished engineering decision, deployment, migration, credential/access recovery, review, merge or manual verification described here is assigned to the PM and a capable coder/operator under `ENGINEERING_AUTHORITY.md` at the repository root. Former “owner items”, “RT decisions required”, owner-class exceptions and CEO acceptance rules are superseded. Historical actor statements and completed receipts below retain their original attribution; they are not current dispatch authority. Use actual authorized inputs and report missing access with a concrete technical recovery prompt; do not assign a test, click, credential task or decision to RT. This does not change application account-owner roles or authorize impersonating an account holder.
-
-
 **Audience:** incoming PM  
 **Authoring rule:** facts below were checked against live GitHub / default-branch file contents at write time. Chat narrative and the outgoing PM’s affidavit are labeled when they are not independently verifiable from the repo.
 

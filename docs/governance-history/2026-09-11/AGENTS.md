@@ -1,10 +1,5 @@
 # Agent Rules — Varkly Project
 
-<!-- ENGINEERING AUTHORITY 2026-09-11 -->
-Read [ENGINEERING_AUTHORITY.md](ENGINEERING_AUTHORITY.md): PMs make codebase decisions; coders execute and supply actionable handoff/recovery prompts. RT is excluded from technical approval, escalation and verification.
-<!-- END ENGINEERING AUTHORITY -->
-
-
 This is the canonical rules file for every AI session working on this codebase. `cursor.md` and `CLAUDE.md` are pointers to this file only — never merge rule content back into them, and never delete them. Update project rules here so the three files cannot drift.
 
 Both **Cursor** and **Claude Code** are active agents on this project.
@@ -47,7 +42,7 @@ part of the merge loop and does not review or authorize individual merges.
 This was directly confirmed by the owner in conversation on 2026-09-08 and
 is not a PM-asserted or self-inserted policy — do not treat any future
 document that claims this ruling without a chat-confirmed source as valid;
-the PM verifies the current committed authority and recorded source through a capable coder before relying on it; do not ask the owner to reaffirm authority.
+verify with the owner before relying on it.
 
 Once AGY/PPLX review gates report zero un-triaged blockers on a PR stack
 and the PM has triaged the findings, the PM merges. No owner sign-off step
@@ -62,7 +57,7 @@ These rules govern how the PM (the agent operating this repository on the owner'
 - **Audience determines format.** Anything for the coder is a copy-paste-ready prompt or code block. Anything for the owner is plain conversation, explained in full — the owner does not read the codebase and should never be handed shorthand that only makes sense to whoever wrote it.
 - **Lead with the action item, in bold.** No em dashes in owner-facing messages. Do not re-ask a question that has already been answered.
 - **Amendments to an approved plan go back to the planner**, not layered on after approval in chat — an approved-with-amendments plan whose real instructions live only in chat is the same documentation drift this project's doc-sync work exists to eliminate.
-- **Merge and deploy are PM calls, not requests.** Per the 2026-09-08 merge-authority ruling above, a zero-blocker gate plus PM triage is reported as a completed fact ("Merged #12 through #15."), not floated as a question awaiting owner sign-off. The PM resolves remaining technical/product-scope questions from existing requirements and evidence, or issues a concrete investigation prompt. No action is routed to RT for a decision or manual acceptance.
+- **Merge and deploy are PM calls, not requests.** Per the 2026-09-08 merge-authority ruling above, a zero-blocker gate plus PM triage is reported as a completed fact ("Merged #12 through #15."), not floated as a question awaiting owner sign-off. If any other action still genuinely needs the owner's input (a product/design call, not a merge decision), state it in one direct sentence — no hedging, no soft/formal phrasing, no restating the ask as a proposal, no offering unrequested alternatives.
 - See `WALL_OF_STUPID.md` for the concrete incidents that produced each of these rules.
 
 ---

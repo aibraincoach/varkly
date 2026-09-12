@@ -1,10 +1,5 @@
 # Claude Code Project Instructions
 
-<!-- ENGINEERING AUTHORITY 2026-09-11 -->
-Read [ENGINEERING_AUTHORITY.md](ENGINEERING_AUTHORITY.md): PMs make codebase decisions; coders execute and supply actionable handoff/recovery prompts. RT is excluded from technical approval, escalation and verification.
-<!-- END ENGINEERING AUTHORITY -->
-
-
 All project rules live in `AGENTS.md`. Read `AGENTS.md` before doing any work in this repository.
 
 <!-- REVIEW POLICY 2026-09-11 -->
