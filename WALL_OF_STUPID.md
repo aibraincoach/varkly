@@ -279,3 +279,14 @@ The previous fleet correction made project review instructions depend on an exte
 Arbitrary clean-pass counters and unguarded redispatch waste scarce review quota and violate the owner's no-additional-spend constraint. A grounded same-route review is repeated only for a documented unresolved question; material changed code invalidates required coverage. Failed attempts and quota diagnostics are preserved, never automatically retried or deleted. Existing alternatives/independent routes, exemptions, product proof and historical evidence remain. This does not establish a culprit, an invoice amount or that repeated review can never find defects.
 
 Execution uses isolated worktrees and lightweight checks. PM-authorized publication requires passive suppression evidence; local preparation alone is not reported as delivery. No builds, installs, filesystem cleanup or personal-folder exports are part of this remediation.
+
+
+## 2026-09-11 — Technical authority incorrectly routed to the CEO
+
+The fleet audit found current instructions that routed codebase decisions, operational risk or verification to RT. In this project the affected source is preserved, with exact base and hashes, in `docs/governance-history/2026-09-11/source-manifest.json`. This entry records inspected instruction defects; it does not assert an unverified financial charge or rewrite who performed historical actions.
+
+Correction: the PM decides technical scope, risk, sequencing, acceptance and merge dispatch; the coder executes with verified evidence. Destructive operations retain usable backup/export and named-target checks. Missing input/access or a prohibited expense requires a concrete technical recovery prompt or allowed alternative, never an RT approval, test, click or credential task. ENGINEERING_AUTHORITY.md at the repository root is complete inside the project sandbox.
+
+Supersession: any older incident-derived “rule going forward” that routes engineering approval, ambiguity, destructive/customer-data risk or manual acceptance to RT is historical and no longer governs. Preserve the original incident attribution and application account-owner roles. Other established product, budget and evidence constraints remain binding.
+
+Implementation uses an isolated worktree. Active coder files/processes were not edited or stopped. Documentation/static checks and narrowly targeted offline checks validate this remediation; full builds, installs, suites, databases and deployments are not run merely for policy verification. Publication/review status belongs in the actual PR or remediation report; this entry alone claims neither merge nor deployment.

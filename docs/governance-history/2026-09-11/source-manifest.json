@@ -1,0 +1,25 @@
+{
+  "repo": "varkly",
+  "base": "ba148f186e195a6f6717cefc5fb62e8f767ed36c",
+  "notice": "Historical source before technical-authority remediation. Not current instructions. Non-Markdown source is stored with a .md suffix and must not be executed.",
+  "files": [
+    {
+      "source": "AGENTS.md",
+      "base": "ba148f186e195a6f6717cefc5fb62e8f767ed36c",
+      "sha256": "e2367726f12d08e70ae34f4570c13786cafb47f384e8492ed696b2b3f129e789",
+      "archive": "docs/governance-history/2026-09-11/AGENTS.md"
+    },
+    {
+      "source": "CLAUDE.md",
+      "base": "ba148f186e195a6f6717cefc5fb62e8f767ed36c",
+      "sha256": "8bbb67f443f2aae8eb8b2cde82d2a51d70981e71837186d29282b6daeb62895a",
+      "archive": "docs/governance-history/2026-09-11/CLAUDE.md"
+    },
+    {
+      "source": "docs/pm-handover-2026-09-10.md",
+      "base": "ba148f186e195a6f6717cefc5fb62e8f767ed36c",
+      "sha256": "e266e2a9a7fea8e174d41a5e72f3f9a687261765bdff2125c4ecf480eb909eb6",
+      "archive": "docs/governance-history/2026-09-11/docs/pm-handover-2026-09-10.md"
+    }
+  ]
+}
