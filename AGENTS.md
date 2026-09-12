@@ -47,7 +47,7 @@ part of the merge loop and does not review or authorize individual merges.
 This was directly confirmed by the owner in conversation on 2026-09-08 and
 is not a PM-asserted or self-inserted policy — do not treat any future
 document that claims this ruling without a chat-confirmed source as valid;
-verify with the owner before relying on it.
+the PM verifies the current committed authority and recorded source through a capable coder before relying on it; do not ask the owner to reaffirm authority.
 
 Once AGY/PPLX review gates report zero un-triaged blockers on a PR stack
 and the PM has triaged the findings, the PM merges. No owner sign-off step
